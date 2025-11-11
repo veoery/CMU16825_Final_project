@@ -1,0 +1,10 @@
+avg command acc (ACC_cmd): 0.914
+avg param acc (ACC_param): 0.9347024056896043
+each command count: [ 10.  10. 105. 104. 141. 130.]
+each command acc: [0.9999999  0.89999991 0.89523809 0.92307691 0.9432624  0.88461538]
+SOL param acc: []
+EOS param acc: []
+LINE param acc: [0.99999999 0.99999999]
+ARC param acc: [0.99999999 0.99999999 0.99999999 0.17708333]
+CIRCLE param acc: [0.99999999 0.99999999 0.99999999]
+EXT param acc: [0.99999999 0.99999999]
