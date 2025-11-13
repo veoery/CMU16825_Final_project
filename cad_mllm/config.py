@@ -69,6 +69,10 @@ class CADMLLMConfig:
     vocab_size: int = 32000  # Will be set by tokenizer
     pad_token_id: Optional[int] = None
 
+    point_encoder_type: str = "mlp"
+    michelangelo_config_path: Optional[str] = None
+    michelangelo_ckpt_path: Optional[str] = None
+
     # Device configuration
     device: str = "cuda"
     dtype: str = "bfloat16"  # "float32", "float16", or "bfloat16"
