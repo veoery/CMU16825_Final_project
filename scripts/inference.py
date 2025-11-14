@@ -47,13 +47,14 @@ def main():
             dtype=args.dtype,
         )
         model = CADMLLMModel(config)
-        model.enable_image_encoder()
-        model.enable_image_projector()
 
-    if args.image_path != "":
-        image = Image.open(args.image_path)
-        pixel_values = model.image_encoder.preprocess(image)
-        pixel_values = pixel_values.to(model.config.device)
+        pixel_values = None
+        if args.image_path != "":
+            image = Image.open(args.image_path)
+            model.enable_image_encoder()
+            model.enable_image_projector()
+            pixel_values = model.image_encoder.preprocess(image)
+            pixel_values = pixel_values.to(model.config.device)
 
     model.eval()
     print("Model loaded successfully!")
