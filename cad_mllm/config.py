@@ -107,6 +107,7 @@ class TrainingConfig:
     eval_steps: int = 500
     use_wandb: bool = False
     seed: int = 42
+    device: str = "cuda"
 
     # Data configuration
     train_data_path: Optional[str] = None

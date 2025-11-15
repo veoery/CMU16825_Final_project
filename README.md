@@ -10,6 +10,8 @@ This is a reproduction of the paper "CAD-MLLM: Unifying Multimodality-Conditione
 - [x] Image encoder integration
 - [ ] Point cloud encoder integration
 - [ ] Training pipeline
+  - [x] LoRA for LLM (text only for now)
+
 - [ ] Evaluation metrics
 
 ## Setup
@@ -49,6 +51,33 @@ python scripts/inference.py --prompt "Generate a CAD model of a simple cube." --
 ```
 
 Check the scripts/inference.py and config.py for more details.
+
+
+
+### LoRA for LLM (text only for now)
+
+```bash
+python scripts/train.py \
+    --create_dummy_data \
+    --num_dummy_samples 100 \
+    --num_epochs 1 \
+    --device mps \
+    --lora_r 4 \
+    --llm_model_name "Qwen/Qwen3-0.6B"
+```
+
+```bash
+python scripts/train.py \
+    --omnicad_txt_path data/Omni-CAD/txt/0000.json \
+    --omnicad_json_root data/Omni-CAD/json \
+    --num_epochs 3 \
+    --batch_size 2 \
+    --device cuda
+```
+
+
+
+
 
 ## Project Structure
 
