@@ -29,8 +29,9 @@ class CADDataset(Dataset):
 
     Args:
         data_path: Path to the text description JSON file (e.g., "data/Omni-CAD/txt/0000.json")
-                   or directory containing multiple JSON files
-        json_root: Root directory containing CAD JSON files (e.g., "data/Omni-CAD/json")
+                   or directory containing multiple JSON files (e.g., "data/Omni-CAD/txt/")
+        json_root: Root directory containing CAD JSON files (e.g., "data/Omni-CAD/json").
+                   If None, will be automatically inferred from data_path.
         tokenizer: Tokenizer for text processing
         max_seq_length: Maximum sequence length for tokenization
         modalities: List of modalities to load (currently only supports ["text"])
@@ -51,9 +52,19 @@ class CADDataset(Dataset):
 
         # Infer json_root if not provided
         if json_root is None:
-            # Assume data_path is .../Omni-CAD/txt/XXXX.json
-            # Then json_root is .../Omni-CAD/json
-            self.json_root = self.data_path.parent.parent / "json"
+            # Handle two cases:
+            # Case 1: data_path is a file (.../Omni-CAD/txt/XXXX.json)
+            #         -> json_root is .../Omni-CAD/json
+            # Case 2: data_path is a directory (.../Omni-CAD/txt/)
+            #         -> json_root is .../Omni-CAD/json
+            if self.data_path.is_file():
+                # Go up two levels: XXXX.json -> txt/ -> Omni-CAD/
+                self.json_root = self.data_path.parent.parent / "json"
+            elif self.data_path.is_dir():
+                # Go up one level: txt/ -> Omni-CAD/
+                self.json_root = self.data_path.parent / "json"
+            else:
+                raise ValueError(f"data_path must be a file or directory: {self.data_path}")
         else:
             self.json_root = Path(json_root)
 

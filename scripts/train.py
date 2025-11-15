@@ -7,6 +7,14 @@ import torch
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
+try:
+    import wandb
+
+    WANDB_AVAILABLE = True
+except ImportError:
+    WANDB_AVAILABLE = False
+    print("Warning: wandb not installed. Install with: uv add wandb")
+
 from cad_mllm import (
     CADMLLMConfig,
     TrainingConfig,
@@ -30,7 +38,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Train CAD-MLLM")
 
     # Model arguments
-    parser.add_argument("--llm_model_name", type=str, default="Qwen/Qwen3-4B", help="Name of the LLM model from HuggingFace")
+    parser.add_argument("--llm_model_name", type=str, default="Qwen/Qwen3-0.6B", help="Name of the LLM model from HuggingFace")
     parser.add_argument("--use_lora", action="store_true", default=True, help="Use LoRA")
     parser.add_argument("--lora_r", type=int, default=8, help="LoRA rank")
     parser.add_argument("--lora_alpha", type=int, default=16, help="LoRA alpha")
@@ -48,7 +56,12 @@ def parse_args():
     parser.add_argument("--logging_steps", type=int, default=10, help="Logging frequency")
     parser.add_argument("--save_steps", type=int, default=500, help="Save checkpoint frequency")
     parser.add_argument("--seed", type=int, default=42, help="Random seed")
-    parser.add_argument("--use_wandb", action="store_true", help="Use Weights & Biases")
+
+    # Wandb arguments
+    parser.add_argument("--use_wandb", action="store_true", help="Use Weights & Biases for logging")
+    parser.add_argument("--wandb_project", type=str, default="CAD-MLLM", help="Wandb project name")
+    parser.add_argument("--wandb_run_name", type=str, default=None, help="Wandb run name (defaults to auto-generated)")
+    parser.add_argument("--wandb_entity", type=str, default=None, help="Wandb entity/team name")
 
     # Device arguments
     parser.add_argument("--device", type=str, default="cuda", help="Device (cuda/cpu)")
@@ -57,7 +70,7 @@ def parse_args():
     # Data arguments
     parser.add_argument("--create_dummy_data", action="store_true", help="Create dummy dataset")
     parser.add_argument("--num_dummy_samples", type=int, default=100, help="Number of dummy samples")
-    parser.add_argument("--omnicad_txt_path", type=str, default="data/Omni-CAD/txt/0000.json", help="Path to Omni-CAD text descriptions")
+    parser.add_argument("--omnicad_txt_path", type=str, default="data/Omni-CAD/txt/", help="Path to Omni-CAD text descriptions (file or directory)")
     parser.add_argument("--omnicad_json_root", type=str, default="data/Omni-CAD/json", help="Root directory for Omni-CAD JSON files")
 
     return parser.parse_args()
@@ -70,6 +83,7 @@ def train_epoch(
     scheduler,
     epoch,
     config,
+    start_global_step=0,
 ):
     """Train for one epoch."""
     model.train()
@@ -77,7 +91,7 @@ def train_epoch(
     loss_meter = AverageMeter()
     progress_bar = tqdm(dataloader, desc=f"Epoch {epoch}")
 
-    global_step = 0
+    global_step = start_global_step
 
     for step, batch in enumerate(progress_bar):
         # Move batch to device
@@ -96,7 +110,7 @@ def train_epoch(
         # Update weights
         if (step + 1) % config.gradient_accumulation_steps == 0:
             # Clip gradients
-            torch.nn.utils.clip_grad_norm_(model.parameters(), config.max_grad_norm)
+            grad_norm = torch.nn.utils.clip_grad_norm_(model.parameters(), config.max_grad_norm)
 
             # Optimizer step
             optimizer.step()
@@ -105,6 +119,20 @@ def train_epoch(
 
             global_step += 1
 
+            # Log to wandb after optimizer step
+            if config.use_wandb and WANDB_AVAILABLE:
+                print("logging with wandb...")
+                wandb.log(
+                    {
+                        "train/loss": loss.item() * config.gradient_accumulation_steps,
+                        "train/learning_rate": scheduler.get_last_lr()[0],
+                        "train/grad_norm": grad_norm.item(),
+                        "train/epoch": epoch,
+                        "train/step": global_step,
+                    },
+                    step=global_step,
+                )
+
         # Update metrics
         loss_meter.update(loss.item() * config.gradient_accumulation_steps)
 
@@ -112,15 +140,15 @@ def train_epoch(
         progress_bar.set_postfix({"loss": f"{loss_meter.avg:.4f}", "lr": f"{scheduler.get_last_lr()[0]:.2e}"})
 
         # Logging
-        if global_step % config.logging_steps == 0:
+        if global_step % config.logging_steps == 0 and global_step > start_global_step:
             print(f"\nStep {global_step} | Loss: {loss_meter.avg:.4f} | LR: {scheduler.get_last_lr()[0]:.2e}")
 
         # Save checkpoint
-        if global_step % config.save_steps == 0:
+        if global_step % config.save_steps == 0 and global_step > start_global_step:
             checkpoint_path = os.path.join(config.output_dir, f"checkpoint-epoch{epoch}-step{global_step}")
             save_checkpoint(model, optimizer, scheduler, epoch, global_step, checkpoint_path)
 
-    return loss_meter.avg
+    return loss_meter.avg, global_step
 
 
 def main():
@@ -130,8 +158,10 @@ def main():
     # Set seed
     set_seed(args.seed)
 
-    # Create dummy data if requested
-    if args.create_dummy_data or args.train_data_path is None:
+    # Determine data mode: dummy, explicit paths, or use omnicad_txt_path
+    use_dummy = args.create_dummy_data
+
+    if use_dummy:
         print("Creating dummy dataset...")
         data_dir = Path("./data")
         data_dir.mkdir(exist_ok=True)
@@ -144,6 +174,16 @@ def main():
 
         args.train_data_path = str(train_path)
         args.val_data_path = str(val_path)
+    elif args.train_data_path is None:
+        # Use omnicad_txt_path as the data source
+        print(f"Using Omni-CAD data from: {args.omnicad_txt_path}")
+        args.train_data_path = args.omnicad_txt_path
+        # Note: val_data_path remains None if not specified
+    else:
+        print(f"Using explicit data paths:")
+        print(f"  Train: {args.train_data_path}")
+        if args.val_data_path:
+            print(f"  Val: {args.val_data_path}")
 
     # Create configurations
     model_config = CADMLLMConfig(
@@ -182,7 +222,7 @@ def main():
 
     # Create datasets
     print("\nLoading datasets...")
-    if args.create_dummy_data:
+    if use_dummy:
         # Use DummyCADDataset for dummy data
         train_dataset = DummyCADDataset(
             data_path=train_config.train_data_path,
@@ -193,7 +233,7 @@ def main():
     else:
         # Use full CADDataset for real Omni-CAD data
         train_dataset = CADDataset(
-            data_path=args.omnicad_txt_path,
+            data_path=train_config.train_data_path,  # Use train_data_path instead of omnicad_txt_path
             json_root=args.omnicad_json_root,
             tokenizer=model.tokenizer,
             max_seq_length=model_config.max_seq_length,
@@ -224,6 +264,62 @@ def main():
         num_training_steps=num_training_steps,
     )
 
+    # Initialize wandb
+    if args.use_wandb:
+        if not WANDB_AVAILABLE:
+            print("Warning: wandb requested but not available. Skipping wandb logging.")
+            train_config.use_wandb = False
+        else:
+            # Auto-generate run name if not provided
+            if args.wandb_run_name is None:
+                # Extract model name (e.g., "Qwen3-4B" from "Qwen/Qwen3-4B")
+                model_name = args.llm_model_name.split("/")[-1] if "/" in args.llm_model_name else args.llm_model_name
+
+                # Construct run name with key hyperparameters
+                run_name_parts = [
+                    model_name,
+                    f"lora-r{args.lora_r}" if args.use_lora else "full",
+                    f"lr{args.learning_rate:.0e}",  # e.g., lr2e-05
+                    f"bs{args.batch_size * args.gradient_accumulation_steps}",  # effective batch size
+                    f"ep{args.num_epochs}",
+                ]
+                run_name = "-".join(run_name_parts)
+            else:
+                run_name = args.wandb_run_name
+
+            wandb.init(
+                project=args.wandb_project,
+                name=run_name,
+                entity=args.wandb_entity,
+                config={
+                    # Model config
+                    "llm_model_name": args.llm_model_name,
+                    "use_lora": args.use_lora,
+                    "lora_r": args.lora_r,
+                    "lora_alpha": args.lora_alpha,
+                    "max_seq_length": args.max_seq_length,
+                    # Training config
+                    "num_epochs": args.num_epochs,
+                    "batch_size": args.batch_size,
+                    "gradient_accumulation_steps": args.gradient_accumulation_steps,
+                    "effective_batch_size": args.batch_size * args.gradient_accumulation_steps,
+                    "learning_rate": args.learning_rate,
+                    "warmup_steps": args.warmup_steps,
+                    "num_training_steps": num_training_steps,
+                    "seed": args.seed,
+                    "device": args.device,
+                    "dtype": args.dtype,
+                    # Data config
+                    "train_data_path": args.train_data_path,
+                    "num_train_samples": len(train_dataset),
+                    "use_dummy_data": use_dummy,
+                },
+            )
+            # Watch model (logs gradients and parameters)
+            wandb.watch(model, log="all", log_freq=args.logging_steps)
+            print(f"Wandb run name: {run_name}")
+            print(f"Wandb run URL: {wandb.run.url}")
+
     # Training loop
     print("\nStarting training...")
     print(f"Total epochs: {train_config.num_epochs}")
@@ -232,26 +328,42 @@ def main():
     print(f"Gradient accumulation steps: {train_config.gradient_accumulation_steps}")
     print(f"Effective batch size: {train_config.batch_size * train_config.gradient_accumulation_steps}\n")
 
+    global_step = 0
     for epoch in range(train_config.num_epochs):
-        avg_loss = train_epoch(
+        avg_loss, global_step = train_epoch(
             model,
             train_dataloader,
             optimizer,
             scheduler,
             epoch,
             train_config,
+            start_global_step=global_step,
         )
 
         print(f"\nEpoch {epoch} completed | Average Loss: {avg_loss:.4f}")
 
+        # Log epoch metrics to wandb
+        if train_config.use_wandb and WANDB_AVAILABLE:
+            wandb.log(
+                {
+                    "epoch/train_loss": avg_loss,
+                    "epoch/epoch": epoch,
+                },
+                step=global_step,
+            )
+
         # Save checkpoint at end of epoch
         checkpoint_path = os.path.join(train_config.output_dir, f"checkpoint-epoch{epoch}")
-        save_checkpoint(model, optimizer, scheduler, epoch, 0, checkpoint_path)
+        save_checkpoint(model, optimizer, scheduler, epoch, global_step, checkpoint_path)
 
     # Save final model
     final_path = os.path.join(train_config.output_dir, "final_model")
     model.save_pretrained(final_path)
     print(f"\nTraining completed! Final model saved to {final_path}")
+
+    # Finish wandb run
+    if train_config.use_wandb and WANDB_AVAILABLE:
+        wandb.finish()
 
 
 if __name__ == "__main__":
