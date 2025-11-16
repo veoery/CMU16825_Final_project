@@ -1,0 +1,24 @@
+# Core dependencies
+numpy>=1.24.0
+h5py==3.15.1
+trimesh==4.9.0
+
+# Evaluation dependencies
+scipy>=1.10.0
+pandas>=2.0.0
+joblib>=1.3.0
+tqdm>=4.66.0
+rich>=13.0.0
+
+# Note: External CAD libraries required for some evaluations
+# These must be installed separately:
+# - cadlib: https://github.com/DavidXu-JJ/DeepCAD (branch: tags/CAD-MLLM)
+# - CadSeqProc: https://github.com/SadilKhan/Text2CAD
+#
+# Install with:
+#   git clone https://github.com/DavidXu-JJ/DeepCAD.git
+#   cd DeepCAD && git checkout tags/CAD-MLLM
+#   export PYTHONPATH=$PYTHONPATH:$(pwd)
+#
+#   git clone https://github.com/SadilKhan/Text2CAD.git
+#   export PYTHONPATH=$PYTHONPATH:$(pwd)/Text2CAD
