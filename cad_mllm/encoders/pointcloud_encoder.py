@@ -1,159 +1,117 @@
-"""Point cloud encoder for processing 3D point cloud inputs.
-
-Supports two backends:
-  1) Simple PointNet-style encoder (original implementation).
-  2) Pretrained Michelangelo shape encoder (recommended for CAD).
-
-You choose the backend via the `use_michelangelo` flag (set in model.py via config).
-"""
+# pointcloud_encoder.py
 
 import torch
 import torch.nn as nn
 from typing import Optional
+from omegaconf import OmegaConf
 
-try:
-    # From the official Michelangelo repo:
-    # https://github.com/NeuralCarver/Michelangelo
-    from michelangelo.utils.misc import get_config_from_file, instantiate_from_config
-except ImportError:
-    get_config_from_file = None
-    instantiate_from_config = None
+# From Michelangelo repo
+from Michelangelo.michelangelo.models.tsal.sal_perceiver import AlignedShapeLatentPerceiver
 
 
-class PointCloudEncoder(nn.Module):
-    """Point cloud encoder for extracting features from 3D points.
+class MichelangeloPointEncoder(nn.Module):
+    """
+    Frozen Michelangelo point encoder wrapper.
 
-    Two modes:
-
-      • use_michelangelo = False  → simple PointNet-style encoder
-      • use_michelangelo = True   → wrap Michelangelo's pretrained shape encoder
-
-    In the Michelangelo mode, we implement g_p in Eq. (2) of the CAD-MLLM
-    paper, i.e. we output a global shape embedding which is later fed
-    into the point-projector f_γ to align with the LLM space.
+    This implements g_p in Eq. (2) of the CAD-MLLM paper:
+        X_p  ->  E_p = g_p(X_p)
+    where g_p is the pretrained Michelangelo shape encoder.
 
     Args:
-        input_dim:  Input point dimension (3 for xyz, 6 for xyz+normals, etc.).
-                   For Michelangelo, you *ideally* want 6 (xyz + normals).
-        hidden_dim: Internal feature size (used only in PointNet mode).
-        output_dim: Output feature size (used only in PointNet mode; in
-                    Michelangelo mode this is inferred from the pretrained model).
-        freeze:     Whether to freeze encoder weights.
-        use_michelangelo: If True, use Michelangelo shape encoder instead of PointNet.
-        miche_config_path: Path to Michelangelo .yaml config.
-        miche_ckpt_path:   Path to Michelangelo .ckpt weights.
-        num_points: Number of points to sample per shape (for Michelangelo).
-        device:     Device string for the Michelangelo model ("cuda" / "cpu").
+        encoder_cfg_path: path to michelangelo_point_encoder_cfg.yaml
+                          (the tiny config you saved for AlignedShapeLatentPerceiver)
+        encoder_sd_path:  path to michelangelo_point_encoder_state_dict.pt
+                          (state_dict for AlignedShapeLatentPerceiver)
+        num_points:       number of points to sample per shape for the encoder
+        freeze:           if True, keep Michelangelo encoder frozen
+        device:           torch.device or string ("cuda"/"cpu")
     """
 
     def __init__(
         self,
-        input_dim: int = 3,
-        hidden_dim: int = 512,
-        output_dim: int = 1024,
-        freeze: bool = True,
-        use_michelangelo: bool = False,
-        miche_config_path: Optional[str] = None,
-        miche_ckpt_path: Optional[str] = None,
+        encoder_cfg_path: str,
+        encoder_sd_path: str,
         num_points: int = 2048,
-        device: str = "cuda",
+        freeze: bool = True,
+        device: Optional[torch.device] = None,
     ):
         super().__init__()
 
-        self.input_dim = input_dim
-        self.hidden_dim = hidden_dim
-        self.output_dim = output_dim
-        self.use_michelangelo = use_michelangelo
-        self.num_points = num_points
+        if device is None:
+            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        if isinstance(device, str):
+            device = torch.device(device)
+
         self.device = device
+        self.num_points = num_points
+        self.freeze_encoder = freeze
 
-        if self.use_michelangelo:
-            if get_config_from_file is None or instantiate_from_config is None:
-                raise ImportError(
-                    "michelangelo.utils.misc not found. "
-                    "Make sure you have installed the Michelangelo repo "
-                    "(e.g., `pip install -e .` in the cloned Michelangelo directory)."
-                )
-            if miche_config_path is None or miche_ckpt_path is None:
-                raise ValueError(
-                    "Michelangelo mode requires `miche_config_path` and `miche_ckpt_path`."
-                )
+        # --- 1) Load config for AlignedShapeLatentPerceiver ---
+        shape_cfg = OmegaConf.load(encoder_cfg_path)
+        shape_params = dict(shape_cfg.params)  # OmegaConf -> plain dict
 
-            # --- Load Michelangelo shape encoder ---
-            cfg = get_config_from_file(miche_config_path)
-            # Official inference uses: model = instantiate_from_config(cfg, ckpt_path)
-            self.michelangelo_model = instantiate_from_config(cfg, miche_ckpt_path)
-            self.michelangelo_model = self.michelangelo_model.to(self.device)
+        # --- 2) Instantiate encoder (no Lightning, no CLIP) ---
+        self.encoder = AlignedShapeLatentPerceiver(
+            **shape_params,
+            device=self.device,
+            dtype=torch.float32,   # standard float
+        ).to(self.device)
 
-            if freeze:
-                for p in self.michelangelo_model.parameters():
-                    p.requires_grad = False
-                self.michelangelo_model.eval()
+        # --- 3) Load weights ---
+        state_dict = torch.load(encoder_sd_path, map_location=self.device)
+        self.encoder.load_state_dict(state_dict, strict=True)
 
-            # Probe the embedding dimension once with a dummy input
-            with torch.no_grad():
-                dummy = torch.zeros(1, num_points, 6, device=self.device, dtype=torch.float32)
-                # The official API is: model.model.encode_shape_embed(surface, return_latents=True)
-                shape_embed, _ = self.michelangelo_model.model.encode_shape_embed(
-                    dummy, return_latents=True
-                )
-            # shape_embed: (1, D)
-            self.output_dim = shape_embed.shape[-1]
-            self.hidden_dim = self.output_dim  # for consistency
+        if self.freeze_encoder:
+            for p in self.encoder.parameters():
+                p.requires_grad = False
+            self.encoder.eval()
 
-            print(f"[PointCloudEncoder] Michelangelo mode enabled, embed dim = {self.output_dim}")
+        # --- 4) Probe output dim with a dummy forward ---
+        with torch.no_grad():
+            dummy = torch.zeros(1, self.num_points, 6, device=self.device)
+            pc = dummy[..., :3]
+            feats = dummy[..., 3:]
+            global_embed, _ = self.encoder.encode_latents(pc, feats)
+        self._output_dim = int(global_embed.shape[-1])
 
-        else:
-            # --- Original simple PointNet-style encoder ---
-            # Per-point feature extraction
-            self.conv1 = nn.Conv1d(input_dim, 64, 1)
-            self.conv2 = nn.Conv1d(64, 128, 1)
-            self.conv3 = nn.Conv1d(128, hidden_dim, 1)
+        print(
+            f"[MichelangeloPointEncoder] loaded. "
+            f"num_points={self.num_points}, embed_dim={self._output_dim}, freeze={self.freeze_encoder}"
+        )
 
-            # Global feature aggregation
-            self.conv4 = nn.Conv1d(hidden_dim, hidden_dim, 1)
-            self.conv5 = nn.Conv1d(hidden_dim, output_dim, 1)
+    @property
+    def output_dim(self) -> int:
+        """Dimension D of the global shape embedding."""
+        return self._output_dim
 
-            self.bn1 = nn.BatchNorm1d(64)
-            self.bn2 = nn.BatchNorm1d(128)
-            self.bn3 = nn.BatchNorm1d(hidden_dim)
-            self.bn4 = nn.BatchNorm1d(hidden_dim)
-            self.bn5 = nn.BatchNorm1d(output_dim)
-
-            self.relu = nn.ReLU()
-
-            if freeze:
-                for param in self.parameters():
-                    param.requires_grad = False
-                self.eval()
-
-    def _prepare_surface_for_michelangelo(self, points: torch.Tensor) -> torch.Tensor:
-        """Convert (B, N, C) points → (B, num_points, 6) surface tensor for Michelangelo.
-
-        - If C == 3, we append zero normals.
-        - If C == 6, we assume it is (xyz + normals).
-        - We random-sample or pad to `self.num_points`.
+    def _prepare_surface(self, points: torch.Tensor) -> torch.Tensor:
         """
+        Convert (B, N, C) -> (B, num_points, 6) for Michelangelo.
+
+        - If C == 3: assume xyz, append zero normals.
+        - If C == 6: assume xyz + normals.
+        - Randomly sample or pad to `self.num_points`.
+        """
+        if points.dim() != 3:
+            raise ValueError(f"Expected points of shape (B, N, C), got {points.shape}")
+
         B, N, C = points.shape
+        points = points.to(self.device)
 
         if C == 3:
-            zeros = torch.zeros(B, N, 3, device=points.device, dtype=points.dtype)
+            zeros = torch.zeros(B, N, 3, device=self.device, dtype=points.dtype)
             surface = torch.cat([points, zeros], dim=-1)  # (B, N, 6)
         elif C == 6:
             surface = points
         else:
-            raise ValueError(
-                f"Michelangelo encoder expects 3 or 6 channels, got C={C}. "
-                "Use xyz or xyz+normals."
-            )
+            raise ValueError(f"Expected C=3 or 6 (xyz or xyz+normals), got C={C}")
 
         # Sample / pad along N
         if N > self.num_points:
-            idx = torch.randperm(N, device=points.device)[: self.num_points]
+            idx = torch.randperm(N, device=self.device)[: self.num_points]
             surface = surface[:, idx, :]
         elif N < self.num_points:
-            # Pad by sampling with replacement
-            pad_idx = torch.randint(0, N, (B, self.num_points - N), device=points.device)
+            pad_idx = torch.randint(0, N, (B, self.num_points - N), device=self.device)
             pad = torch.gather(
                 surface,
                 1,
@@ -161,46 +119,55 @@ class PointCloudEncoder(nn.Module):
             )
             surface = torch.cat([surface, pad], dim=1)
 
-        # Ensure final shape (B, num_points, 6) and float32 for Michelangelo
+        # Ensure final shape (B, num_points, 6)
         surface = surface[:, : self.num_points, :].contiguous().to(torch.float32)
         return surface
 
     def forward(self, points: torch.Tensor) -> torch.Tensor:
-        """Encode point cloud to features.
-
+        """
         Args:
-            points: (batch_size, num_points, C), C=3 or 6.
+            points: (B, N, C) with C = 3 or 6.
 
         Returns:
-            Point features of shape (batch_size, 1, output_dim)
+            global shape token: (B, 1, D)
+            (this is what goes into your point_cloud projector f_γ)
         """
-        if self.use_michelangelo:
-            # --- Michelangelo global shape embedding ---
-            surface = self._prepare_surface_for_michelangelo(points)
+        surface = self._prepare_surface(points)
+        pc = surface[..., :3]
+        feats = surface[..., 3:]
+
+        if self.freeze_encoder:
             with torch.no_grad():
-                shape_embed, _ = self.michelangelo_model.model.encode_shape_embed(
-                    surface, return_latents=True
-                )
-            # shape_embed: (B, D) → (B, 1, D) as a single "point token"
-            x = shape_embed.unsqueeze(1)
-            return x
+                shape_embed, _ = self.encoder.encode_latents(pc, feats)
+        else:
+            shape_embed, _ = self.encoder.encode_latents(pc, feats)
 
-        # --- Original PointNet-style encoder path ---
-        # (B, N, C) -> (B, C, N) for Conv1d
-        x = points.transpose(1, 2)  # (B, input_dim, N)
+        # shape_embed: (B, D) → (B, 1, D)
+        return shape_embed.unsqueeze(1)
 
-        # Per-point feature extraction
-        x = self.relu(self.bn1(self.conv1(x)))  # (B, 64, N)
-        x = self.relu(self.bn2(self.conv2(x)))  # (B, 128, N)
-        x = self.relu(self.bn3(self.conv3(x)))  # (B, hidden_dim, N)
 
-        # Global max pooling
-        x = torch.max(x, dim=2, keepdim=True)[0]  # (B, hidden_dim, 1)
 
-        # Global feature transformation
-        x = self.relu(self.bn4(self.conv4(x)))  # (B, hidden_dim, 1)
-        x = self.bn5(self.conv5(x))            # (B, output_dim, 1)
+# ----------------------------------------------------------------------
+# Backwards-compat point cloud encoder (old API name).
+# The new code uses MichelangeloPointEncoder; this stub only exists
+# so that `from cad_mllm.encoders import PointCloudEncoder` keeps working.
+class PointCloudEncoder(nn.Module):
+    def __init__(self, input_dim: int, hidden_dim: int, output_dim: int, freeze: bool = True):
+        super().__init__()
+        self.output_dim = output_dim
+        self.mlp = nn.Sequential(
+            nn.Linear(input_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, output_dim),
+        )
+        if freeze:
+            for p in self.parameters():
+                p.requires_grad = False
 
-        # (B, output_dim, 1) -> (B, 1, output_dim)
-        x = x.transpose(1, 2)
+    def forward(self, points: torch.Tensor) -> torch.Tensor:
+        # points: (B, N, C)
+        B, N, C = points.shape
+        x = points.view(B * N, C)
+        x = self.mlp(x)
+        x = x.view(B, N, self.output_dim)
         return x
