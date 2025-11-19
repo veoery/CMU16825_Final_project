@@ -117,11 +117,19 @@ class CADMLLMModel(nn.Module):
         """Enable point cloud encoder for multimodal training."""
         if self.point_encoder is None:
             print("Initializing point cloud encoder")
+
+            use_mich = getattr(self.config, "point_encoder_type", "mlp") == "michelangelo"
+
             self.point_encoder = PointCloudEncoder(
-                input_dim=3,
+                input_dim=6 if use_mich else 3,
                 hidden_dim=self.config.point_encoder_hidden_dim,
                 output_dim=self.config.point_encoder_hidden_dim,
                 freeze=self.config.freeze_point_encoder,
+                use_michelangelo=use_mich,
+                miche_config_path=self.config.michelangelo_config_path if use_mich else None,
+                miche_ckpt_path=self.config.michelangelo_ckpt_path if use_mich else None,
+                num_points=self.config.num_points,
+                device=self.config.device,
             )
             self.point_encoder = self.point_encoder.to(self.config.device)
             self.point_encoder = self.point_encoder.to(self.torch_dtype)
@@ -160,7 +168,11 @@ class CADMLLMModel(nn.Module):
         """Enable point cloud projector when point encoder is active."""
         if self.has_point_encoder and self.point_projector is None:
             hidden_size = self.llm.config.hidden_size
-            point_hidden_size = self.config.point_encoder_hidden_dim
+
+            # Prefer the encoder's true output dim if it exists (Michelangelo case)
+            point_hidden_size = getattr(
+                self.point_encoder, "output_dim", self.config.point_encoder_hidden_dim
+            )
 
             print(f"Initializing point projector: {point_hidden_size} -> {hidden_size}")
             self.point_projector = MLPProjector(
@@ -171,6 +183,7 @@ class CADMLLMModel(nn.Module):
             )
             self.point_projector = self.point_projector.to(self.config.device)
             self.point_projector = self.point_projector.to(self.torch_dtype)
+
 
     def _setup_lora(self):
         """Setup LoRA for efficient fine-tuning."""
