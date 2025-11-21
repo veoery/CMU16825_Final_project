@@ -56,8 +56,8 @@ class CADMLLMConfig:
     image_size: int = 224
 
     # Point cloud encoder configuration (extensible)
-    point_encoder_hidden_dim: int = 512
-    freeze_point_encoder: bool = True
+    miche_encoder_cfg_path = "configs/michelangelo_point_encoder_cfg.yaml"
+    miche_encoder_sd_path = "checkpoints/michelangelo_point_encoder_state_dict.pt"
     num_points: int = 2048
 
     # Projection layer configuration
