@@ -90,7 +90,9 @@ class AutocompleteDataset(Dataset):
             full_seq = json.load(f)
 
         # Get base filename for data lookup
-        base_name = Path(self.truncated_paths[idx]).stem
+        # Strip _tr_XX suffix from truncated filename to match image/pointcloud names
+        full_stem = Path(self.truncated_paths[idx]).stem
+        base_name = full_stem.split("_tr_")[0]
 
         # Load and encode image
         img_embeds = self._load_and_encode_image(base_name)
