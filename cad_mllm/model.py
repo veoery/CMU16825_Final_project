@@ -7,7 +7,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import LoraConfig, get_peft_model, TaskType
 
 from .config import CADMLLMConfig
-from .encoders import TextEncoder, ImageEncoder, PointCloudEncoder
+from .encoders import TextEncoder, ImageEncoder, PointCloudEncoder, MichelangeloPointEncoder
 from .projectors import MLPProjector, IdentityProjector
 
 
@@ -118,18 +118,13 @@ class CADMLLMModel(nn.Module):
         if self.point_encoder is None:
             print("Initializing point cloud encoder")
 
-            use_mich = getattr(self.config, "point_encoder_type", "mlp") == "michelangelo"
-
-            self.point_encoder = PointCloudEncoder(
-                input_dim=6 if use_mich else 3,
-                hidden_dim=self.config.point_encoder_hidden_dim,
-                output_dim=self.config.point_encoder_hidden_dim,
-                freeze=self.config.freeze_point_encoder,
-                use_michelangelo=use_mich,
-                miche_config_path=self.config.michelangelo_config_path if use_mich else None,
-                miche_ckpt_path=self.config.michelangelo_ckpt_path if use_mich else None,
+            self.point_encoder = MichelangeloPointEncoder(
+                encoder_cfg_path=self.config.miche_encoder_cfg_path,
+                encoder_sd_path=self.config.miche_encoder_sd_path,
                 num_points=self.config.num_points,
-                device=self.config.device,
+                dtype=self.torch_dtype,
+                freeze=self.config.freeze_miche_encoder,
+                device=self.config.device
             )
             self.point_encoder = self.point_encoder.to(self.config.device)
             self.point_encoder = self.point_encoder.to(self.torch_dtype)
@@ -170,9 +165,7 @@ class CADMLLMModel(nn.Module):
             hidden_size = self.llm.config.hidden_size
 
             # Prefer the encoder's true output dim if it exists (Michelangelo case)
-            point_hidden_size = getattr(
-                self.point_encoder, "output_dim", self.config.point_encoder_hidden_dim
-            )
+            point_hidden_size = getattr(self.point_encoder, "output_dim", -1)
 
             print(f"Initializing point projector: {point_hidden_size} -> {hidden_size}")
             self.point_projector = MLPProjector(
@@ -237,6 +230,7 @@ class CADMLLMModel(nn.Module):
 
         # Process image input (if present and encoder is enabled)
         if pixel_values is not None and self.has_image_encoder:
+            pixel_values = pixel_values.to(self.torch_dtype)
             image_features = self.image_encoder(pixel_values)
             if self.image_projector is not None:
                 image_embeds = self.image_projector(image_features)
@@ -248,6 +242,7 @@ class CADMLLMModel(nn.Module):
 
         # Process point cloud input (if present and encoder is enabled)
         if point_clouds is not None and self.has_point_encoder:
+            point_clouds = point_clouds.to(self.torch_dtype)
             point_features = self.point_encoder(point_clouds)
             if self.point_projector is not None:
                 point_embeds = self.point_projector(point_features)
@@ -333,6 +328,7 @@ class CADMLLMModel(nn.Module):
         if pixel_values is not None and self.has_image_encoder:
             # print(pixel_values.type)
             # print(pixel_values.shape)
+            pixel_values = pixel_values.to(self.torch_dtype)
             image_features = self.image_encoder(pixel_values)
             if self.image_projector is not None:
                 image_embeds = self.image_projector(image_features)
@@ -343,6 +339,7 @@ class CADMLLMModel(nn.Module):
 
         # Point cloud (if provided)
         if point_clouds is not None and self.has_point_encoder:
+            point_clouds = point_clouds.to(self.torch_dtype)
             point_features = self.point_encoder(point_clouds)
             if self.point_projector is not None:
                 point_embeds = self.point_projector(point_features)
@@ -352,6 +349,7 @@ class CADMLLMModel(nn.Module):
                 attention_masks.append(point_mask)
 
         # Concatenate embeddings
+        # print(len(embeddings_list))
         inputs_embeds = torch.cat(embeddings_list, dim=1)
         attention_mask = torch.cat(attention_masks, dim=1)
 

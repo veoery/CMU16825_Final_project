@@ -3,6 +3,7 @@
 import argparse
 import torch
 from PIL import Image
+import numpy as np
 
 from cad_mllm.model import CADMLLMModel, CADMLLMConfig
 
@@ -15,6 +16,9 @@ def parse_args():
     parser.add_argument("--llm_model_name", type=str, default="Qwen/Qwen3-4B", help="Name of the base LLM model")
     parser.add_argument("--image_encoder", type=str, default="facebook/dinov2-large")
     parser.add_argument("--image_path", type=str, default="")
+    parser.add_argument("--pc_path", type=str, default="")
+    parser.add_argument("--miche_encoder_cfg_path", type=str, default="configs/michelangelo_point_encoder_cfg.yaml")
+    parser.add_argument("--miche_encoder_sd_path", type=str, default="checkpoints/michelangelo_point_encoder_state_dict.pt")
     parser.add_argument("--prompt", type=str, required=True, help="Text prompt describing the CAD model to generate")
     parser.add_argument("--max_length", type=int, default=512, help="Maximum generation length")
     parser.add_argument("--temperature", type=float, default=0.7, help="Sampling temperature")
@@ -55,6 +59,14 @@ def main():
             model.enable_image_projector()
             pixel_values = model.image_encoder.preprocess(image)
             pixel_values = pixel_values.to(model.config.device)
+        
+        point_clouds = None
+        if args.pc_path != "":
+            points = np.load(args.pc_path)["points"]
+            point_clouds = torch.from_numpy(points).unsqueeze(0)
+            model.enable_point_encoder()
+            model.enable_point_projector()
+        
 
     model.eval()
     print("Model loaded successfully!")
@@ -74,6 +86,7 @@ def main():
         output = model.generate(
             text_prompt=args.prompt,
             pixel_values=pixel_values,
+            point_clouds=point_clouds,
             max_length=args.max_length,
             temperature=args.temperature,
             top_p=args.top_p,

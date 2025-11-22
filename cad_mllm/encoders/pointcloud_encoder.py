@@ -32,6 +32,7 @@ class MichelangeloPointEncoder(nn.Module):
         encoder_cfg_path: str,
         encoder_sd_path: str,
         num_points: int = 2048,
+        dtype: torch.dtype = torch.bfloat16,
         freeze: bool = True,
         device: Optional[torch.device] = None,
     ):
@@ -45,17 +46,20 @@ class MichelangeloPointEncoder(nn.Module):
         self.device = device
         self.num_points = num_points
         self.freeze_encoder = freeze
+        self.dtype = dtype
 
         # --- 1) Load config for AlignedShapeLatentPerceiver ---
         shape_cfg = OmegaConf.load(encoder_cfg_path)
         shape_params = dict(shape_cfg.params)  # OmegaConf -> plain dict
 
         # --- 2) Instantiate encoder (no Lightning, no CLIP) ---
+        
         self.encoder = AlignedShapeLatentPerceiver(
             **shape_params,
             device=self.device,
-            dtype=torch.float32,   # standard float
+            dtype=dtype,
         ).to(self.device)
+        # print(self.encoder.embed_dim)
 
         # --- 3) Load weights ---
         state_dict = torch.load(encoder_sd_path, map_location=self.device)
@@ -63,12 +67,13 @@ class MichelangeloPointEncoder(nn.Module):
 
         if self.freeze_encoder:
             for p in self.encoder.parameters():
+                # print(p.dtype)
                 p.requires_grad = False
             self.encoder.eval()
 
         # --- 4) Probe output dim with a dummy forward ---
         with torch.no_grad():
-            dummy = torch.zeros(1, self.num_points, 6, device=self.device)
+            dummy = torch.zeros(1, self.num_points, 6, device=self.device).to(dtype)
             pc = dummy[..., :3]
             feats = dummy[..., 3:]
             global_embed, _ = self.encoder.encode_latents(pc, feats)
@@ -120,7 +125,7 @@ class MichelangeloPointEncoder(nn.Module):
             surface = torch.cat([surface, pad], dim=1)
 
         # Ensure final shape (B, num_points, 6)
-        surface = surface[:, : self.num_points, :].contiguous().to(torch.float32)
+        surface = surface[:, : self.num_points, :].contiguous().to(self.dtype)
         return surface
 
     def forward(self, points: torch.Tensor) -> torch.Tensor:
@@ -135,6 +140,8 @@ class MichelangeloPointEncoder(nn.Module):
         surface = self._prepare_surface(points)
         pc = surface[..., :3]
         feats = surface[..., 3:]
+        # print(pc.dtype)
+        # print(feats.dtype)
 
         if self.freeze_encoder:
             with torch.no_grad():
