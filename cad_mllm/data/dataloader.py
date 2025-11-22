@@ -116,13 +116,24 @@ class AutocompleteDataset(Dataset):
         Returns:
             Image embeddings of shape (num_patches, hidden_dim) or raw pixel tensor
         """
-        # Try common image extensions
+        # Try common image extensions with potential _XXX suffix variations
         image_path = None
         for ext in ['.png', '.jpg', '.jpeg']:
+            # First try exact match
             candidate = Path(self.image_dir) / f"{base_name}{ext}"
             if candidate.exists():
                 image_path = candidate
                 break
+
+            # If not found, search for files matching base_name_*ext pattern
+            # (e.g., 00000171_00001_000.png, 00000171_00001_001.png, etc.)
+            parent_dir = Path(self.image_dir)
+            if parent_dir.exists():
+                matching_files = sorted(parent_dir.glob(f"{base_name}_*{ext}"))
+                if matching_files:
+                    # Use the first matching file
+                    image_path = matching_files[0]
+                    break
 
         if image_path is None:
             raise FileNotFoundError(f"Image not found for {base_name} in {self.image_dir}")
@@ -153,7 +164,7 @@ class AutocompleteDataset(Dataset):
         """
         # Try common point cloud extensions
         pc_path = None
-        for ext in ['.npy', '.ply', '.obj']:
+        for ext in ['.npz', '.npy', '.ply', '.obj']:
             candidate = Path(self.pc_dir) / f"{base_name}{ext}"
             if candidate.exists():
                 pc_path = candidate
@@ -163,7 +174,17 @@ class AutocompleteDataset(Dataset):
             raise FileNotFoundError(f"Point cloud not found for {base_name} in {self.pc_dir}")
 
         # Load point cloud
-        if str(pc_path).endswith('.npy'):
+        if str(pc_path).endswith('.npz'):
+            data = np.load(str(pc_path))
+            # NPZ files may contain multiple arrays, try common keys
+            if 'points' in data:
+                points = torch.from_numpy(data['points']).float()
+            elif 'arr_0' in data:
+                points = torch.from_numpy(data['arr_0']).float()
+            else:
+                # Use the first array in the npz file
+                points = torch.from_numpy(data[list(data.files)[0]]).float()
+        elif str(pc_path).endswith('.npy'):
             points = torch.from_numpy(np.load(str(pc_path))).float()
         elif str(pc_path).endswith('.ply'):
             points = self._load_ply(pc_path)
