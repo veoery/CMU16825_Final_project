@@ -8,12 +8,14 @@ This is a reproduction of the paper "CAD-MLLM: Unifying Multimodality-Conditione
 - [x] Project structure and environment setup
 - [x] Text-only input pipeline
 - [x] Image encoder integration
-- [ ] Point cloud encoder integration
+- [x] Point cloud encoder integration
 - [ ] Training pipeline
   - [x] LoRA for LLM (text only for now)
   - [x] wandb monitor
+  - [ ] Train with Text + pc
+  - [ ] Train with Text + pc + img
   
-- [ ] Evaluation metrics
+- [x] Evaluation metrics
 
 ## Setup
 
@@ -34,7 +36,20 @@ source .venv/bin/activate  # On Unix/macOS
 
 # Install dependencies
 uv pip install -e .
+
+# Install Michelangelo
+uv add --editable ./Michelangelo --no-build-isolation
 ```
+
+Put the Michelangelo config file here:
+```configs/michelangelo_point_encoder_cfg.yaml```
+
+Put the Michelangelo checkpoint here:
+```checkpoints/michelangelo_point_encoder_state_dict.pt```
+
+Download Michelangelo checkpoint from:
+https://drive.google.com/file/d/1wzfa4EoijmyfTpLPfma9r03wvQ_mbjFD/view?usp=drive_link
+
 
 ### Dateset
 
@@ -48,7 +63,7 @@ https://github.com/CAD-MLLM/CAD-MLLM?tab=readme-ov-file#data
 ### Text-to-CAD Generation
 
 ```bash
-python scripts/inference.py --prompt "Generate a CAD model of a simple cube." --device mps --image_path "data/Omni-CAD/img/cube.jpeg" --dtype bfloat16
+python scripts/inference.py --prompt "Generate a CAD model of a simple cube." --device mps --image_path "data/Omni-CAD/img/cube.jpeg"  --dtype bfloat16
 ```
 
 Check the scripts/inference.py and config.py for more details.
