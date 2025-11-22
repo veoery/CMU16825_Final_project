@@ -58,6 +58,7 @@ class CADMLLMConfig:
     # Point cloud encoder configuration (extensible)
     miche_encoder_cfg_path = "configs/michelangelo_point_encoder_cfg.yaml"
     miche_encoder_sd_path = "checkpoints/michelangelo_point_encoder_state_dict.pt"
+    freeze_miche_encoder = True
     num_points: int = 2048
 
     # Projection layer configuration
