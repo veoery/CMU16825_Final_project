@@ -125,11 +125,11 @@ class AutocompleteDataset(Dataset):
                 image_path = candidate
                 break
 
-            # If not found, search for files matching base_name_*ext pattern
+            # If not found, search recursively in subdirectories for files matching base_name_*ext pattern
             # (e.g., 00000171_00001_000.png, 00000171_00001_001.png, etc.)
             parent_dir = Path(self.image_dir)
             if parent_dir.exists():
-                matching_files = sorted(parent_dir.glob(f"{base_name}_*{ext}"))
+                matching_files = sorted(parent_dir.glob(f"**/{base_name}_*{ext}"))
                 if matching_files:
                     # Use the first matching file
                     image_path = matching_files[0]
@@ -165,10 +165,19 @@ class AutocompleteDataset(Dataset):
         # Try common point cloud extensions
         pc_path = None
         for ext in ['.npz', '.npy', '.ply', '.obj']:
+            # First try exact match
             candidate = Path(self.pc_dir) / f"{base_name}{ext}"
             if candidate.exists():
                 pc_path = candidate
                 break
+
+            # If not found, search recursively in subdirectories
+            parent_dir = Path(self.pc_dir)
+            if parent_dir.exists():
+                matching_files = sorted(parent_dir.glob(f"**/{base_name}{ext}"))
+                if matching_files:
+                    pc_path = matching_files[0]
+                    break
 
         if pc_path is None:
             raise FileNotFoundError(f"Point cloud not found for {base_name} in {self.pc_dir}")
