@@ -203,6 +203,7 @@ class AutocompleteDataset(Dataset):
         # Load point cloud
         if str(pc_path).endswith('.npz'):
             data = np.load(str(pc_path))
+            print(f"[DEBUG] Point cloud found at {pc_path}")
             # NPZ files may contain multiple arrays, try common keys
             if 'points' in data:
                 points = torch.from_numpy(data['points']).float()
