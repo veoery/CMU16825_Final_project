@@ -123,20 +123,20 @@ class AutocompleteDataset(Dataset):
         if not parent_dir.exists():
             raise FileNotFoundError(f"Image directory does not exist: {self.image_dir}")
 
-        # 收集所有匹配的图片：base_name.png / base_name.jpg / base_name_000.png / base_name_001.png ...
+        # Collect all matching images: base_name.png / base_name.jpg / base_name_000.png / base_name_001.png ...
         exts = [".png", ".jpg", ".jpeg"]
         image_paths = []
 
         for ext in exts:
-            # 精确匹配: base_name.png
+            # Exact match: base_name.png
             exact_matches = sorted(parent_dir.glob(f"**/{base_name}{ext}"))
-            # multiview: base_name_000.png, base_name_001.png, ...
+            # Multi-view: base_name_000.png, base_name_001.png, ...
             multi_matches = sorted(parent_dir.glob(f"**/{base_name}_*{ext}"))
 
             image_paths.extend(exact_matches)
             image_paths.extend(multi_matches)
 
-        # 去重 & 排序（按文件名排序，保证视角顺序稳定）
+        # Deduplicate & sort (sort by filename to ensure stable view order)
         image_paths = sorted(set(image_paths), key=lambda p: p.name)
 
         if not image_paths:
@@ -144,12 +144,12 @@ class AutocompleteDataset(Dataset):
                 f"No images found for base_name={base_name} under {self.image_dir}"
             )
 
-        # 🔍 DEBUG：打印实际读取的所有图片路径
+        # DEBUG: Print all image paths being loaded
         print(f"[DEBUG] Found {len(image_paths)} image(s) for base_name={base_name}:")
         for p in image_paths:
             print(f"[DEBUG]    {p}")
 
-        # 逐张图读取
+        # Load each image
         images = [Image.open(str(p)).convert("RGB") for p in image_paths]
 
         # Encode if encoder available
@@ -157,15 +157,15 @@ class AutocompleteDataset(Dataset):
             embeds_list = []
             with torch.no_grad():
                 for img in images:
-                    # 假设 preprocess 接受单张 PIL 图像，返回带 batch 维度的 tensor
-                    pixel_values = self.image_encoder.preprocess(img)  # (1, C, H, W) 之类
-                    img_embeds = self.image_encoder(pixel_values)      # (1, num_patches, hidden_dim) 之类
-                    embeds_list.append(img_embeds.squeeze(0))          # 去掉 batch 维，变成 (num_patches, hidden_dim)
+                    # Preprocess assumes single PIL image, returns tensor with batch dimension
+                    pixel_values = self.image_encoder.preprocess(img)  # (1, C, H, W)
+                    img_embeds = self.image_encoder(pixel_values)      # (1, num_patches, hidden_dim)
+                    embeds_list.append(img_embeds.squeeze(0))          # Remove batch dim -> (num_patches, hidden_dim)
 
-            # 最终: (num_views, num_patches, hidden_dim)
+            # Final shape: (num_views, num_patches, hidden_dim)
             return torch.stack(embeds_list, dim=0)
         else:
-            # 如果没有 encoder，就直接返回原始像素 tensor: (num_views, C, H, W)
+            # If no encoder, return raw pixel tensor: (num_views, C, H, W)
             to_tensor = transforms.ToTensor()
             tensor_list = [to_tensor(img) for img in images]
             return torch.stack(tensor_list, dim=0)
@@ -210,7 +210,7 @@ class AutocompleteDataset(Dataset):
             elif 'arr_0' in data:
                 points = torch.from_numpy(data['arr_0']).float()
             else:
-                # Use the first array in the npz file
+                # Use first array in NPZ file
                 points = torch.from_numpy(data[list(data.files)[0]]).float()
         elif str(pc_path).endswith('.npy'):
             points = torch.from_numpy(np.load(str(pc_path))).float()
