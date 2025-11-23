@@ -1,6 +1,6 @@
 """CAD-MLLM: Multimodal Large Language Model for CAD Generation."""
 
-from .config import CADMLLMConfig, TrainingConfig
+from .config import CADMLLMConfig, TrainingConfig, CurriculumStage, CurriculumTrainingConfig
 from .model import CADMLLMModel
 from .utils.training import (
     set_seed,
@@ -12,12 +12,21 @@ from .utils.training import (
     AverageMeter,
     save_checkpoint,
 )
-from .data import CADDataset, CADCollator, DummyCADDataset, create_dummy_dataset
+from .data import (
+    CADDataset,
+    CADCollator,
+    DummyCADDataset,
+    create_dummy_dataset,
+    MultimodalCADDataset,
+    MultimodalCADCollator,
+)
 
 __all__ = [
     # Config
     "CADMLLMConfig",
     "TrainingConfig",
+    "CurriculumStage",
+    "CurriculumTrainingConfig",
     # Model
     "CADMLLMModel",
     # Training utilities
@@ -34,4 +43,6 @@ __all__ = [
     "CADCollator",
     "DummyCADDataset",
     "create_dummy_dataset",
+    "MultimodalCADDataset",
+    "MultimodalCADCollator",
 ]

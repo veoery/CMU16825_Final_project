@@ -1,7 +1,7 @@
 """Configuration classes for CAD-MLLM."""
 
 from dataclasses import dataclass, field
-from typing import Optional, List
+from typing import Optional, List, Dict
 
 
 @dataclass
@@ -118,3 +118,82 @@ class TrainingConfig:
     train_data_path: Optional[str] = None
     val_data_path: Optional[str] = None
     num_workers: int = 4
+
+
+@dataclass
+class CurriculumStage:
+    """Configuration for a single curriculum training stage.
+
+    Args:
+        name: Stage name (e.g., "text", "text+pc", "text+pc+img")
+        modalities: List of modalities to use in this stage
+        num_epochs: Number of epochs for this stage
+        learning_rate: Learning rate for this stage
+        train_projectors: Whether to train projectors in this stage
+        train_encoders: Whether to train encoders (usually False for frozen encoders)
+        modality_sample_probs: Probability distribution for sampling modality combinations
+    """
+    name: str
+    modalities: List[str]
+    num_epochs: int
+    learning_rate: float = 2e-5
+    train_projectors: bool = True
+    train_encoders: bool = False
+    # Modality sampling probabilities: e.g., {"text": 0.3, "text+pc": 0.4, "text+pc+img": 0.3}
+    modality_sample_probs: Optional[Dict[str, float]] = None
+
+
+@dataclass
+class CurriculumTrainingConfig(TrainingConfig):
+    """Curriculum-based training configuration for CAD-MLLM.
+
+    Implements progressive training strategy:
+    - Stage 1: Text only (train LLM with LoRA)
+    - Stage 2: Text + Point Cloud (train PC encoder/projector + LLM)
+    - Stage 3: Text + Point Cloud + Image (train all modalities + LLM)
+
+    Args:
+        curriculum_stages: List of curriculum stages to execute
+        enable_curriculum: Whether to use curriculum training
+        projector_lr_multiplier: Learning rate multiplier for projectors
+    """
+
+    # Curriculum configuration
+    enable_curriculum: bool = True
+    curriculum_stages: List[CurriculumStage] = field(default_factory=lambda: [
+        CurriculumStage(
+            name="stage1_text",
+            modalities=["text"],
+            num_epochs=5,
+            learning_rate=2e-5,
+            train_projectors=False,  # No projectors for text-only
+            modality_sample_probs={"text": 1.0},
+        ),
+        CurriculumStage(
+            name="stage2_text_pc",
+            modalities=["text", "point_cloud"],
+            num_epochs=5,
+            learning_rate=2e-5,
+            train_projectors=True,
+            modality_sample_probs={
+                "text": 0.3,
+                "text+point_cloud": 0.7,
+            },
+        ),
+        CurriculumStage(
+            name="stage3_all",
+            modalities=["text", "point_cloud", "image"],
+            num_epochs=10,
+            learning_rate=1e-5,  # Lower LR for final stage
+            train_projectors=True,
+            modality_sample_probs={
+                "text": 0.2,
+                "text+point_cloud": 0.3,
+                "text+image": 0.2,
+                "text+point_cloud+image": 0.3,
+            },
+        ),
+    ])
+
+    # Projector-specific learning rate (can be different from LLM)
+    projector_lr_multiplier: float = 5.0  # Projectors learn faster than LLM

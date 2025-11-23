@@ -2,3 +2,4 @@ outputs/
 data/
 wandb/
 checkpoints/
+outputs_curriculum/

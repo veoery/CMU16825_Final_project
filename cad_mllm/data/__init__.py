@@ -1,7 +1,14 @@
 """Data loading utilities for CAD-MLLM."""
 
 try:
-    from .dataset import CADDataset, CADCollator, DummyCADDataset, create_dummy_dataset
+    from .dataset import (
+        CADDataset,
+        CADCollator,
+        DummyCADDataset,
+        create_dummy_dataset,
+        MultimodalCADDataset,
+        MultimodalCADCollator,
+    )
 except ImportError:
     pass
 
@@ -15,6 +22,8 @@ __all__ = [
     "CADCollator",
     "DummyCADDataset",
     "create_dummy_dataset",
+    "MultimodalCADDataset",
+    "MultimodalCADCollator",
     "get_autocomplete_dataloader",
     "AutocompleteDataset",
     "AutocompleteCollator",

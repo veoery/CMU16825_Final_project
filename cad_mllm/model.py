@@ -418,3 +418,86 @@ class CADMLLMModel(nn.Module):
 
         print(f"Model loaded from {load_directory}")
         return model
+
+    def set_trainable_params(self, train_llm: bool = True, train_projectors: bool = True, train_encoders: bool = False):
+        """Set which parameters should be trainable.
+
+        Args:
+            train_llm: Whether to train LLM (LoRA adapters if enabled)
+            train_projectors: Whether to train projection layers
+            train_encoders: Whether to train encoders (usually kept frozen)
+
+        Note:
+            For LoRA models, the adapters are already trainable after get_peft_model().
+            We don't need to call enable_adapters()/disable_adapters() - those are only
+            for toggling existing adapters on/off during inference, not training.
+            The train_llm parameter is kept for API consistency but LoRA params are
+            always trainable in our curriculum training setup.
+        """
+        # LLM parameters
+        # Note: For PEFT/LoRA models, the trainable parameters are already set correctly
+        # by get_peft_model(). We only need to handle non-PEFT models here.
+        if not hasattr(self.llm, 'peft_config'):
+            # Regular model without LoRA - manually set trainability
+            for param in self.llm.parameters():
+                param.requires_grad = train_llm
+        # For PEFT models, LoRA adapters are already trainable - no action needed
+
+        # Projector parameters
+        if self.image_projector is not None:
+            for param in self.image_projector.parameters():
+                param.requires_grad = train_projectors
+
+        if self.point_projector is not None:
+            for param in self.point_projector.parameters():
+                param.requires_grad = train_projectors
+
+        # Encoder parameters
+        if self.image_encoder is not None:
+            for param in self.image_encoder.parameters():
+                param.requires_grad = train_encoders
+
+        if self.point_encoder is not None:
+            for param in self.point_encoder.parameters():
+                param.requires_grad = train_encoders
+
+    def get_trainable_parameters(self):
+        """Get list of trainable parameters grouped by component.
+
+        Returns:
+            Dictionary with parameter groups for different learning rates
+        """
+        param_groups = {
+            'llm': [],
+            'projectors': [],
+            'encoders': []
+        }
+
+        # LLM parameters
+        for name, param in self.llm.named_parameters():
+            if param.requires_grad:
+                param_groups['llm'].append(param)
+
+        # Projector parameters
+        if self.image_projector is not None:
+            for param in self.image_projector.parameters():
+                if param.requires_grad:
+                    param_groups['projectors'].append(param)
+
+        if self.point_projector is not None:
+            for param in self.point_projector.parameters():
+                if param.requires_grad:
+                    param_groups['projectors'].append(param)
+
+        # Encoder parameters
+        if self.image_encoder is not None:
+            for param in self.image_encoder.parameters():
+                if param.requires_grad:
+                    param_groups['encoders'].append(param)
+
+        if self.point_encoder is not None:
+            for param in self.point_encoder.parameters():
+                if param.requires_grad:
+                    param_groups['encoders'].append(param)
+
+        return param_groups

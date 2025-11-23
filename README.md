@@ -7,14 +7,18 @@ This is a reproduction of the paper "CAD-MLLM: Unifying Multimodality-Conditione
 
 - [x] Project structure and environment setup
 - [x] Text-only input pipeline
-- [x] Image encoder integration
-- [x] Point cloud encoder integration
-- [ ] Training pipeline
-  - [x] LoRA for LLM (text only for now)
-  - [x] wandb monitor
-  - [ ] Train with Text + pc
-  - [ ] Train with Text + pc + img
-  
+- [x] Image encoder integration (DINOv2)
+- [x] Point cloud encoder integration (Michelangelo)
+- [x] Training pipeline
+  - [x] LoRA for LLM
+  - [x] wandb monitoring
+  - [x] Curriculum-based progressive training
+  - [x] Multimodal data sampling
+  - [x] Train with Text only
+  - [x] Train with Text + Point Cloud
+  - [x] Train with Text + Point Cloud + Image
+  - [x] Projector training with separate learning rates
+
 - [x] Evaluation metrics
 
 ## Setup
@@ -60,10 +64,13 @@ https://github.com/CAD-MLLM/CAD-MLLM?tab=readme-ov-file#data
 
 ## Usage
 
-### Text-to-CAD Generation
+### Inference
 
 ```bash
 python scripts/inference.py --prompt "Generate a CAD model of a simple cube." --device mps --image_path "data/Omni-CAD/img/cube.jpeg"  --dtype bfloat16
+```
+```
+python scripts/inference.py --prompt "Generate a CAD model of a simple cube." --device cuda --llm_model_name "Qwen/Qwen3-0.6B" --pc_path data/Omni-CAD/pcd/00000071_00005.npz --dtype bfloat16
 ```
 
 Check the scripts/inference.py and config.py for more details.
@@ -71,6 +78,83 @@ Check the scripts/inference.py and config.py for more details.
 
 
 ### Training
+
+#### Curriculum Training (Recommended)
+
+The recommended training approach uses a curriculum-based strategy that progressively introduces modalities:
+
+**Stage 1: Text Only** → **Stage 2: Text + Point Cloud** → **Stage 3: Text + Point Cloud + Image**
+
+This approach allows the model to:
+1. First learn CAD generation from text descriptions
+2. Then incorporate 3D geometric understanding from point clouds
+3. Finally integrate visual information from images
+
+Each stage randomly combines available modalities during training for robust multimodal learning.
+
+```bash
+# Basic curriculum training with dummy data (for testing)
+python scripts/train_curriculum.py \
+    --create_dummy_data \
+    --num_dummy_samples 100 \
+    --llm_model_name "Qwen/Qwen3-0.6B" \
+    --stage1_epochs 2 \
+    --stage2_epochs 2 \
+    --stage3_epochs 3 \
+    --device cuda \
+    --dtype bfloat16
+
+# Full curriculum training with Omni-CAD dataset
+python scripts/train_curriculum.py \
+    --omnicad_txt_path data/Omni-CAD/txt/ \
+    --omnicad_json_root data/Omni-CAD/json \
+    --omnicad_img_root data/Omni-CAD/img \
+    --omnicad_pc_root data/Omni-CAD/pcd \
+    --llm_model_name "Qwen/Qwen2.5-7B" \
+    --stage1_epochs 5 \
+    --stage2_epochs 5 \
+    --stage3_epochs 10 \
+    --stage1_lr 2e-5 \
+    --stage2_lr 2e-5 \
+    --stage3_lr 1e-5 \
+    --batch_size 4 \
+    --gradient_accumulation_steps 4 \
+    --projector_lr_multiplier 5.0 \
+    --device cuda \
+    --dtype bfloat16
+
+# Curriculum training with wandb monitoring
+python scripts/train_curriculum.py \
+    --omnicad_txt_path data/Omni-CAD/txt/ \
+    --omnicad_json_root data/Omni-CAD/json \
+    --use_wandb \
+    --wandb_project "CAD-MLLM-Curriculum" \
+    --wandb_run_name "qwen7b-curriculum-5+5+10ep" \
+    --stage1_epochs 5 \
+    --stage2_epochs 5 \
+    --stage3_epochs 10 \
+    --device cuda
+```
+
+##### Curriculum Training Arguments
+
+| Argument | Default | Description |
+|----------|---------|-------------|
+| `--enable_curriculum` | True | Enable curriculum training |
+| `--stage1_epochs` | 3 | Epochs for Stage 1 (text only) |
+| `--stage2_epochs` | 3 | Epochs for Stage 2 (text + point cloud) |
+| `--stage3_epochs` | 5 | Epochs for Stage 3 (all modalities) |
+| `--stage1_lr` | 2e-5 | Learning rate for Stage 1 |
+| `--stage2_lr` | 2e-5 | Learning rate for Stage 2 |
+| `--stage3_lr` | 1e-5 | Learning rate for Stage 3 (typically lower) |
+| `--projector_lr_multiplier` | 5.0 | LR multiplier for projector layers |
+
+**Modality Sampling Strategy:**
+- **Stage 1:** 100% text-only samples
+- **Stage 2:** 30% text-only, 70% text+point cloud
+- **Stage 3:** 20% text-only, 30% text+PC, 20% text+image, 30% text+PC+image
+
+This progressive strategy ensures the model doesn't overfit to any single modality combination.
 
 #### Basic Training with Dummy Data
 
