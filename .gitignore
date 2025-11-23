@@ -1,0 +1,53 @@
+# Data directories
+data/
+Omni-CAD-test-subset/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Logs
+logs/
+*.log
+
+# IDE and editor files
+.claude/
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Large archive files
+*.zip
+*.tar.gz
+*.rar
+
+# Model checkpoints and weights (if any)
+*.pth
+*.pt
+*.ckpt
+*.h5
+*.pkl
+
+# Environment files
+.env
+.venv
+env/
+venv/
+ENV/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
