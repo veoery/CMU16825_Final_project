@@ -154,7 +154,7 @@ Each stage randomly combines available modalities during training for robust mul
 
 #### Training with Omni-CAD Dataset (what we need for now)
 ```bash
-# Resume from Stage 1 checkpoint and continue with Stages 2
+# Resume from Stage 1 checkpoint and continue with Stages 2 & 3
 !python scripts/train_curriculum.py \
     --use_wandb \
     --omnicad_txt_path ./data/Omni-CAD-subset-complete/txt \
@@ -165,7 +165,7 @@ Each stage randomly combines available modalities during training for robust mul
     --resume_from_ckpt /path/to/ckpt/stage1_text_model \
     --start_from_stage 2 \
     --stage2_epochs 1 \
-    --stage3_epochs 0 \
+    --stage3_epochs 1 \
     --stage2_lr 2e-4 \
     --stage3_lr 2e-4 \
     --max_seq_length 32768 \
@@ -179,7 +179,7 @@ Each stage randomly combines available modalities during training for robust mul
     --device cuda \
     --dtype bfloat16
 
-# Resume from Stage 2 checkpoint and only run Stage 3
+# Resume from Stage 1 checkpoint and only run Stage 2
 !python scripts/train_curriculum.py \
     --use_wandb \
     --omnicad_txt_path ./data/Omni-CAD-subset-complete/txt \
@@ -187,9 +187,11 @@ Each stage randomly combines available modalities during training for robust mul
     --omnicad_img_root ./data/Omni-CAD-subset-complete/img \
     --omnicad_pc_root ./data/Omni-CAD-subset-complete/pointcloud \
     --llm_model_name "Qwen/Qwen3-8B" \
-    --resume_from_ckpt /path/to/ckpt/stage2_text_pc_model \
-    --start_from_stage 3 \
-    --stage3_epochs 1 \
+    --resume_from_ckpt /path/to/ckpt/stage1_text_model \
+    --start_from_stage 2 \
+    --stage2_epochs 1 \
+    --stage3_epochs 0 \
+    --stage2_lr 2e-4 \
     --stage3_lr 2e-4 \
     --max_seq_length 32768 \
     --batch_size 4 \
