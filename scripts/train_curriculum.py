@@ -39,10 +39,10 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Train CAD-MLLM with Curriculum Learning")
 
     # Model arguments
-    parser.add_argument("--llm_model_name", type=str, default="Qwen/Qwen3-0.6B", help="Name of the LLM model from HuggingFace")
+    parser.add_argument("--llm_model_name", type=str, default="Qwen/Qwen3-8B", help="Name of the LLM model from HuggingFace")
     parser.add_argument("--use_lora", action="store_true", default=True, help="Use LoRA")
-    parser.add_argument("--lora_r", type=int, default=8, help="LoRA rank")
-    parser.add_argument("--lora_alpha", type=int, default=16, help="LoRA alpha")
+    parser.add_argument("--lora_r", type=int, default=32, help="LoRA rank")
+    parser.add_argument("--lora_alpha", type=int, default=64, help="LoRA alpha")
 
     # Training arguments
     parser.add_argument("--output_dir", type=str, default="./outputs_curriculum", help="Output directory")

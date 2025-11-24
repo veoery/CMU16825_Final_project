@@ -18,6 +18,8 @@ This is a reproduction of the paper "CAD-MLLM: Unifying Multimodality-Conditione
   - [x] Train with Text + Point Cloud
   - [x] Train with Text + Point Cloud + Image
   - [x] Projector training with separate learning rates
+  - [ ] Stage 1+2
+  - [ ] Stage 1+2+3
 
 - [x] Evaluation metrics
 
@@ -54,6 +56,13 @@ Put the Michelangelo checkpoint here:
 Download Michelangelo checkpoint from:
 https://drive.google.com/file/d/1wzfa4EoijmyfTpLPfma9r03wvQ_mbjFD/view?usp=drive_link
 
+**If using Google Colab:**
+```
+# Check scripts/curriculum_training.ipynb
+!uv venv
+!source .venv/bin/activate && uv pip install -e .
+!source .venv/bin/activate && uv pip install -e ./Michelangelo --no-build-isolation
+```
 
 ### Dateset
 
@@ -79,187 +88,125 @@ Check the scripts/inference.py and config.py for more details.
 
 ### Training
 
-#### Curriculum Training (Recommended)
+#### Curriculum Training
 
 The recommended training approach uses a curriculum-based strategy that progressively introduces modalities:
 
 **Stage 1: Text Only** → **Stage 2: Text + Point Cloud** → **Stage 3: Text + Point Cloud + Image**
 
-This approach allows the model to:
-1. First learn CAD generation from text descriptions
-2. Then incorporate 3D geometric understanding from point clouds
-3. Finally integrate visual information from images
-
 Each stage randomly combines available modalities during training for robust multimodal learning.
 
+#### Test Training with Dummy Data
 ```bash
-# Basic curriculum training with dummy data (for testing)
-python scripts/train_curriculum.py \
-    --create_dummy_data \
-    --num_dummy_samples 100 \
-    --llm_model_name "Qwen/Qwen3-0.6B" \
-    --stage1_epochs 2 \
-    --stage2_epochs 2 \
-    --stage3_epochs 3 \
-    --device cuda \
-    --dtype bfloat16
-
-# Full curriculum training with Omni-CAD dataset
-python scripts/train_curriculum.py \
-    --omnicad_txt_path data/Omni-CAD/txt/ \
-    --omnicad_json_root data/Omni-CAD/json \
-    --omnicad_img_root data/Omni-CAD/img \
-    --omnicad_pc_root data/Omni-CAD/pcd \
-    --llm_model_name "Qwen/Qwen2.5-7B" \
-    --stage1_epochs 5 \
-    --stage2_epochs 5 \
-    --stage3_epochs 10 \
-    --stage1_lr 2e-5 \
-    --stage2_lr 2e-5 \
-    --stage3_lr 1e-5 \
-    --batch_size 4 \
-    --gradient_accumulation_steps 4 \
-    --projector_lr_multiplier 5.0 \
-    --device cuda \
-    --dtype bfloat16
-
-# Curriculum training with wandb monitoring
-python scripts/train_curriculum.py \
-    --omnicad_txt_path data/Omni-CAD/txt/ \
-    --omnicad_json_root data/Omni-CAD/json \
-    --use_wandb \
-    --wandb_project "CAD-MLLM-Curriculum" \
-    --wandb_run_name "qwen7b-curriculum-5+5+10ep" \
-    --stage1_epochs 5 \
-    --stage2_epochs 5 \
-    --stage3_epochs 10 \
-    --device cuda
-```
-
-##### Curriculum Training Arguments
-
-| Argument | Default | Description |
-|----------|---------|-------------|
-| `--enable_curriculum` | True | Enable curriculum training |
-| `--stage1_epochs` | 3 | Epochs for Stage 1 (text only) |
-| `--stage2_epochs` | 3 | Epochs for Stage 2 (text + point cloud) |
-| `--stage3_epochs` | 5 | Epochs for Stage 3 (all modalities) |
-| `--stage1_lr` | 2e-5 | Learning rate for Stage 1 |
-| `--stage2_lr` | 2e-5 | Learning rate for Stage 2 |
-| `--stage3_lr` | 1e-5 | Learning rate for Stage 3 (typically lower) |
-| `--projector_lr_multiplier` | 5.0 | LR multiplier for projector layers |
-
-**Modality Sampling Strategy:**
-- **Stage 1:** 100% text-only samples
-- **Stage 2:** 30% text-only, 70% text+point cloud
-- **Stage 3:** 20% text-only, 30% text+PC, 20% text+image, 30% text+PC+image
-
-This progressive strategy ensures the model doesn't overfit to any single modality combination.
-
-##### Resuming from Previous Stage Checkpoints
-
-You can resume curriculum training from a previous stage checkpoint. This is useful when:
-- Training was interrupted
-- You want to continue with different hyperparameters for later stages
-- You want to experiment with different stage configurations
-
-```bash
-python scripts/train_curriculum.py \
+# Train from scratch
+!python scripts/train_curriculum.py \
     --start_from_stage 1 \
     --create_dummy_data \
     --stage1_epochs 2 \
     --stage2_epochs 2 \
     --stage3_epochs 3 \
-    --device cuda 
-
-python scripts/train_curriculum.py \
-    --resume_from_ckpt stage1_text_model \
-    --start_from_stage 2 \
-    --create_dummy_data \
-    --stage2_epochs 2 \
-    --stage3_epochs 3 \
-    --device cuda
-
-python scripts/train_curriculum.py \
-    --resume_from_ckpt stage3_all_model \ 
-    --start_from_stage 3 \
-    --create_dummy_data \
-    --stage2_epochs 2 \
-    --stage3_epochs 3 \
     --device cuda
 
 # Resume from Stage 1 checkpoint and continue with Stages 2 & 3
-python scripts/train_curriculum.py \
-    --resume_from_ckpt stage1_text_model \
+!python scripts/train_curriculum.py \
+    --resume_from_ckpt /path/to/ckpt/stage1_text_model \
     --start_from_stage 2 \
-    --omnicad_txt_path data/Omni-CAD/txt/ \
-    --stage2_epochs 5 \
-    --stage3_epochs 10 \
+    --create_dummy_data \
+    --stage2_epochs 2 \
+    --stage3_epochs 3 \
     --device cuda
 
-# Resume from Stage 2 checkpoint and only run Stage 3
-python scripts/train_curriculum.py \
-    --resume_from_ckpt outputs_curriculum/stage2_text_pc_model \
+# Resume from Stage 3 checkpoint and continue with Stages 3
+!python scripts/train_curriculum.py \
+    --resume_from_ckpt /path/to/ckpt/stage3_all_model \
     --start_from_stage 3 \
-    --omnicad_txt_path data/Omni-CAD/txt/ \
-    --stage3_epochs 10 \
-    --stage3_lr 5e-6 \
+    --create_dummy_data \
+    --stage2_epochs 2 \
+    --stage3_epochs 3 \
     --device cuda
+
+# Train with stage 1, 2 and 3 (full curriculum training)
+!python scripts/train_curriculum.py \
+    --use_wandb \
+    --omnicad_txt_path ./data/Omni-CAD-subset-complete/txt \
+    --omnicad_json_root ./data/Omni-CAD-subset-complete/json \
+    --omnicad_img_root ./data/Omni-CAD-subset-complete/img \
+    --omnicad_pc_root ./data/Omni-CAD-subset-complete/pointcloud \
+    --llm_model_name "Qwen/Qwen3-8B" \
+    --start_from_stage 1 \
+    --stage1_epochs 1 \
+    --stage2_epochs 1 \
+    --stage3_epochs 1 \
+    --stage1_lr 2e-4 \
+    --stage2_lr 2e-4 \
+    --stage3_lr 2e-4 \
+    --max_seq_length 32768 \
+    --batch_size 4 \
+    --gradient_accumulation_steps 16 \
+    --lora_r 32 \
+    --lora_alpha 64 \
+    --warmup_steps 100 \
+    --logging_steps 10 \
+    --save_steps 100 \    
+    --device cuda \
+    --dtype bfloat16
+```
+
+#### Training with Omni-CAD Dataset (what we need for now)
+```bash
+# Resume from Stage 1 checkpoint and continue with Stages 2
+!python scripts/train_curriculum.py \
+    --use_wandb \
+    --omnicad_txt_path ./data/Omni-CAD-subset-complete/txt \
+    --omnicad_json_root ./data/Omni-CAD-subset-complete/json \
+    --omnicad_img_root ./data/Omni-CAD-subset-complete/img \
+    --omnicad_pc_root ./data/Omni-CAD-subset-complete/pointcloud \
+    --llm_model_name "Qwen/Qwen3-8B" \
+    --resume_from_ckpt /path/to/ckpt/stage1_text_model \
+    --start_from_stage 2 \
+    --stage2_epochs 1 \
+    --stage3_epochs 0 \
+    --stage2_lr 2e-4 \
+    --stage3_lr 2e-4 \
+    --max_seq_length 32768 \
+    --batch_size 4 \
+    --gradient_accumulation_steps 16 \
+    --lora_r 32 \
+    --lora_alpha 64 \
+    --warmup_steps 100 \
+    --logging_steps 10 \
+    --save_steps 100 \    
+    --device cuda \
+    --dtype bfloat16
+
+# Resume from Stage 2 checkpoint and only run Stage 3
+!python scripts/train_curriculum.py \
+    --use_wandb \
+    --omnicad_txt_path ./data/Omni-CAD-subset-complete/txt \
+    --omnicad_json_root ./data/Omni-CAD-subset-complete/json \
+    --omnicad_img_root ./data/Omni-CAD-subset-complete/img \
+    --omnicad_pc_root ./data/Omni-CAD-subset-complete/pointcloud \
+    --llm_model_name "Qwen/Qwen3-8B" \
+    --resume_from_ckpt /path/to/ckpt/stage2_text_pc_model \
+    --start_from_stage 3 \
+    --stage3_epochs 1 \
+    --stage3_lr 2e-4 \
+    --max_seq_length 32768 \
+    --batch_size 4 \
+    --gradient_accumulation_steps 16 \
+    --lora_r 32 \
+    --lora_alpha 64 \
+    --warmup_steps 100 \
+    --logging_steps 10 \
+    --save_steps 100 \    
+    --device cuda \
+    --dtype bfloat16
 ```
 
 **Arguments:**
 - `--resume_from_ckpt`: Path to checkpoint to resume from (can be any checkpoint - stage model or epoch checkpoint). Works independently of `--start_from_stage`.
 - `--start_from_stage`: Stage number to start from (1=Stage 1, 2=Stage 2, 3=Stage 3). Can start from any stage with or without a checkpoint.
 
-**Example workflows:**
-1. Train all stages from scratch: `python scripts/train_curriculum.py --stage1_epochs 5 --stage2_epochs 5 --stage3_epochs 10`
-2. Train Stage 2 onwards from scratch (no checkpoint): `python scripts/train_curriculum.py --start_from_stage 2 --stage2_epochs 5 --stage3_epochs 10`
-3. Load Stage 1 checkpoint and continue with Stage 2: `python scripts/train_curriculum.py --resume_from_ckpt stage1_text_model --start_from_stage 2`
-
-#### Basic Training with Dummy Data
-
-```bash
-python scripts/train.py \
-    --create_dummy_data \
-    --num_dummy_samples 100 \
-    --num_epochs 1 \
-    --device mps \
-    --lora_r 4 \
-    --llm_model_name "Qwen/Qwen3-0.6B"
-```
-
-#### Training with Omni-CAD Dataset
-
-```bash
-# Single file
-python scripts/train.py \
-    --omnicad_txt_path data/Omni-CAD/txt/0000.json \
-    --omnicad_json_root data/Omni-CAD/json \
-    --num_epochs 3 \
-    --batch_size 2 \
-    --device cuda
-
-# Multiple files (directory)
-python scripts/train.py \
-    --omnicad_txt_path data/Omni-CAD/txt/ \
-    --omnicad_json_root data/Omni-CAD/json \
-    --num_epochs 3 \
-    --batch_size 4 \
-    --device cuda
-```
-
-#### Training with Custom Train/Val Split
-
-```bash
-python scripts/train.py \
-    --train_data_path data/Omni-CAD/txt/train/ \
-    --val_data_path data/Omni-CAD/txt/val/ \
-    --omnicad_json_root data/Omni-CAD/json \
-    --num_epochs 10 \
-    --batch_size 4 \
-    --learning_rate 2e-5 \
-    --device cuda
-```
 
 #### Monitoring Training with Weights & Biases
 
@@ -273,47 +220,6 @@ uv add wandb
 
 # Login to wandb
 wandb login
-```
-
-##### Basic Usage
-
-```bash
-# Enable wandb logging with auto-generated run name
-# Run name will be automatically generated as: <model>-<lora-r#>-<lr>-<bs>-<ep>
-# Example: "Qwen3-4B-lora-r8-lr2e-05-bs8-ep10"
-python scripts/train.py \
-    --use_wandb \
-    --num_epochs 10 \
-    --batch_size 4
-```
-
-##### Custom Project and Run Names
-
-```bash
-# Override auto-generated run name with custom name
-python scripts/train.py \
-    --use_wandb \
-    --wandb_project "my-cad-experiments" \
-    --wandb_run_name "baseline-lora-r8" \
-    --num_epochs 10 \
-    --lora_r 8
-```
-
-##### Complete Example with Wandb
-
-```bash
-python scripts/train.py \
-    --use_wandb \
-    --wandb_project "CAD-MLLM-Experiments" \
-    --wandb_run_name "lora-r16-lr2e5-bs8" \
-    --train_data_path data/Omni-CAD/txt/train/ \
-    --val_data_path data/Omni-CAD/txt/val/ \
-    --num_epochs 20 \
-    --batch_size 8 \
-    --learning_rate 2e-5 \
-    --lora_r 16 \
-    --lora_alpha 32 \
-    --device cuda
 ```
 
 ##### Wandb Arguments
@@ -337,32 +243,6 @@ Examples:
 - `Qwen3-4B-lora-r8-lr2e-05-bs8-ep10` (LoRA training)
 - `Qwen3-4B-full-lr1e-04-bs16-ep20` (Full fine-tuning)
 - `Qwen3-0.6B-lora-r16-lr5e-05-bs4-ep5` (Small model with LoRA)
-
-This makes it easy to identify and compare runs based on their hyperparameters!
-
-##### What Gets Logged
-
-**Training Metrics (per step):**
-
-- Training loss
-- Learning rate
-- Gradient norm
-- Current epoch and step
-
-**Epoch Metrics:**
-- Average training loss per epoch
-
-**Hyperparameters:**
-- Model configuration (LLM name, LoRA settings)
-- Training configuration (batch size, learning rate, etc.)
-- Dataset information (paths, number of samples)
-
-**Model Information:**
-- Parameter count and gradients
-- Weight histograms
-- System metrics (GPU/CPU usage, memory)
-
-
 
 
 
