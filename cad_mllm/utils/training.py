@@ -36,22 +36,60 @@ def count_parameters(model: torch.nn.Module, trainable_only: bool = True) -> int
 
 
 def print_model_info(model: torch.nn.Module):
-    """Print model information including parameter counts.
+    """Print model information including parameter counts for all components.
 
     Args:
-        model: PyTorch model
+        model: PyTorch model (CADMLLMModel or general model)
     """
+    from ..model import CADMLLMModel
+
     total_params = count_parameters(model, trainable_only=False)
     trainable_params = count_parameters(model, trainable_only=True)
 
-    print("\n" + "=" * 60)
-    print("Model Information")
-    print("=" * 60)
-    print(f"Total parameters: {total_params:,}")
-    print(f"Trainable parameters: {trainable_params:,}")
-    print(f"Frozen parameters: {total_params - trainable_params:,}")
-    print(f"Trainable ratio: {trainable_params / total_params * 100:.2f}%")
-    print("=" * 60 + "\n")
+    print("\n" + "=" * 80)
+    print("MODEL INFORMATION")
+    print("=" * 80)
+
+    # If it's a CADMLLMModel, show detailed breakdown
+    if isinstance(model, CADMLLMModel):
+        # LLM
+        llm_total = count_parameters(model.llm, trainable_only=False)
+        llm_trainable = count_parameters(model.llm, trainable_only=True)
+        print(f"\n{'Component':<30} {'Total Params':<15} {'Trainable':<15} {'Status':<10}")
+        print("-" * 80)
+        print(f"{'LLM (Base Model)':<30} {llm_total:>14,} {llm_trainable:>14,} {'LoRA' if llm_trainable > 0 else 'Frozen':<10}")
+
+        # Image Encoder
+        if model.image_encoder is not None:
+            img_enc_total = count_parameters(model.image_encoder, trainable_only=False)
+            img_enc_trainable = count_parameters(model.image_encoder, trainable_only=True)
+            print(f"{'├─ Image Encoder (DINOv2)':<30} {img_enc_total:>14,} {img_enc_trainable:>14,} {'Trainable' if img_enc_trainable > 0 else 'Frozen':<10}")
+
+        # Image Projector
+        if model.image_projector is not None:
+            img_proj_total = count_parameters(model.image_projector, trainable_only=False)
+            img_proj_trainable = count_parameters(model.image_projector, trainable_only=True)
+            print(f"{'├─ Image Projector (MLP)':<30} {img_proj_total:>14,} {img_proj_trainable:>14,} {'Trainable' if img_proj_trainable > 0 else 'Frozen':<10}")
+
+        # Point Cloud Encoder
+        if model.point_encoder is not None:
+            pc_enc_total = count_parameters(model.point_encoder, trainable_only=False)
+            pc_enc_trainable = count_parameters(model.point_encoder, trainable_only=True)
+            print(f"{'├─ Point Encoder (Michelangelo)':<30} {pc_enc_total:>14,} {pc_enc_trainable:>14,} {'Trainable' if pc_enc_trainable > 0 else 'Frozen':<10}")
+
+        # Point Cloud Projector
+        if model.point_projector is not None:
+            pc_proj_total = count_parameters(model.point_projector, trainable_only=False)
+            pc_proj_trainable = count_parameters(model.point_projector, trainable_only=True)
+            print(f"{'└─ Point Projector (MLP)':<30} {pc_proj_total:>14,} {pc_proj_trainable:>14,} {'Trainable' if pc_proj_trainable > 0 else 'Frozen':<10}")
+
+        print("-" * 80)
+
+    # Overall statistics
+    print(f"\n{'TOTAL':<30} {total_params:>14,} {trainable_params:>14,}")
+    print(f"{'Frozen Parameters':<30} {'':<15} {total_params - trainable_params:>14,}")
+    print(f"{'Trainable Ratio':<30} {'':<15} {trainable_params / total_params * 100:>13.2f}%")
+    print("=" * 80 + "\n")
 
 
 def verify_lora_training(model: torch.nn.Module):
@@ -82,45 +120,53 @@ def verify_lora_training(model: torch.nn.Module):
             frozen_params.append((name, param.numel()))
 
     # Check if LoRA is being used
-    lora_params = [name for name, _ in trainable_params if 'lora' in name.lower()]
-    non_lora_trainable = [name for name, _ in trainable_params if 'lora' not in name.lower()]
+    lora_params = [(name, count) for name, count in trainable_params if 'lora' in name.lower()]
+    non_lora_trainable = [(name, count) for name, count in trainable_params if 'lora' not in name.lower()]
 
-    print(f"\nTotal trainable parameters: {len(trainable_params)}")
-    print(f"LoRA parameters (trainable): {len(lora_params)}")
-    print(f"Non-LoRA trainable parameters: {len(non_lora_trainable)}")
+    # Count total parameter values
+    total_trainable_count = sum(count for _, count in trainable_params)
+    lora_count = sum(count for _, count in lora_params)
+    non_lora_count = sum(count for _, count in non_lora_trainable)
+
+    print(f"\nTotal trainable parameter tensors: {len(trainable_params)}")
+    print(f"Total trainable parameter values: {total_trainable_count:,}")
+    print(f"\nLoRA parameter tensors: {len(lora_params)}")
+    print(f"LoRA parameter values: {lora_count:,}")
+    print(f"\nNon-LoRA trainable parameter tensors: {len(non_lora_trainable)}")
+    print(f"Non-LoRA trainable parameter values: {non_lora_count:,}")
 
     if lora_params:
         print("\n✓ LoRA parameters are trainable:")
-        for name in lora_params[:5]:  # Show first 5
-            print(f"  - {name}")
+        for name, count in lora_params[:5]:  # Show first 5
+            print(f"  - {name}: {count:,}")
         if len(lora_params) > 5:
             print(f"  ... and {len(lora_params) - 5} more")
 
     if non_lora_trainable:
         print("\n⚠ WARNING: Non-LoRA parameters are also trainable:")
-        for name in non_lora_trainable[:10]:  # Show first 10
-            print(f"  - {name}")
+        for name, count in non_lora_trainable[:10]:  # Show first 10
+            print(f"  - {name}: {count:,}")
         if len(non_lora_trainable) > 10:
             print(f"  ... and {len(non_lora_trainable) - 10} more")
 
     # Check base LLM is frozen
-    base_llm_trainable = [name for name, _ in trainable_params
+    base_llm_trainable = [(name, count) for name, count in trainable_params
                           if 'llm' in name.lower() and 'lora' not in name.lower()]
 
     if not base_llm_trainable:
         print("\n✓ Base LLM parameters are frozen (as expected)")
     else:
         print("\n⚠ WARNING: Base LLM parameters are trainable:")
-        for name in base_llm_trainable[:5]:
-            print(f"  - {name}")
+        for name, count in base_llm_trainable[:5]:
+            print(f"  - {name}: {count:,}")
 
     # Summary
-    total_trainable = sum(count for _, count in trainable_params)
-    lora_count = sum(count for name, count in trainable_params if 'lora' in name.lower())
-
-    print(f"\nTrainable parameter count:")
-    print(f"  LoRA: {lora_count:,} ({100 * lora_count / total_trainable:.2f}%)")
-    print(f"  Other: {total_trainable - lora_count:,} ({100 * (total_trainable - lora_count) / total_trainable:.2f}%)")
+    print(f"\n{'='*60}")
+    print("PARAMETER COUNT SUMMARY")
+    print(f"{'='*60}")
+    print(f"Total trainable values: {total_trainable_count:,}")
+    print(f"  LoRA: {lora_count:,} ({100 * lora_count / total_trainable_count:.2f}%)")
+    print(f"  Projectors/Other: {non_lora_count:,} ({100 * non_lora_count / total_trainable_count:.2f}%)")
 
     print("="*60 + "\n")
 

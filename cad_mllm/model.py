@@ -193,6 +193,8 @@ class CADMLLMModel(nn.Module):
 
         self.llm = get_peft_model(self.llm, lora_config)
         self.llm.print_trainable_parameters()
+        # would print something like:
+        #     trainable params: 5,046,272 || all params: 601,096,192 || trainable%: 0.8395
 
     def forward(
         self,
@@ -397,8 +399,8 @@ class CADMLLMModel(nn.Module):
         """Load model checkpoint."""
         import os
 
-        # Load config
-        config = torch.load(os.path.join(load_directory, "config.pt"))
+        # Load config (weights_only=False for custom config classes)
+        config = torch.load(os.path.join(load_directory, "config.pt"), weights_only=False)
 
         # Create model
         model = cls(config)
@@ -408,13 +410,13 @@ class CADMLLMModel(nn.Module):
         if os.path.exists(image_projector_path):
             model.enable_image_encoder()
             model.enable_image_projector()
-            model.image_projector.load_state_dict(torch.load(image_projector_path))
+            model.image_projector.load_state_dict(torch.load(image_projector_path, weights_only=True))
 
         point_projector_path = os.path.join(load_directory, "point_projector.pt")
         if os.path.exists(point_projector_path):
             model.enable_point_encoder()
             model.enable_point_projector()
-            model.point_projector.load_state_dict(torch.load(point_projector_path))
+            model.point_projector.load_state_dict(torch.load(point_projector_path, weights_only=True))
 
         print(f"Model loaded from {load_directory}")
         return model

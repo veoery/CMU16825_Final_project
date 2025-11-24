@@ -313,6 +313,23 @@ class MultimodalCADDataset(Dataset):
     - Text + Point Cloud
     - Text + Image
     - Text + Point Cloud + Image
+    
+    data/Omni-CAD/
+    ├── json/
+    │   ├── 0000/
+    │   │   └── 00000071_00005.json
+    │   └── 0001/
+    ├── img/
+    │   ├── 0000/
+    │   │   └── 00000071_00005.jpg
+    │   └── 0001/
+    ├── pcd/
+    │   ├── 0000/
+    │   │   └── 00000071_00005.npz
+    │   └── 0001/
+    └── txt/
+        ├── 0000.json
+        └── 0001.json
 
     Args:
         data_path: Path to the text description JSON file or directory
@@ -430,13 +447,22 @@ class MultimodalCADDataset(Dataset):
         return cad_data
 
     def _load_image(self, cad_id: str) -> Optional[np.ndarray]:
-        """Load image for the given CAD ID."""
+        """Load image for the given CAD ID.
+
+        Args:
+            cad_id: CAD ID in format "0000/00000071_00005"
+
+        Returns:
+            Image as numpy array (C, H, W) or None if not found
+        """
         if self.image_root is None or not self.image_root.exists():
             return None
 
         # Try common image extensions
+        # cad_id format: "0000/00000071_00005"
+        # image path: img_root/0000/00000071_00005.jpg
         for ext in ['.jpg', '.jpeg', '.png']:
-            img_path = self.image_root / f"{cad_id.split('/')[-1]}{ext}"
+            img_path = self.image_root / f"{cad_id}{ext}"
             if img_path.exists():
                 # For now, return a dummy array - in real implementation, use PIL
                 # from PIL import Image
@@ -447,11 +473,20 @@ class MultimodalCADDataset(Dataset):
         return None
 
     def _load_point_cloud(self, cad_id: str) -> Optional[np.ndarray]:
-        """Load point cloud for the given CAD ID."""
+        """Load point cloud for the given CAD ID.
+
+        Args:
+            cad_id: CAD ID in format "0000/00000071_00005"
+
+        Returns:
+            Point cloud as numpy array (N, 3) or None if not found
+        """
         if self.pc_root is None or not self.pc_root.exists():
             return None
 
-        pc_path = self.pc_root / f"{cad_id.split('/')[-1]}.npz"
+        # cad_id format: "0000/00000071_00005"
+        # pc path: pc_root/0000/00000071_00005.npz
+        pc_path = self.pc_root / f"{cad_id}.npz"
 
         if not pc_path.exists():
             return None

@@ -84,6 +84,14 @@ def parse_args():
     parser.add_argument("--omnicad_img_root", type=str, default="data/Omni-CAD/img", help="Root directory for images")
     parser.add_argument("--omnicad_pc_root", type=str, default="data/Omni-CAD/pcd", help="Root directory for point clouds")
 
+    # Checkpoint resumption arguments
+    parser.add_argument("--resume_from_ckpt", type=str, default=None,
+                       help="Path to checkpoint to resume from (e.g., 'stage1_text_model', 'outputs/stage2_text_pc_model', 'stage2_text_pc/checkpoint-epoch2'). "
+                            "Can be any checkpoint - stage model or epoch checkpoint. Works independently of --start_from_stage.")
+    parser.add_argument("--start_from_stage", type=int, default=1,
+                       help="Stage number to start training from (1=Stage 1, 2=Stage 2, 3=Stage 3). "
+                            "Stages before this will be skipped. Can start from any stage with or without a checkpoint.")
+
     return parser.parse_args()
 
 
@@ -168,6 +176,56 @@ def train_epoch(
             save_checkpoint(model, optimizer, scheduler, epoch, global_step, checkpoint_path)
 
     return loss_meter.avg, global_step
+
+
+def load_stage_checkpoint(model, checkpoint_path: str):
+    """Load a stage checkpoint into the model.
+
+    Args:
+        model: CADMLLMModel instance
+        checkpoint_path: Path to stage checkpoint directory
+
+    Returns:
+        True if checkpoint was loaded successfully, False otherwise
+    """
+    checkpoint_path = Path(checkpoint_path)
+
+    if not checkpoint_path.exists():
+        print(f"Warning: Checkpoint path does not exist: {checkpoint_path}")
+        return False
+
+    print(f"\nLoading checkpoint from: {checkpoint_path}")
+
+    try:
+        # Load the model using the from_pretrained method
+        loaded_model = CADMLLMModel.from_pretrained(str(checkpoint_path))
+
+        # Transfer the loaded state to our model
+        # LLM (with LoRA)
+        model.llm.load_state_dict(loaded_model.llm.state_dict())
+        print("  ✓ Loaded LLM with LoRA adapters")
+
+        # Projectors (if they exist in checkpoint)
+        if loaded_model.image_projector is not None:
+            if model.image_projector is None:
+                model.enable_image_encoder()
+                model.enable_image_projector()
+            model.image_projector.load_state_dict(loaded_model.image_projector.state_dict())
+            print("  ✓ Loaded image module")
+
+        if loaded_model.point_projector is not None:
+            if model.point_projector is None:
+                model.enable_point_encoder()
+                model.enable_point_projector()
+            model.point_projector.load_state_dict(loaded_model.point_projector.state_dict())
+            print("  ✓ Loaded point cloud module")
+
+        print(f"Checkpoint loaded successfully!\n")
+        return True
+
+    except Exception as e:
+        print(f"Error loading checkpoint: {e}")
+        return False
 
 
 def train_curriculum_stage(
@@ -393,9 +451,26 @@ def main():
     # Initialize model
     print("\nInitializing CAD-MLLM model...")
     model = CADMLLMModel(model_config)
-    print_model_info(model)
+    
+    # Load checkpoint if provided
+    if args.resume_from_ckpt:
+        checkpoint_path = Path(args.resume_from_ckpt)
+        # If relative path, assume it's in output_dir
+        if not checkpoint_path.is_absolute():
+            checkpoint_path = Path(args.output_dir) / args.resume_from_ckpt
 
-    # Verify LoRA training setup
+        print(f"\n{'='*80}")
+        print(f"RESUMING FROM CHECKPOINT")
+        print(f"{'='*80}")
+        success = load_stage_checkpoint(model, str(checkpoint_path))
+        if not success:
+            print("Warning: Failed to load checkpoint. Starting from scratch.")
+        else:
+            print(f"Successfully loaded checkpoint from {checkpoint_path}")
+            print(f"Will start training from Stage {args.start_from_stage}")
+        print(f"{'='*80}\n")
+        
+    print_model_info(model)
     verify_lora_training(model)
 
     # Create dataset and collator
@@ -478,12 +553,24 @@ def main():
     # Curriculum training
     print("\n" + "="*80)
     print("STARTING CURRICULUM TRAINING")
+    if args.start_from_stage > 1:
+        print(f"Resuming from Stage {args.start_from_stage} (skipping Stages 1-{args.start_from_stage-1})")
     print("="*80)
 
     global_step = 0
     for stage_idx, stage in enumerate(train_config.curriculum_stages):
+        stage_number = stage_idx + 1  # Convert to 1-indexed for display
+
+        # Skip stages if resuming from a checkpoint (convert user input to 0-indexed)
+        if stage_number < args.start_from_stage:
+            print(f"\n{'#'*80}")
+            print(f"# SKIPPING STAGE {stage_number}/{len(train_config.curriculum_stages)}: {stage.name}")
+            print(f"# (Already completed in previous run)")
+            print(f"{'#'*80}\n")
+            continue
+
         print(f"\n\n{'#'*80}")
-        print(f"# CURRICULUM STAGE {stage_idx + 1}/{len(train_config.curriculum_stages)}")
+        print(f"# CURRICULUM STAGE {stage_number}/{len(train_config.curriculum_stages)}")
         print(f"{'#'*80}\n")
 
         global_step = train_curriculum_stage(

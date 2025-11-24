@@ -62,7 +62,7 @@ class MichelangeloPointEncoder(nn.Module):
         # print(self.encoder.embed_dim)
 
         # --- 3) Load weights ---
-        state_dict = torch.load(encoder_sd_path, map_location=self.device)
+        state_dict = torch.load(encoder_sd_path, map_location=self.device, weights_only=True)
         self.encoder.load_state_dict(state_dict, strict=True)
 
         if self.freeze_encoder:

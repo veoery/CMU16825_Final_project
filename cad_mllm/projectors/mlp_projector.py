@@ -25,7 +25,7 @@ class MLPProjector(nn.Module):
         input_dim: int,
         output_dim: int,
         hidden_dim: int = 2048,
-        num_layers: int = 2,
+        num_layers: int = 4,
         dropout: float = 0.1,
     ):
         super().__init__()

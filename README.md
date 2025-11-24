@@ -156,6 +156,66 @@ python scripts/train_curriculum.py \
 
 This progressive strategy ensures the model doesn't overfit to any single modality combination.
 
+##### Resuming from Previous Stage Checkpoints
+
+You can resume curriculum training from a previous stage checkpoint. This is useful when:
+- Training was interrupted
+- You want to continue with different hyperparameters for later stages
+- You want to experiment with different stage configurations
+
+```bash
+python scripts/train_curriculum.py \
+    --start_from_stage 1 \
+    --create_dummy_data \
+    --stage1_epochs 2 \
+    --stage2_epochs 2 \
+    --stage3_epochs 3 \
+    --device cuda 
+
+python scripts/train_curriculum.py \
+    --resume_from_ckpt stage1_text_model \
+    --start_from_stage 2 \
+    --create_dummy_data \
+    --stage2_epochs 2 \
+    --stage3_epochs 3 \
+    --device cuda
+
+python scripts/train_curriculum.py \
+    --resume_from_ckpt stage3_all_model \ 
+    --start_from_stage 3 \
+    --create_dummy_data \
+    --stage2_epochs 2 \
+    --stage3_epochs 3 \
+    --device cuda
+
+# Resume from Stage 1 checkpoint and continue with Stages 2 & 3
+python scripts/train_curriculum.py \
+    --resume_from_ckpt stage1_text_model \
+    --start_from_stage 2 \
+    --omnicad_txt_path data/Omni-CAD/txt/ \
+    --stage2_epochs 5 \
+    --stage3_epochs 10 \
+    --device cuda
+
+# Resume from Stage 2 checkpoint and only run Stage 3
+python scripts/train_curriculum.py \
+    --resume_from_ckpt outputs_curriculum/stage2_text_pc_model \
+    --start_from_stage 3 \
+    --omnicad_txt_path data/Omni-CAD/txt/ \
+    --stage3_epochs 10 \
+    --stage3_lr 5e-6 \
+    --device cuda
+```
+
+**Arguments:**
+- `--resume_from_ckpt`: Path to checkpoint to resume from (can be any checkpoint - stage model or epoch checkpoint). Works independently of `--start_from_stage`.
+- `--start_from_stage`: Stage number to start from (1=Stage 1, 2=Stage 2, 3=Stage 3). Can start from any stage with or without a checkpoint.
+
+**Example workflows:**
+1. Train all stages from scratch: `python scripts/train_curriculum.py --stage1_epochs 5 --stage2_epochs 5 --stage3_epochs 10`
+2. Train Stage 2 onwards from scratch (no checkpoint): `python scripts/train_curriculum.py --start_from_stage 2 --stage2_epochs 5 --stage3_epochs 10`
+3. Load Stage 1 checkpoint and continue with Stage 2: `python scripts/train_curriculum.py --resume_from_ckpt stage1_text_model --start_from_stage 2`
+
 #### Basic Training with Dummy Data
 
 ```bash
