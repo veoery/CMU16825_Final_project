@@ -108,50 +108,68 @@ class AutocompleteDataset(Dataset):
         }
 
     def _load_and_encode_image(self, base_name: str) -> torch.Tensor:
-        """Load and encode image to embeddings.
+        """Load and encode ALL images (multi-view) to embeddings.
 
         Args:
             base_name: Base name of the file (without extension)
 
         Returns:
-            Image embeddings of shape (num_patches, hidden_dim) or raw pixel tensor
+            Image embeddings of shape (num_views, num_patches, hidden_dim)
+            or raw pixel tensor of shape (num_views, C, H, W)
         """
-        # Try common image extensions with potential _XXX suffix variations
-        image_path = None
-        for ext in ['.png', '.jpg', '.jpeg']:
-            # First try exact match
-            candidate = Path(self.image_dir) / f"{base_name}{ext}"
-            if candidate.exists():
-                image_path = candidate
-                break
+        from torchvision import transforms
 
-            # If not found, search recursively in subdirectories for files matching base_name_*ext pattern
-            # (e.g., 00000171_00001_000.png, 00000171_00001_001.png, etc.)
-            parent_dir = Path(self.image_dir)
-            if parent_dir.exists():
-                matching_files = sorted(parent_dir.glob(f"**/{base_name}_*{ext}"))
-                if matching_files:
-                    # Use the first matching file
-                    image_path = matching_files[0]
-                    break
+        parent_dir = Path(self.image_dir)
+        if not parent_dir.exists():
+            raise FileNotFoundError(f"Image directory does not exist: {self.image_dir}")
 
-        if image_path is None:
-            raise FileNotFoundError(f"Image not found for {base_name} in {self.image_dir}")
+        # Collect all matching images: base_name.png / base_name.jpg / base_name_000.png / base_name_001.png ...
+        exts = [".png", ".jpg", ".jpeg"]
+        image_paths = []
 
-        # Load image
-        image = Image.open(str(image_path)).convert('RGB')
+        for ext in exts:
+            # Exact match: base_name.png
+            exact_matches = sorted(parent_dir.glob(f"**/{base_name}{ext}"))
+            # Multi-view: base_name_000.png, base_name_001.png, ...
+            multi_matches = sorted(parent_dir.glob(f"**/{base_name}_*{ext}"))
+
+            image_paths.extend(exact_matches)
+            image_paths.extend(multi_matches)
+
+        # Deduplicate & sort (sort by filename to ensure stable view order)
+        image_paths = sorted(set(image_paths), key=lambda p: p.name)
+
+        if not image_paths:
+            raise FileNotFoundError(
+                f"No images found for base_name={base_name} under {self.image_dir}"
+            )
+
+        # DEBUG: Print all image paths being loaded
+        print(f"[DEBUG] Found {len(image_paths)} image(s) for base_name={base_name}:")
+        for p in image_paths:
+            print(f"[DEBUG]    {p}")
+
+        # Load each image
+        images = [Image.open(str(p)).convert("RGB") for p in image_paths]
 
         # Encode if encoder available
         if self.image_encoder:
+            embeds_list = []
             with torch.no_grad():
-                pixel_values = self.image_encoder.preprocess(image)
-                img_embeds = self.image_encoder(pixel_values)
-            return img_embeds.squeeze(0)  # Remove batch dimension
+                for img in images:
+                    # Preprocess assumes single PIL image, returns tensor with batch dimension
+                    pixel_values = self.image_encoder.preprocess(img)  # (1, C, H, W)
+                    img_embeds = self.image_encoder(pixel_values)      # (1, num_patches, hidden_dim)
+                    embeds_list.append(img_embeds.squeeze(0))          # Remove batch dim -> (num_patches, hidden_dim)
+
+            # Final shape: (num_views, num_patches, hidden_dim)
+            return torch.stack(embeds_list, dim=0)
         else:
-            # Return raw tensor if no encoder
-            from torchvision import transforms
-            transform = transforms.ToTensor()
-            return transform(image)
+            # If no encoder, return raw pixel tensor: (num_views, C, H, W)
+            to_tensor = transforms.ToTensor()
+            tensor_list = [to_tensor(img) for img in images]
+            return torch.stack(tensor_list, dim=0)
+
 
     def _load_and_encode_pc(self, base_name: str) -> torch.Tensor:
         """Load and encode point cloud to embeddings.
@@ -185,13 +203,14 @@ class AutocompleteDataset(Dataset):
         # Load point cloud
         if str(pc_path).endswith('.npz'):
             data = np.load(str(pc_path))
+            print(f"[DEBUG] Point cloud found at {pc_path}")
             # NPZ files may contain multiple arrays, try common keys
             if 'points' in data:
                 points = torch.from_numpy(data['points']).float()
             elif 'arr_0' in data:
                 points = torch.from_numpy(data['arr_0']).float()
             else:
-                # Use the first array in the npz file
+                # Use first array in NPZ file
                 points = torch.from_numpy(data[list(data.files)[0]]).float()
         elif str(pc_path).endswith('.npy'):
             points = torch.from_numpy(np.load(str(pc_path))).float()
@@ -340,60 +359,6 @@ def get_autocomplete_dataloader(
 
     Returns:
         DataLoader instance
-
-    Example (Google Colab):
-        from google.colab import drive
-        drive.mount('/content/drive')
-
-        from cad_mllm.data import get_autocomplete_dataloader
-        from cad_mllm.encoders import ImageEncoder, MichelangeloPointEncoder
-
-        ROOT = "/content/drive/MyDrive/CAD_Project"
-        truncated_dir = f"{ROOT}/truncated_json"
-        full_dir = f"{ROOT}/full_json"
-        image_dir = f"{ROOT}/images"
-        pc_dir = f"{ROOT}/point_clouds"
-
-        import glob
-        truncated_paths = sorted(glob.glob(truncated_dir + "/*.json"))
-        full_paths = []
-        for tr in truncated_paths:
-            base = os.path.basename(tr).split("_tr_")[0] + ".json"
-            full_paths.append(os.path.join(full_dir, base))
-
-        # Initialize encoders
-        image_encoder = ImageEncoder(freeze=True)
-        pc_encoder = MichelangeloPointEncoder(
-            encoder_cfg_path="configs/michelangelo_point_encoder_cfg.yaml",
-            encoder_sd_path="path/to/state_dict.pt"
-        )
-
-        train_loader = get_autocomplete_dataloader(
-            truncated_paths,
-            full_paths,
-            image_dir,
-            pc_dir,
-            tokenizer=tokenizer,
-            image_encoder=image_encoder,
-            pc_encoder=pc_encoder,
-            batch_size=4,
-            shuffle=True
-        )
-
-        # Training loop
-        device = "cuda"
-        for batch in train_loader:
-            batch = {k: (v.to(device) if torch.is_tensor(v) else v) for k, v in batch.items()}
-            outputs = model(
-                input_ids=batch["input_ids"],
-                attention_mask=batch["attention_mask"],
-                img_embeds=batch["img_embeds"],
-                pc_embeds=batch["pc_embeds"],
-                labels=batch["labels"],
-            )
-            loss = outputs.loss
-            loss.backward()
-            print("loss:", loss.item())
     """
     dataset = AutocompleteDataset(
         truncated_paths=truncated_paths,
