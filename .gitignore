@@ -3,3 +3,8 @@ data/
 wandb/
 checkpoints/
 outputs_curriculum/
+*__pycache__/
+*.pyc
+**/__pycache__/
+cad_mllm/__pycache__/
+cad_mllm/__pycache__/*.pyc
