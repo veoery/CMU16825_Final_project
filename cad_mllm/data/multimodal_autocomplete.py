@@ -363,30 +363,11 @@ class MultimodalAutocompleteCollator:
                     # Convert (H, W, C) -> (C, H, W)
                     if img.dim() == 3 and img.shape[2] == 3:
                         img = img.permute(2, 0, 1)
-
-                    # Normalize using image_processor if available
-                    if self.image_processor is not None:
-                        # Scale to [0, 1] range
-                        img = img / 255.0
-                        # Apply ImageNet normalization (DINOv2 standard)
-                        mean = torch.tensor(self.image_processor.image_mean).view(3, 1, 1)
-                        std = torch.tensor(self.image_processor.image_std).view(3, 1, 1)
-                        img = (img - mean) / std
-                    else:
-                        # Fallback: just scale to [0, 1]
-                        img = img / 255.0
-
+                    # NO NORMALIZATION - model's ImageEncoder handles it internally
                     images.append(img)
                 else:
                     # Zero-filled placeholder for missing image (3, 224, 224)
-                    # Use normalized zeros (mean normalization)
-                    if self.image_processor is not None:
-                        mean = torch.tensor(self.image_processor.image_mean).view(3, 1, 1)
-                        std = torch.tensor(self.image_processor.image_std).view(3, 1, 1)
-                        placeholder = (torch.zeros(3, 224, 224) - mean) / std
-                        images.append(placeholder)
-                    else:
-                        images.append(torch.zeros(3, 224, 224))
+                    images.append(torch.zeros(3, 224, 224))
             result["pixel_values"] = torch.stack(images)  # Shape: [batch_size, 3, 224, 224]
 
         # Point cloud batching with zero-filled placeholders for missing point clouds
