@@ -1,0 +1,114 @@
+command:
+  - ${env}
+  - python
+  - ${program}
+  - --use_autocomplete_dataset
+  - --use_gradient_checkpointing
+  - --use_wandb
+  - ${args}
+program: scripts/train_curriculum.py
+method: bayes  # Bayesian optimization for smarter sampling
+metric:
+  name: train/loss
+  goal: minimize
+
+# Early termination to skip poor configs
+early_terminate:
+  type: hyperband
+  min_iter: 3
+  max_iter: 50
+  s: 2
+  eta: 3
+
+parameters:
+  # === CRITICAL PARAMETERS (High ROI) ===
+
+  # Learning rate - MOST IMPORTANT
+  stage3_lr:
+    distribution: log_uniform_values
+    min: 1e-5
+    max: 1e-4
+
+  # LoRA rank - High impact on quality & memory
+  lora_r:
+    values: [4, 8, 16]
+
+  # LoRA alpha - Usually 2x rank, but test variations
+  lora_alpha:
+    values: [8, 16, 32]
+
+  # Sequence length - Test scaling behavior
+  max_seq_length:
+    values: [1024, 2048]
+
+  # Warmup - Scale with dataset size
+  warmup_steps:
+    values: [10, 25, 50]
+
+  # === CONDITIONAL PARAMETERS ===
+
+  # Sample count - less for exploration, more for validation
+  max_train_samples:
+    distribution: categorical
+    values: [500, 1000]
+
+  # === FIXED PARAMETERS (Memory/Stability) ===
+
+  # Fixed for memory safety on 5070 Ti
+  batch_size:
+    value: 1
+
+  # Effective batch size = 16 (conservative)
+  gradient_accumulation_steps:
+    value: 16
+
+  # Dataset and paths
+  truncated_json_root:
+    value: "./data/Omni-CAD-subset/json_truncated"
+
+  omnicad_txt_path:
+    value: "./data/Omni-CAD-subset/txt"
+
+  omnicad_json_root:
+    value: "./data/Omni-CAD-subset/json"
+
+  omnicad_img_root:
+    value: "./data/Omni-CAD-subset/img"
+
+  omnicad_pc_root:
+    value: "./data/Omni-CAD-subset/pointcloud"
+
+  # Training setup
+  llm_model_name:
+    value: "Qwen/Qwen3-8B"
+
+  start_from_stage:
+    value: 3
+
+  stage1_epochs:
+    value: 0
+
+  stage2_epochs:
+    value: 0
+
+  stage3_epochs:
+    value: 1
+
+  # Logging
+  logging_steps:
+    value: 5
+
+  save_steps:
+    value: 1000  # Don't save checkpoints during sweep
+
+  device:
+    value: "cuda"
+
+  dtype:
+    value: "bfloat16"
+
+  wandb_project:
+    value: "CAD-MLLM-Hyperparam-Sweep"
+
+# Limit total runs (safety)
+run_cap: 25

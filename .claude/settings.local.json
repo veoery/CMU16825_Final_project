@@ -9,7 +9,10 @@
       "Bash(conda env list:*)",
       "Bash(conda activate:*)",
       "Bash(uv venv:*)",
-      "Bash(. .venv/Scripts/activate)"
+      "Bash(. .venv/Scripts/activate)",
+      "Bash(bash:*)",
+      "Bash(chmod:*)",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []

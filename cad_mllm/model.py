@@ -196,6 +196,28 @@ class CADMLLMModel(nn.Module):
         # would print something like:
         #     trainable params: 5,046,272 || all params: 601,096,192 || trainable%: 0.8395
 
+    def enable_gradient_checkpointing(self):
+        """Enable gradient checkpointing to reduce memory usage.
+
+        This trades compute for memory by not storing all intermediate activations.
+        Should be called before training if memory is limited.
+        """
+        if hasattr(self.llm, 'enable_input_require_grads'):
+            # For PEFT models - MUST enable input gradients when using inputs_embeds
+            print("Enabling gradient checkpointing for PEFT model")
+            self.llm.enable_input_require_grads()
+
+            # Also enable gradient checkpointing on base model
+            if hasattr(self.llm.base_model, 'gradient_checkpointing_enable'):
+                self.llm.base_model.gradient_checkpointing_enable()
+            elif hasattr(self.llm, 'gradient_checkpointing_enable'):
+                self.llm.gradient_checkpointing_enable()
+        elif hasattr(self.llm, 'gradient_checkpointing_enable'):
+            print("Enabling gradient checkpointing for LLM")
+            self.llm.gradient_checkpointing_enable()
+        else:
+            print("Warning: Gradient checkpointing not available for this model")
+
     def forward(
         self,
         input_ids: Optional[torch.Tensor] = None,
@@ -261,6 +283,28 @@ class CADMLLMModel(nn.Module):
                 attention_mask = torch.cat(attention_masks, dim=1)
         else:
             inputs_embeds = embeddings_list[0]
+
+        # CRITICAL: For PEFT models with gradient checkpointing, embeddings MUST require grad
+        # This is needed when passing inputs_embeds instead of input_ids
+        if hasattr(self.llm, 'peft_config') and self.training:
+            inputs_embeds = inputs_embeds.requires_grad_(True)
+
+        # CRITICAL: Pad labels to match inputs_embeds sequence length
+        # When we have multimodal inputs (text + image + PC), inputs_embeds is longer than labels
+        # Labels are created from text tokenization only, so we need to pad with -100
+        if labels is not None and inputs_embeds.shape[1] > labels.shape[1]:
+            batch_size, seq_len = labels.shape
+            target_seq_len = inputs_embeds.shape[1]
+            padding_len = target_seq_len - seq_len
+
+            # Pad labels with -100 (ignore index) to match inputs_embeds length
+            padding = torch.full(
+                (batch_size, padding_len),
+                fill_value=-100,
+                dtype=labels.dtype,
+                device=labels.device
+            )
+            labels = torch.cat([labels, padding], dim=1)
 
         # Forward through LLM
         outputs = self.llm(
