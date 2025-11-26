@@ -265,6 +265,20 @@ class CADMLLMModel(nn.Module):
         else:
             inputs_embeds = embeddings_list[0]
 
+        if labels is not None:
+            batch_size, mm_seq_len = inputs_embeds.shape[:2]
+            lbl_batch, lbl_seq_len = labels.shape
+        
+            if lbl_seq_len < mm_seq_len:
+                pad_len = mm_seq_len - lbl_seq_len
+                pad = torch.full(
+                    (batch_size, pad_len),
+                    -100,
+                    dtype=labels.dtype,
+                    device=labels.device,
+                )
+                labels = torch.cat([labels, pad], dim=1)
+                
         # Forward through LLM
         outputs = self.llm(
             inputs_embeds=inputs_embeds,
