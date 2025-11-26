@@ -32,6 +32,10 @@ from cad_mllm import (
     CADCollator,
     create_dummy_dataset,
 )
+from cad_mllm.data.multimodal_autocomplete import (
+    MultimodalAutocompleteDataset,
+    MultimodalAutocompleteCollator,
+)
 
 
 def parse_args():
@@ -83,6 +87,11 @@ def parse_args():
     parser.add_argument("--omnicad_json_root", type=str, default="data/Omni-CAD/json", help="Root directory for Omni-CAD JSON files")
     parser.add_argument("--omnicad_img_root", type=str, default="data/Omni-CAD/img", help="Root directory for images")
     parser.add_argument("--omnicad_pc_root", type=str, default="data/Omni-CAD/pcd", help="Root directory for point clouds")
+
+    # Autocompletion arguments
+    parser.add_argument("--use_autocomplete_dataset", action="store_true", help="Use autocompletion dataset (truncated/full JSON pairs)")
+    parser.add_argument("--truncated_json_root", type=str, default=None, help="Root directory for truncated JSON files (for autocompletion)")
+    parser.add_argument("--max_train_samples", type=int, default=None, help="Maximum number of training samples to use (for testing)")
 
     # Checkpoint resumption arguments
     parser.add_argument("--resume_from_ckpt", type=str, default=None,
@@ -483,6 +492,25 @@ def main():
             max_seq_length=model_config.max_seq_length,
         )
         collator = CADCollator(model.tokenizer)
+    elif args.use_autocomplete_dataset:
+        # Use multimodal autocompletion dataset
+        if not args.truncated_json_root:
+            raise ValueError("--truncated_json_root is required when using --use_autocomplete_dataset")
+
+        print(f"Using autocompletion dataset with truncated JSONs from {args.truncated_json_root}")
+        train_dataset = MultimodalAutocompleteDataset(
+            data_path=train_config.train_data_path,
+            truncated_json_root=args.truncated_json_root,
+            full_json_root=args.omnicad_json_root,
+            image_root=args.omnicad_img_root,
+            pc_root=args.omnicad_pc_root,
+            modality_probs={"text": 0.1, "text+pc": 0.3, "text+img": 0.3, "text+pc+img": 0.3},
+            max_samples=args.max_train_samples,
+        )
+        collator = MultimodalAutocompleteCollator(
+            tokenizer=model.tokenizer,
+            max_seq_length=model_config.max_seq_length,
+        )
     else:
         # Use multimodal dataset
         train_dataset = MultimodalCADDataset(

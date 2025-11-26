@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir:*)",
+      "Bash(cat:*)",
+      "Bash(conda run:*)",
+      "Bash(powershell:*)",
+      "Bash(python:*)",
+      "Bash(conda env list:*)",
+      "Bash(conda activate:*)",
+      "Bash(uv venv:*)",
+      "Bash(. .venv/Scripts/activate)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

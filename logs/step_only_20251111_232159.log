@@ -1,0 +1,661 @@
+2025-11-11 23:21:59,624 [INFO] 
+================================================================================
+2025-11-11 23:21:59,624 [INFO] OMNI-CAD STEP EXPORT (Point Clouds Skipped)
+2025-11-11 23:21:59,624 [INFO] ================================================================================
+2025-11-11 23:21:59,624 [INFO] Started: 2025-11-11 23:21:59
+2025-11-11 23:21:59,624 [INFO] Log file: logs\step_only_20251111_232159.log
+2025-11-11 23:21:59,624 [INFO] ================================================================================
+
+2025-11-11 23:21:59,625 [INFO] Project root: W:\CMU_Academics\2025 Fall\Learning for 3D Vision\CMU16825_Final_project
+2025-11-11 23:21:59,625 [INFO] Data root: W:\CMU_Academics\2025 Fall\Learning for 3D Vision\CMU16825_Final_project\data\Omni-CAD
+
+2025-11-11 23:21:59,625 [INFO] ================================================================================
+2025-11-11 23:21:59,625 [INFO] Exporting JSON to STEP format
+2025-11-11 23:21:59,625 [INFO] ================================================================================
+2025-11-11 23:21:59,625 [INFO] Estimated time: 4-6 hours
+2025-11-11 23:21:59,625 [INFO] Storage needed: ~29 GB
+
+2025-11-11 23:21:59,625 [INFO] Command: python W:\CMU_Academics\2025 Fall\Learning for 3D Vision\CMU16825_Final_project\3rd_party\DeepCAD\utils\export2step_progress.py --src W:\CMU_Academics\2025 Fall\Learning for 3D Vision\CMU16825_Final_project\data\Omni-CAD\json --form json --num -1
+
+2025-11-11 23:22:13,092 [INFO] Source directory: W:\CMU_Academics\2025 Fall\Learning for 3D Vision\CMU16825_Final_project\data\Omni-CAD\json
+2025-11-11 23:22:13,092 [INFO] Found 605330 files
+2025-11-11 23:22:13,092 [INFO] Output directory: W:\CMU_Academics\2025 Fall\Learning for 3D Vision\CMU16825_Final_project\data\Omni-CAD\json_step
+2025-11-11 23:22:16,295 [INFO] [ERROR] Failed to process 00000346_00001.json: list index out of range
+2025-11-11 23:22:16,295 [INFO] [ERROR] Failed to process 00000392_00000.json: list index out of range
+2025-11-11 23:22:16,295 [INFO] [ERROR] Failed to process 00000392_00001.json: list index out of range
+2025-11-11 23:22:16,295 [INFO] [ERROR] Failed to process 00000635_00001.json: list index out of range
+2025-11-11 23:22:16,297 [INFO] [ERROR] Failed to process 00000638_00001.json: list index out of range
+2025-11-11 23:22:16,297 [INFO] [ERROR] Failed to process 00000834_00001.json: list index out of range
+2025-11-11 23:22:16,297 [INFO] [ERROR] Failed to process 00000849_00001.json: list index out of range
+2025-11-11 23:22:16,297 [INFO] [ERROR] Failed to process 00000909_00001.json: list index out of range
+2025-11-11 23:22:16,298 [INFO] [ERROR] Failed to process 00000949_00001.json: list index out of range
+2025-11-11 23:22:16,298 [INFO] [ERROR] Failed to process 00000954_00001.json: list index out of range
+2025-11-11 23:22:16,298 [INFO] [ERROR] Failed to process 00001001_00001.json: list index out of range
+2025-11-11 23:22:16,298 [INFO] [ERROR] Failed to process 00001006_00001.json: list index out of range
+2025-11-11 23:22:16,298 [INFO] [ERROR] Failed to process 00001012_00001.json: list index out of range
+2025-11-11 23:22:16,298 [INFO] [ERROR] Failed to process 00001046_00002.json: list index out of range
+2025-11-11 23:22:16,298 [INFO] [ERROR] Failed to process 00001130_00001.json: list index out of range
+2025-11-11 23:22:16,299 [INFO] [ERROR] Failed to process 00001170_00001.json: list index out of range
+2025-11-11 23:22:16,299 [INFO] [ERROR] Failed to process 00001172_00001.json: list index out of range
+2025-11-11 23:22:16,299 [INFO] [ERROR] Failed to process 00001382_00001.json: list index out of range
+2025-11-11 23:22:16,299 [INFO] [ERROR] Failed to process 00001382_00003.json: list index out of range
+2025-11-11 23:22:16,300 [INFO] [ERROR] Failed to process 00001402_00001.json: list index out of range
+2025-11-11 23:22:16,300 [INFO] [ERROR] Failed to process 00001490_00001.json: list index out of range
+2025-11-11 23:22:16,300 [INFO] [ERROR] Failed to process 00001494_00001.json: list index out of range
+2025-11-11 23:22:16,300 [INFO] [ERROR] Failed to process 00001495_00001.json: list index out of range
+2025-11-11 23:22:16,301 [INFO] [ERROR] Failed to process 00001529_00001.json: list index out of range
+2025-11-11 23:22:16,301 [INFO] [ERROR] Failed to process 00001590_00001.json: list index out of range
+2025-11-11 23:22:16,301 [INFO] [ERROR] Failed to process 00001632_00001.json: list index out of range
+2025-11-11 23:22:16,301 [INFO] [ERROR] Failed to process 00001633_00001.json: list index out of range
+2025-11-11 23:22:16,301 [INFO] [ERROR] Failed to process 00001633_00002.json: list index out of range
+2025-11-11 23:22:16,303 [INFO] [ERROR] Failed to process 00001634_00001.json: list index out of range
+2025-11-11 23:22:16,303 [INFO] [ERROR] Failed to process 00001636_00001.json: list index out of range
+2025-11-11 23:22:16,303 [INFO] [ERROR] Failed to process 00001638_00001.json: list index out of range
+2025-11-11 23:22:16,303 [INFO] [ERROR] Failed to process 00001692_00001.json: list index out of range
+2025-11-11 23:22:16,303 [INFO] [ERROR] Failed to process 00001708_00001.json: list index out of range
+2025-11-11 23:22:16,303 [INFO] [ERROR] Failed to process 00001819_00001.json: list index out of range
+2025-11-11 23:22:16,304 [INFO] [ERROR] Failed to process 00001863_00001.json: list index out of range
+2025-11-11 23:22:16,304 [INFO] [ERROR] Failed to process 00001871_00001.json: list index out of range
+2025-11-11 23:22:16,304 [INFO] [ERROR] Failed to process 00001970_00001.json: list index out of range
+2025-11-11 23:22:16,304 [INFO] [ERROR] Failed to process 00001971_00001.json: list index out of range
+2025-11-11 23:22:16,305 [INFO] [ERROR] Failed to process 00001972_00001.json: list index out of range
+2025-11-11 23:22:16,305 [INFO] [ERROR] Failed to process 00001974_00001.json: list index out of range
+2025-11-11 23:22:16,305 [INFO] [ERROR] Failed to process 00001974_00002.json: list index out of range
+2025-11-11 23:22:16,305 [INFO] [ERROR] Failed to process 00001982_00001.json: list index out of range
+2025-11-11 23:22:16,306 [INFO] [ERROR] Failed to process 00001982_00002.json: list index out of range
+2025-11-11 23:22:16,307 [INFO] [ERROR] Failed to process 00001985_00001.json: list index out of range
+2025-11-11 23:22:16,307 [INFO] [ERROR] Failed to process 00001988_00001.json: list index out of range
+2025-11-11 23:22:16,307 [INFO] [ERROR] Failed to process 00001989_00001.json: list index out of range
+2025-11-11 23:22:16,307 [INFO] [ERROR] Failed to process 00002083_00001.json: list index out of range
+2025-11-11 23:22:16,308 [INFO] [ERROR] Failed to process 00002193_00001.json: list index out of range
+2025-11-11 23:22:16,308 [INFO] [ERROR] Failed to process 00002201_00001.json: list index out of range
+2025-11-11 23:22:16,308 [INFO] [ERROR] Failed to process 00002203_00001.json: list index out of range
+2025-11-11 23:22:16,308 [INFO] [ERROR] Failed to process 00002224_00001.json: list index out of range
+2025-11-11 23:22:16,309 [INFO] [ERROR] Failed to process 00002224_00003.json: list index out of range
+2025-11-11 23:22:16,309 [INFO] [ERROR] Failed to process 00002271_00001.json: list index out of range
+2025-11-11 23:22:16,309 [INFO] [ERROR] Failed to process 00002278_00001.json: list index out of range
+2025-11-11 23:22:16,309 [INFO] [ERROR] Failed to process 00002278_00002.json: list index out of range
+2025-11-11 23:22:16,310 [INFO] [ERROR] Failed to process 00002547_00001.json: list index out of range
+2025-11-11 23:22:16,310 [INFO] [ERROR] Failed to process 00002600_00001.json: list index out of range
+2025-11-11 23:22:16,310 [INFO] [ERROR] Failed to process 00002603_00001.json: list index out of range
+2025-11-11 23:22:16,310 [INFO] [ERROR] Failed to process 00002603_00003.json: list index out of range
+2025-11-11 23:22:16,311 [INFO] [ERROR] Failed to process 00002603_00005.json: list index out of range
+2025-11-11 23:22:16,311 [INFO] [ERROR] Failed to process 00002603_00007.json: list index out of range
+2025-11-11 23:22:16,311 [INFO] [ERROR] Failed to process 00002694_00001.json: list index out of range
+2025-11-11 23:22:16,312 [INFO] [ERROR] Failed to process 00002694_00003.json: list index out of range
+2025-11-11 23:22:16,312 [INFO] [ERROR] Failed to process 00002694_00005.json: list index out of range
+2025-11-11 23:22:16,312 [INFO] [ERROR] Failed to process 00002695_00001.json: list index out of range
+2025-11-11 23:22:16,312 [INFO] [ERROR] Failed to process 00002702_00001.json: list index out of range
+2025-11-11 23:22:16,312 [INFO] [ERROR] Failed to process 00002703_00001.json: list index out of range
+2025-11-11 23:22:16,313 [INFO] [ERROR] Failed to process 00002703_00003.json: list index out of range
+2025-11-11 23:22:16,313 [INFO] [ERROR] Failed to process 00002703_00005.json: list index out of range
+2025-11-11 23:22:16,313 [INFO] [ERROR] Failed to process 00002886_00001.json: list index out of range
+2025-11-11 23:22:16,313 [INFO] [ERROR] Failed to process 00002900_00001.json: list index out of range
+2025-11-11 23:22:16,313 [INFO] [ERROR] Failed to process 00002964_00001.json: list index out of range
+2025-11-11 23:22:16,314 [INFO] [ERROR] Failed to process 00002972_00001.json: list index out of range
+2025-11-11 23:22:16,314 [INFO] [ERROR] Failed to process 00003016_00001.json: list index out of range
+2025-11-11 23:22:16,314 [INFO] [ERROR] Failed to process 00003035_00001.json: list index out of range
+2025-11-11 23:22:16,314 [INFO] [ERROR] Failed to process 00003128_00001.json: list index out of range
+2025-11-11 23:22:16,315 [INFO] [ERROR] Failed to process 00003132_00001.json: list index out of range
+2025-11-11 23:22:16,315 [INFO] [ERROR] Failed to process 00003135_00001.json: list index out of range
+2025-11-11 23:22:16,315 [INFO] [ERROR] Failed to process 00003166_00001.json: list index out of range
+2025-11-11 23:22:16,315 [INFO] [ERROR] Failed to process 00003173_00001.json: list index out of range
+2025-11-11 23:22:16,316 [INFO] [ERROR] Failed to process 00003337_00000.json: list index out of range
+2025-11-11 23:22:16,316 [INFO] [ERROR] Failed to process 00003399_00001.json: list index out of range
+2025-11-11 23:22:16,316 [INFO] [ERROR] Failed to process 00003406_00001.json: list index out of range
+2025-11-11 23:22:16,316 [INFO] [ERROR] Failed to process 00003516_00001.json: list index out of range
+2025-11-11 23:22:16,317 [INFO] [ERROR] Failed to process 00003516_00003.json: list index out of range
+2025-11-11 23:22:16,317 [INFO] [ERROR] Failed to process 00003517_00001.json: list index out of range
+2025-11-11 23:22:16,317 [INFO] [ERROR] Failed to process 00003732_00001.json: list index out of range
+2025-11-11 23:22:16,317 [INFO] [ERROR] Failed to process 00003866_00001.json: list index out of range
+2025-11-11 23:22:16,317 [INFO] [ERROR] Failed to process 00003867_00001.json: list index out of range
+2025-11-11 23:22:16,317 [INFO] [ERROR] Failed to process 00003877_00001.json: list index out of range
+2025-11-11 23:22:16,317 [INFO] [ERROR] Failed to process 00003877_00003.json: list index out of range
+2025-11-11 23:22:16,317 [INFO] [ERROR] Failed to process 00003901_00000.json: list index out of range
+2025-11-11 23:22:16,317 [INFO] [ERROR] Failed to process 00003954_00001.json: list index out of range
+2025-11-11 23:22:16,318 [INFO] [ERROR] Failed to process 00004088_00001.json: list index out of range
+2025-11-11 23:22:16,318 [INFO] [ERROR] Failed to process 00004088_00003.json: list index out of range
+2025-11-11 23:22:16,318 [INFO] [ERROR] Failed to process 00004088_00005.json: list index out of range
+2025-11-11 23:22:16,318 [INFO] [ERROR] Failed to process 00004108_00001.json: list index out of range
+2025-11-11 23:22:16,319 [INFO] [ERROR] Failed to process 00004132_00001.json: list index out of range
+2025-11-11 23:22:16,319 [INFO] [ERROR] Failed to process 00004137_00003.json: list index out of range
+2025-11-11 23:22:16,319 [INFO] [ERROR] Failed to process 00004137_00004.json: list index out of range
+2025-11-11 23:22:16,319 [INFO] [ERROR] Failed to process 00004137_00005.json: list index out of range
+2025-11-11 23:22:16,320 [INFO] [ERROR] Failed to process 00004137_00006.json: list index out of range
+2025-11-11 23:22:16,320 [INFO] [ERROR] Failed to process 00004137_00008.json: list index out of range
+2025-11-11 23:22:16,320 [INFO] [ERROR] Failed to process 00004138_00001.json: list index out of range
+2025-11-11 23:22:16,320 [INFO] [ERROR] Failed to process 00004138_00002.json: list index out of range
+2025-11-11 23:22:16,320 [INFO] [ERROR] Failed to process 00004141_00001.json: list index out of range
+2025-11-11 23:22:16,320 [INFO] [ERROR] Failed to process 00004141_00002.json: list index out of range
+2025-11-11 23:22:16,321 [INFO] [ERROR] Failed to process 00004299_00001.json: list index out of range
+2025-11-11 23:22:16,321 [INFO] [ERROR] Failed to process 00004303_00001.json: list index out of range
+2025-11-11 23:22:16,321 [INFO] [ERROR] Failed to process 00004333_00001.json: list index out of range
+2025-11-11 23:22:16,321 [INFO] [ERROR] Failed to process 00004449_00001.json: list index out of range
+2025-11-11 23:22:16,322 [INFO] [ERROR] Failed to process 00004635_00001.json: list index out of range
+2025-11-11 23:22:16,322 [INFO] [ERROR] Failed to process 00004692_00001.json: list index out of range
+2025-11-11 23:22:19,426 [INFO] [ERROR] Failed to process 00004692_00003.json: list index out of range
+2025-11-11 23:22:19,426 [INFO] [ERROR] Failed to process 00004695_00001.json: list index out of range
+2025-11-11 23:22:19,426 [INFO] [ERROR] Failed to process 00004695_00003.json: list index out of range
+2025-11-11 23:22:19,427 [INFO] [ERROR] Failed to process 00005037_00001.json: list index out of range
+2025-11-11 23:22:19,427 [INFO] [ERROR] Failed to process 00005065_00001.json: list index out of range
+2025-11-11 23:22:19,428 [INFO] [ERROR] Failed to process 00005101_00001.json: list index out of range
+2025-11-11 23:22:19,428 [INFO] [ERROR] Failed to process 00005107_00001.json: list index out of range
+2025-11-11 23:22:19,428 [INFO] [ERROR] Failed to process 00005108_00001.json: list index out of range
+2025-11-11 23:22:19,428 [INFO] [ERROR] Failed to process 00005113_00001.json: list index out of range
+2025-11-11 23:22:19,429 [INFO] [ERROR] Failed to process 00005140_00001.json: list index out of range
+2025-11-11 23:22:19,429 [INFO] [ERROR] Failed to process 00005180_00001.json: list index out of range
+2025-11-11 23:22:19,429 [INFO] [ERROR] Failed to process 00005268_00001.json: list index out of range
+2025-11-11 23:22:19,429 [INFO] [ERROR] Failed to process 00005270_00001.json: list index out of range
+2025-11-11 23:22:19,429 [INFO] [ERROR] Failed to process 00005310_00001.json: list index out of range
+2025-11-11 23:22:19,430 [INFO] [ERROR] Failed to process 00005310_00002.json: list index out of range
+2025-11-11 23:22:19,430 [INFO] [ERROR] Failed to process 00005310_00004.json: list index out of range
+2025-11-11 23:22:19,430 [INFO] [ERROR] Failed to process 00005311_00001.json: list index out of range
+2025-11-11 23:22:19,430 [INFO] [ERROR] Failed to process 00005312_00001.json: list index out of range
+2025-11-11 23:22:19,430 [INFO] [ERROR] Failed to process 00005312_00002.json: list index out of range
+2025-11-11 23:22:19,431 [INFO] [ERROR] Failed to process 00005312_00003.json: list index out of range
+2025-11-11 23:22:19,431 [INFO] [ERROR] Failed to process 00005313_00001.json: list index out of range
+2025-11-11 23:22:19,431 [INFO] [ERROR] Failed to process 00005313_00002.json: list index out of range
+2025-11-11 23:22:19,431 [INFO] [ERROR] Failed to process 00005313_00004.json: list index out of range
+2025-11-11 23:22:19,431 [INFO] [ERROR] Failed to process 00005314_00001.json: list index out of range
+2025-11-11 23:22:19,432 [INFO] [ERROR] Failed to process 00005315_00001.json: list index out of range
+2025-11-11 23:22:19,432 [INFO] [ERROR] Failed to process 00005315_00002.json: list index out of range
+2025-11-11 23:22:19,432 [INFO] [ERROR] Failed to process 00005316_00001.json: list index out of range
+2025-11-11 23:22:19,432 [INFO] [ERROR] Failed to process 00005316_00002.json: list index out of range
+2025-11-11 23:22:19,432 [INFO] [ERROR] Failed to process 00005317_00001.json: list index out of range
+2025-11-11 23:22:19,433 [INFO] [ERROR] Failed to process 00005319_00001.json: list index out of range
+2025-11-11 23:22:19,433 [INFO] [ERROR] Failed to process 00005321_00001.json: list index out of range
+2025-11-11 23:22:19,433 [INFO] [ERROR] Failed to process 00005321_00002.json: list index out of range
+2025-11-11 23:22:19,433 [INFO] [ERROR] Failed to process 00005322_00001.json: list index out of range
+2025-11-11 23:22:19,433 [INFO] [ERROR] Failed to process 00005323_00001.json: list index out of range
+2025-11-11 23:22:19,433 [INFO] [ERROR] Failed to process 00005323_00002.json: list index out of range
+2025-11-11 23:22:19,434 [INFO] [ERROR] Failed to process 00005323_00005.json: list index out of range
+2025-11-11 23:22:19,434 [INFO] [ERROR] Failed to process 00005334_00001.json: list index out of range
+2025-11-11 23:22:19,434 [INFO] [ERROR] Failed to process 00005399_00001.json: list index out of range
+2025-11-11 23:22:19,434 [INFO] [ERROR] Failed to process 00005609_00001.json: list index out of range
+2025-11-11 23:22:19,434 [INFO] [ERROR] Failed to process 00005609_00002.json: list index out of range
+2025-11-11 23:22:19,435 [INFO] [ERROR] Failed to process 00005609_00003.json: list index out of range
+2025-11-11 23:22:19,435 [INFO] [ERROR] Failed to process 00005609_00004.json: list index out of range
+2025-11-11 23:22:19,435 [INFO] [ERROR] Failed to process 00005659_00001.json: list index out of range
+2025-11-11 23:22:19,435 [INFO] [ERROR] Failed to process 00005916_00001.json: list index out of range
+2025-11-11 23:22:19,436 [INFO] [ERROR] Failed to process 00005916_00004.json: list index out of range
+2025-11-11 23:22:19,436 [INFO] [ERROR] Failed to process 00005916_00005.json: list index out of range
+2025-11-11 23:22:19,436 [INFO] [ERROR] Failed to process 00005918_00001.json: list index out of range
+2025-11-11 23:22:19,436 [INFO] [ERROR] Failed to process 00006004_00001.json: list index out of range
+2025-11-11 23:22:19,436 [INFO] [ERROR] Failed to process 00006004_00003.json: list index out of range
+2025-11-11 23:22:19,436 [INFO] [ERROR] Failed to process 00006007_00001.json: list index out of range
+2025-11-11 23:22:19,436 [INFO] [ERROR] Failed to process 00006117_00001.json: list index out of range
+2025-11-11 23:22:19,437 [INFO] [ERROR] Failed to process 00006117_00003.json: list index out of range
+2025-11-11 23:22:19,437 [INFO] [ERROR] Failed to process 00006118_00001.json: list index out of range
+2025-11-11 23:22:19,437 [INFO] [ERROR] Failed to process 00006118_00003.json: list index out of range
+2025-11-11 23:22:19,437 [INFO] [ERROR] Failed to process 00006119_00001.json: list index out of range
+2025-11-11 23:22:19,437 [INFO] [ERROR] Failed to process 00006119_00003.json: list index out of range
+2025-11-11 23:22:19,438 [INFO] [ERROR] Failed to process 00006119_00005.json: list index out of range
+2025-11-11 23:22:19,438 [INFO] [ERROR] Failed to process 00006130_00001.json: list index out of range
+2025-11-11 23:22:19,438 [INFO] [ERROR] Failed to process 00006192_00001.json: list index out of range
+2025-11-11 23:22:19,438 [INFO] [ERROR] Failed to process 00006207_00001.json: list index out of range
+2025-11-11 23:22:19,438 [INFO] [ERROR] Failed to process 00006213_00001.json: list index out of range
+2025-11-11 23:22:19,438 [INFO] [ERROR] Failed to process 00006219_00001.json: list index out of range
+2025-11-11 23:22:19,438 [INFO] [ERROR] Failed to process 00006224_00001.json: list index out of range
+2025-11-11 23:22:19,440 [INFO] [ERROR] Failed to process 00006425_00001.json: list index out of range
+2025-11-11 23:22:19,440 [INFO] [ERROR] Failed to process 00006433_00001.json: list index out of range
+2025-11-11 23:22:19,440 [INFO] [ERROR] Failed to process 00006433_00003.json: list index out of range
+2025-11-11 23:22:19,440 [INFO] [ERROR] Failed to process 00006436_00001.json: list index out of range
+2025-11-11 23:22:19,440 [INFO] [ERROR] Failed to process 00006444_00001.json: list index out of range
+2025-11-11 23:22:19,440 [INFO] [ERROR] Failed to process 00006444_00002.json: list index out of range
+2025-11-11 23:22:19,441 [INFO] [ERROR] Failed to process 00006467_00001.json: list index out of range
+2025-11-11 23:22:19,441 [INFO] [ERROR] Failed to process 00006467_00004.json: list index out of range
+2025-11-11 23:22:19,441 [INFO] [ERROR] Failed to process 00006467_00006.json: list index out of range
+2025-11-11 23:22:19,441 [INFO] [ERROR] Failed to process 00006584_00001.json: list index out of range
+2025-11-11 23:22:19,442 [INFO] [ERROR] Failed to process 00006584_00003.json: list index out of range
+2025-11-11 23:22:19,442 [INFO] [ERROR] Failed to process 00006584_00005.json: list index out of range
+2025-11-11 23:22:19,442 [INFO] [ERROR] Failed to process 00006584_00006.json: list index out of range
+2025-11-11 23:22:19,442 [INFO] [ERROR] Failed to process 00006584_00008.json: list index out of range
+2025-11-11 23:22:19,442 [INFO] [ERROR] Failed to process 00006608_00001.json: list index out of range
+2025-11-11 23:22:19,443 [INFO] [ERROR] Failed to process 00006625_00001.json: list index out of range
+2025-11-11 23:22:19,443 [INFO] [ERROR] Failed to process 00006642_00001.json: list index out of range
+2025-11-11 23:22:19,443 [INFO] [ERROR] Failed to process 00006642_00003.json: list index out of range
+2025-11-11 23:22:19,443 [INFO] [ERROR] Failed to process 00006642_00005.json: list index out of range
+2025-11-11 23:22:19,443 [INFO] [ERROR] Failed to process 00006645_00001.json: list index out of range
+2025-11-11 23:22:19,443 [INFO] [ERROR] Failed to process 00006646_00001.json: list index out of range
+2025-11-11 23:22:19,444 [INFO] [ERROR] Failed to process 00006646_00003.json: list index out of range
+2025-11-11 23:22:19,444 [INFO] [ERROR] Failed to process 00006664_00001.json: list index out of range
+2025-11-11 23:22:19,444 [INFO] [ERROR] Failed to process 00006669_00001.json: list index out of range
+2025-11-11 23:22:19,444 [INFO] [ERROR] Failed to process 00006669_00003.json: list index out of range
+2025-11-11 23:22:19,444 [INFO] [ERROR] Failed to process 00006670_00001.json: list index out of range
+2025-11-11 23:22:19,444 [INFO] [ERROR] Failed to process 00006670_00003.json: list index out of range
+2025-11-11 23:22:19,444 [INFO] [ERROR] Failed to process 00006670_00006.json: list index out of range
+2025-11-11 23:22:19,445 [INFO] [ERROR] Failed to process 00006671_00001.json: list index out of range
+2025-11-11 23:22:19,445 [INFO] [ERROR] Failed to process 00006674_00001.json: list index out of range
+2025-11-11 23:22:19,445 [INFO] [ERROR] Failed to process 00006678_00001.json: list index out of range
+2025-11-11 23:22:19,445 [INFO] [ERROR] Failed to process 00006680_00001.json: list index out of range
+2025-11-11 23:22:19,445 [INFO] [ERROR] Failed to process 00006843_00001.json: list index out of range
+2025-11-11 23:22:19,445 [INFO] [ERROR] Failed to process 00006843_00003.json: list index out of range
+2025-11-11 23:22:19,445 [INFO] [ERROR] Failed to process 00006843_00005.json: list index out of range
+2025-11-11 23:22:19,445 [INFO] [ERROR] Failed to process 00006856_00001.json: list index out of range
+2025-11-11 23:22:19,445 [INFO] [ERROR] Failed to process 00006859_00001.json: list index out of range
+2025-11-11 23:22:19,447 [INFO] [ERROR] Failed to process 00006862_00001.json: list index out of range
+2025-11-11 23:22:19,447 [INFO] [ERROR] Failed to process 00006864_00001.json: list index out of range
+2025-11-11 23:22:19,447 [INFO] [ERROR] Failed to process 00006866_00001.json: list index out of range
+2025-11-11 23:22:19,447 [INFO] [ERROR] Failed to process 00006923_00001.json: list index out of range
+2025-11-11 23:22:19,447 [INFO] [ERROR] Failed to process 00007024_00001.json: list index out of range
+2025-11-11 23:22:19,447 [INFO] [ERROR] Failed to process 00007039_00001.json: list index out of range
+2025-11-11 23:22:19,447 [INFO] [ERROR] Failed to process 00007039_00004.json: list index out of range
+2025-11-11 23:22:19,447 [INFO] [ERROR] Failed to process 00007080_00001.json: list index out of range
+2025-11-11 23:22:19,447 [INFO] [ERROR] Failed to process 00007454_00001.json: list index out of range
+2025-11-11 23:22:19,448 [INFO] [ERROR] Failed to process 00007465_00001.json: list index out of range
+2025-11-11 23:22:19,448 [INFO] [ERROR] Failed to process 00007465_00003.json: list index out of range
+2025-11-11 23:22:19,448 [INFO] [ERROR] Failed to process 00007498_00001.json: list index out of range
+2025-11-11 23:22:19,448 [INFO] [ERROR] Failed to process 00007498_00003.json: list index out of range
+2025-11-11 23:22:23,778 [INFO] [ERROR] Failed to process 00007612_00001.json: list index out of range
+2025-11-11 23:22:23,778 [INFO] [ERROR] Failed to process 00007614_00001.json: list index out of range
+2025-11-11 23:22:23,778 [INFO] [ERROR] Failed to process 00007810_00001.json: list index out of range
+2025-11-11 23:22:23,779 [INFO] [ERROR] Failed to process 00007811_00001.json: list index out of range
+2025-11-11 23:22:23,779 [INFO] [ERROR] Failed to process 00007815_00001.json: list index out of range
+2025-11-11 23:22:23,779 [INFO] [ERROR] Failed to process 00007980_00001.json: list index out of range
+2025-11-11 23:22:23,779 [INFO] [ERROR] Failed to process 00008163_00001.json: list index out of range
+2025-11-11 23:22:23,779 [INFO] [ERROR] Failed to process 00008163_00003.json: list index out of range
+2025-11-11 23:22:23,780 [INFO] [ERROR] Failed to process 00008165_00001.json: list index out of range
+2025-11-11 23:22:23,780 [INFO] [ERROR] Failed to process 00008278_00001.json: list index out of range
+2025-11-11 23:22:23,780 [INFO] [ERROR] Failed to process 00008285_00001.json: list index out of range
+2025-11-11 23:22:23,780 [INFO] [ERROR] Failed to process 00008285_00003.json: list index out of range
+2025-11-11 23:22:23,780 [INFO] [ERROR] Failed to process 00008333_00001.json: list index out of range
+2025-11-11 23:22:23,781 [INFO] [ERROR] Failed to process 00008333_00005.json: list index out of range
+2025-11-11 23:22:23,781 [INFO] [ERROR] Failed to process 00008335_00001.json: list index out of range
+2025-11-11 23:22:23,781 [INFO] [ERROR] Failed to process 00008336_00001.json: list index out of range
+2025-11-11 23:22:23,781 [INFO] [ERROR] Failed to process 00008338_00001.json: list index out of range
+2025-11-11 23:22:23,781 [INFO] [ERROR] Failed to process 00008339_00001.json: list index out of range
+2025-11-11 23:22:23,782 [INFO] [ERROR] Failed to process 00008356_00001.json: list index out of range
+2025-11-11 23:22:23,782 [INFO] [ERROR] Failed to process 00008381_00001.json: list index out of range
+2025-11-11 23:22:23,782 [INFO] [ERROR] Failed to process 00008418_00001.json: list index out of range
+2025-11-11 23:22:23,782 [INFO] [ERROR] Failed to process 00008423_00001.json: list index out of range
+2025-11-11 23:22:23,782 [INFO] [ERROR] Failed to process 00008425_00001.json: list index out of range
+2025-11-11 23:22:23,783 [INFO] [ERROR] Failed to process 00008425_00003.json: list index out of range
+2025-11-11 23:22:23,783 [INFO] [ERROR] Failed to process 00008425_00005.json: list index out of range
+2025-11-11 23:22:23,783 [INFO] [ERROR] Failed to process 00008425_00008.json: list index out of range
+2025-11-11 23:22:23,783 [INFO] [ERROR] Failed to process 00008427_00001.json: list index out of range
+2025-11-11 23:22:23,783 [INFO] [ERROR] Failed to process 00008427_00003.json: list index out of range
+2025-11-11 23:22:23,784 [INFO] [ERROR] Failed to process 00008428_00001.json: list index out of range
+2025-11-11 23:22:23,784 [INFO] [ERROR] Failed to process 00008564_00001.json: list index out of range
+2025-11-11 23:22:23,784 [INFO] [ERROR] Failed to process 00008564_00003.json: list index out of range
+2025-11-11 23:22:23,784 [INFO] [ERROR] Failed to process 00008566_00001.json: list index out of range
+2025-11-11 23:22:23,784 [INFO] [ERROR] Failed to process 00008929_00001.json: list index out of range
+2025-11-11 23:22:23,784 [INFO] [ERROR] Failed to process 00008929_00003.json: list index out of range
+2025-11-11 23:22:23,785 [INFO] [ERROR] Failed to process 00008930_00001.json: list index out of range
+2025-11-11 23:22:23,785 [INFO] [ERROR] Failed to process 00008930_00003.json: list index out of range
+2025-11-11 23:22:23,785 [INFO] [ERROR] Failed to process 00008932_00001.json: list index out of range
+2025-11-11 23:22:23,785 [INFO] [ERROR] Failed to process 00008937_00001.json: list index out of range
+2025-11-11 23:22:23,785 [INFO] [ERROR] Failed to process 00009035_00001.json: list index out of range
+2025-11-11 23:22:23,785 [INFO] [ERROR] Failed to process 00009038_00001.json: list index out of range
+2025-11-11 23:22:23,785 [INFO] [ERROR] Failed to process 00009051_00001.json: list index out of range
+2025-11-11 23:22:23,787 [INFO] [ERROR] Failed to process 00009053_00001.json: list index out of range
+2025-11-11 23:22:23,787 [INFO] [ERROR] Failed to process 00009436_00001.json: list index out of range
+2025-11-11 23:22:23,787 [INFO] [ERROR] Failed to process 00009436_00003.json: list index out of range
+2025-11-11 23:22:23,787 [INFO] [ERROR] Failed to process 00009436_00005.json: list index out of range
+2025-11-11 23:22:23,787 [INFO] [ERROR] Failed to process 00009686_00001.json: list index out of range
+2025-11-11 23:22:23,787 [INFO] [ERROR] Failed to process 00009783_00001.json: list index out of range
+2025-11-11 23:22:23,787 [INFO] [ERROR] Failed to process 00009892_00001.json: list index out of range
+2025-11-11 23:22:23,788 [INFO] [ERROR] Failed to process 00009919_00001.json: list index out of range
+2025-11-11 23:22:23,788 [INFO] [ERROR] Failed to process 00009919_00003.json: list index out of range
+2025-11-11 23:22:23,788 [INFO] [ERROR] Failed to process 00009919_00005.json: list index out of range
+2025-11-11 23:22:23,788 [INFO] [ERROR] Failed to process 00010243_00001.json: list index out of range
+2025-11-11 23:22:23,789 [INFO] [ERROR] Failed to process 00010921_00001.json: list index out of range
+2025-11-11 23:22:23,789 [INFO] [ERROR] Failed to process 00011413_00001.json: list index out of range
+2025-11-11 23:22:23,789 [INFO] [ERROR] Failed to process 00012765_00001.json: list index out of range
+2025-11-11 23:22:23,789 [INFO] [ERROR] Failed to process 00013372_00001.json: list index out of range
+2025-11-11 23:22:23,790 [INFO] [ERROR] Failed to process 00013479_00001.json: list index out of range
+2025-11-11 23:22:23,790 [INFO] [ERROR] Failed to process 00013479_00002.json: list index out of range
+2025-11-11 23:22:23,790 [INFO] [ERROR] Failed to process 00014060_00001.json: list index out of range
+2025-11-11 23:22:23,790 [INFO] [ERROR] Failed to process 00014061_00000.json: list index out of range
+2025-11-11 23:22:23,790 [INFO] [ERROR] Failed to process 00014062_00000.json: list index out of range
+2025-11-11 23:22:23,790 [INFO] [ERROR] Failed to process 00015296_00001.json: list index out of range
+2025-11-11 23:22:23,791 [INFO] [ERROR] Failed to process 00015641_00000.json: list index out of range
+2025-11-11 23:22:23,791 [INFO] [ERROR] Failed to process 00015761_00001.json: list index out of range
+2025-11-11 23:22:23,791 [INFO] [ERROR] Failed to process 00015912_00000.json: list index out of range
+2025-11-11 23:22:23,791 [INFO] [ERROR] Failed to process 00016111_00001.json: list index out of range
+2025-11-11 23:22:23,792 [INFO] [ERROR] Failed to process 00016917_00001.json: list index out of range
+2025-11-11 23:22:23,792 [INFO] [ERROR] Failed to process 00017040_00001.json: list index out of range
+2025-11-11 23:22:23,792 [INFO] [ERROR] Failed to process 00017109_00002.json: list index out of range
+2025-11-11 23:22:23,792 [INFO] [ERROR] Failed to process 00017113_00001.json: list index out of range
+2025-11-11 23:22:23,793 [INFO] [ERROR] Failed to process 00017163_00001.json: list index out of range
+2025-11-11 23:22:23,793 [INFO] [ERROR] Failed to process 00017311_00002.json: list index out of range
+2025-11-11 23:22:23,793 [INFO] [ERROR] Failed to process 00017337_00001.json: list index out of range
+2025-11-11 23:22:23,793 [INFO] [ERROR] Failed to process 00017337_00002.json: list index out of range
+2025-11-11 23:22:23,793 [INFO] [ERROR] Failed to process 00017388_00001.json: list index out of range
+2025-11-11 23:22:23,794 [INFO] [ERROR] Failed to process 00017463_00001.json: list index out of range
+2025-11-11 23:22:23,794 [INFO] [ERROR] Failed to process 00017872_00000.json: list index out of range
+2025-11-11 23:22:23,794 [INFO] [ERROR] Failed to process 00018368_00000.json: list index out of range
+2025-11-11 23:22:23,794 [INFO] [ERROR] Failed to process 00019095_00000.json: list index out of range
+2025-11-11 23:22:23,795 [INFO] [ERROR] Failed to process 00019109_00000.json: list index out of range
+2025-11-11 23:22:23,795 [INFO] [ERROR] Failed to process 00019937_00000.json: list index out of range
+2025-11-11 23:22:23,795 [INFO] [ERROR] Failed to process 00020042_00000.json: list index out of range
+2025-11-11 23:22:23,795 [INFO] [ERROR] Failed to process 00020381_00003.json: list index out of range
+2025-11-11 23:22:23,795 [INFO] [ERROR] Failed to process 00020384_00001.json: list index out of range
+2025-11-11 23:22:23,797 [INFO] [ERROR] Failed to process 00020409_00001.json: list index out of range
+2025-11-11 23:22:23,797 [INFO] [ERROR] Failed to process 00020881_00001.json: list index out of range
+2025-11-11 23:22:23,797 [INFO] [ERROR] Failed to process 00020900_00000.json: list index out of range
+2025-11-11 23:22:23,797 [INFO] [ERROR] Failed to process 00020920_00001.json: list index out of range
+2025-11-11 23:22:23,797 [INFO] [ERROR] Failed to process 00021055_00003.json: list index out of range
+2025-11-11 23:22:23,797 [INFO] [ERROR] Failed to process 00021055_00004.json: list index out of range
+2025-11-11 23:22:23,798 [INFO] [ERROR] Failed to process 00021338_00001.json: list index out of range
+2025-11-11 23:22:23,798 [INFO] [ERROR] Failed to process 00021416_00000.json: list index out of range
+2025-11-11 23:22:23,798 [INFO] [ERROR] Failed to process 00021416_00001.json: list index out of range
+2025-11-11 23:22:23,798 [INFO] [ERROR] Failed to process 00021416_00002.json: list index out of range
+2025-11-11 23:22:23,798 [INFO] [ERROR] Failed to process 00022092_00001.json: list index out of range
+2025-11-11 23:22:23,799 [INFO] [ERROR] Failed to process 00022110_00000.json: list index out of range
+2025-11-11 23:22:23,799 [INFO] [ERROR] Failed to process 00022276_00001.json: list index out of range
+2025-11-11 23:22:23,799 [INFO] [ERROR] Failed to process 00022302_00001.json: list index out of range
+2025-11-11 23:22:23,799 [INFO] [ERROR] Failed to process 00022303_00001.json: list index out of range
+2025-11-11 23:22:23,799 [INFO] [ERROR] Failed to process 00022321_00001.json: list index out of range
+2025-11-11 23:22:23,800 [INFO] [ERROR] Failed to process 00022703_00001.json: list index out of range
+2025-11-11 23:22:23,800 [INFO] [ERROR] Failed to process 00023033_00001.json: list index out of range
+2025-11-11 23:22:23,800 [INFO] [ERROR] Failed to process 00023804_00001.json: list index out of range
+2025-11-11 23:22:23,801 [INFO] [ERROR] Failed to process 00024249_00001.json: list index out of range
+2025-11-11 23:22:23,801 [INFO] [ERROR] Failed to process 00024437_00007.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:23,801 [INFO] [ERROR] Failed to process 00024437_00009.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:23,801 [INFO] [ERROR] Failed to process 00025298_00001.json: list index out of range
+2025-11-11 23:22:23,801 [INFO] [ERROR] Failed to process 00025812_00001.json: list index out of range
+2025-11-11 23:22:23,802 [INFO] [ERROR] Failed to process 00026523_00000.json: list index out of range
+2025-11-11 23:22:23,802 [INFO] [ERROR] Failed to process 00026535_00000.json: list index out of range
+2025-11-11 23:22:23,802 [INFO] [ERROR] Failed to process 00026906_00001.json: list index out of range
+2025-11-11 23:22:31,277 [INFO] [ERROR] Failed to process 00027206_00001.json: list index out of range
+2025-11-11 23:22:31,277 [INFO] [ERROR] Failed to process 00027206_00002.json: list index out of range
+2025-11-11 23:22:31,277 [INFO] [ERROR] Failed to process 00027704_00002.json: list index out of range
+2025-11-11 23:22:31,279 [INFO] [ERROR] Failed to process 00027704_00003.json: list index out of range
+2025-11-11 23:22:31,279 [INFO] [ERROR] Failed to process 00027878_00000.json: list index out of range
+2025-11-11 23:22:31,279 [INFO] [ERROR] Failed to process 00027879_00000.json: list index out of range
+2025-11-11 23:22:31,279 [INFO] [ERROR] Failed to process 00027932_00001.json: list index out of range
+2025-11-11 23:22:31,279 [INFO] [ERROR] Failed to process 00028985_00001.json: list index out of range
+2025-11-11 23:22:31,279 [INFO] [ERROR] Failed to process 00029318_00001.json: list index out of range
+2025-11-11 23:22:31,279 [INFO] [ERROR] Failed to process 00029532_00001.json: list index out of range
+2025-11-11 23:22:31,279 [INFO] [ERROR] Failed to process 00029829_00000.json: list index out of range
+2025-11-11 23:22:31,281 [INFO] [ERROR] Failed to process 00030303_00001.json: list index out of range
+2025-11-11 23:22:31,281 [INFO] [ERROR] Failed to process 00030537_00001.json: list index out of range
+2025-11-11 23:22:31,281 [INFO] [ERROR] Failed to process 00030935_00000.json: list index out of range
+2025-11-11 23:22:31,281 [INFO] [ERROR] Failed to process 00030946_00001.json: list index out of range
+2025-11-11 23:22:31,281 [INFO] [ERROR] Failed to process 00030953_00002.json: list index out of range
+2025-11-11 23:22:31,281 [INFO] [ERROR] Failed to process 00030961_00001.json: list index out of range
+2025-11-11 23:22:31,281 [INFO] [ERROR] Failed to process 00030970_00001.json: list index out of range
+2025-11-11 23:22:31,281 [INFO] [ERROR] Failed to process 00030973_00001.json: list index out of range
+2025-11-11 23:22:31,282 [INFO] [ERROR] Failed to process 00030985_00001.json: list index out of range
+2025-11-11 23:22:31,282 [INFO] [ERROR] Failed to process 00030987_00000.json: list index out of range
+2025-11-11 23:22:31,282 [INFO] [ERROR] Failed to process 00031009_00000.json: list index out of range
+2025-11-11 23:22:31,282 [INFO] [ERROR] Failed to process 00031009_00001.json: list index out of range
+2025-11-11 23:22:31,282 [INFO] [ERROR] Failed to process 00031654_00000.json: list index out of range
+2025-11-11 23:22:31,282 [INFO] [ERROR] Failed to process 00032057_00001.json: list index out of range
+2025-11-11 23:22:31,282 [INFO] [ERROR] Failed to process 00033480_00002.json: list index out of range
+2025-11-11 23:22:31,284 [INFO] [ERROR] Failed to process 00033885_00001.json: list index out of range
+2025-11-11 23:22:31,284 [INFO] [ERROR] Failed to process 00034276_00001.json: list index out of range
+2025-11-11 23:22:31,284 [INFO] [ERROR] Failed to process 00034301_00001.json: list index out of range
+2025-11-11 23:22:31,284 [INFO] [ERROR] Failed to process 00034477_00001.json: list index out of range
+2025-11-11 23:22:31,284 [INFO] [ERROR] Failed to process 00034763_00001.json: list index out of range
+2025-11-11 23:22:31,284 [INFO] [ERROR] Failed to process 00035003_00001.json: list index out of range
+2025-11-11 23:22:31,284 [INFO] [ERROR] Failed to process 00035090_00001.json: list index out of range
+2025-11-11 23:22:31,284 [INFO] [ERROR] Failed to process 00035236_00000.json: list index out of range
+2025-11-11 23:22:31,285 [INFO] [ERROR] Failed to process 00035824_00000.json: list index out of range
+2025-11-11 23:22:31,285 [INFO] [ERROR] Failed to process 00035973_00000.json: list index out of range
+2025-11-11 23:22:31,285 [INFO] [ERROR] Failed to process 00036271_00001.json: list index out of range
+2025-11-11 23:22:31,285 [INFO] [ERROR] Failed to process 00036605_00002.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:31,285 [INFO] [ERROR] Failed to process 00036605_00003.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:31,285 [INFO] [ERROR] Failed to process 00036605_00004.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:31,285 [INFO] [ERROR] Failed to process 00036605_00005.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:31,285 [INFO] [ERROR] Failed to process 00036605_00006.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:31,287 [INFO] [ERROR] Failed to process 00036605_00008.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:31,287 [INFO] [ERROR] Failed to process 00036896_00001.json: list index out of range
+2025-11-11 23:22:31,287 [INFO] [ERROR] Failed to process 00037179_00001.json: list index out of range
+2025-11-11 23:22:31,287 [INFO] [ERROR] Failed to process 00037354_00000.json: list index out of range
+2025-11-11 23:22:31,288 [INFO] [ERROR] Failed to process 00037431_00001.json: list index out of range
+2025-11-11 23:22:31,288 [INFO] [ERROR] Failed to process 00037515_00001.json: list index out of range
+2025-11-11 23:22:31,288 [INFO] [ERROR] Failed to process 00038379_00001.json: list index out of range
+2025-11-11 23:22:31,288 [INFO] [ERROR] Failed to process 00038380_00000.json: list index out of range
+2025-11-11 23:22:31,289 [INFO] [ERROR] Failed to process 00038580_00001.json: list index out of range
+2025-11-11 23:22:31,289 [INFO] [ERROR] Failed to process 00038738_00001.json: list index out of range
+2025-11-11 23:22:31,289 [INFO] [ERROR] Failed to process 00039034_00007.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:31,289 [INFO] [ERROR] Failed to process 00039034_00009.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:31,289 [INFO] [ERROR] Failed to process 00039580_00000.json: list index out of range
+2025-11-11 23:22:31,290 [INFO] [ERROR] Failed to process 00039764_00002.json: list index out of range
+2025-11-11 23:22:31,290 [INFO] [ERROR] Failed to process 00039794_00001.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:31,290 [INFO] [ERROR] Failed to process 00039863_00004.json: list index out of range
+2025-11-11 23:22:31,290 [INFO] [ERROR] Failed to process 00039863_00005.json: list index out of range
+2025-11-11 23:22:31,290 [INFO] [ERROR] Failed to process 00040011_00000.json: list index out of range
+2025-11-11 23:22:31,290 [INFO] [ERROR] Failed to process 00040387_00001.json: list index out of range
+2025-11-11 23:22:31,291 [INFO] [ERROR] Failed to process 00040406_00001.json: StdFail_NotDoneGC_MakeArcOfCircle::Value() - no result raised from method Value of class GC_MakeArcOfCircle
+2025-11-11 23:22:31,291 [INFO] [ERROR] Failed to process 00040406_00004.json: StdFail_NotDoneGC_MakeArcOfCircle::Value() - no result raised from method Value of class GC_MakeArcOfCircle
+2025-11-11 23:22:31,291 [INFO] [ERROR] Failed to process 00040406_00006.json: StdFail_NotDoneGC_MakeArcOfCircle::Value() - no result raised from method Value of class GC_MakeArcOfCircle
+2025-11-11 23:22:31,291 [INFO] [ERROR] Failed to process 00040941_00001.json: list index out of range
+2025-11-11 23:22:31,291 [INFO] [ERROR] Failed to process 00040981_00001.json: list index out of range
+2025-11-11 23:22:31,292 [INFO] [ERROR] Failed to process 00042103_00001.json: list index out of range
+2025-11-11 23:22:31,292 [INFO] [ERROR] Failed to process 00042122_00000.json: list index out of range
+2025-11-11 23:22:31,292 [INFO] [ERROR] Failed to process 00042529_00001.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:31,292 [INFO] [ERROR] Failed to process 00043582_00000.json: list index out of range
+2025-11-11 23:22:31,292 [INFO] [ERROR] Failed to process 00044176_00000.json: list index out of range
+2025-11-11 23:22:31,293 [INFO] [ERROR] Failed to process 00044287_00003.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:31,293 [INFO] [ERROR] Failed to process 00044464_00000.json: list index out of range
+2025-11-11 23:22:31,293 [INFO] [ERROR] Failed to process 00044464_00001.json: list index out of range
+2025-11-11 23:22:31,293 [INFO] [ERROR] Failed to process 00044648_00000.json: list index out of range
+2025-11-11 23:22:31,293 [INFO] [ERROR] Failed to process 00044769_00002.json: list index out of range
+2025-11-11 23:22:31,293 [INFO] [ERROR] Failed to process 00045134_00002.json: list index out of range
+2025-11-11 23:22:31,294 [INFO] [ERROR] Failed to process 00045135_00001.json: list index out of range
+2025-11-11 23:22:31,294 [INFO] [ERROR] Failed to process 00045135_00002.json: list index out of range
+2025-11-11 23:22:31,294 [INFO] [ERROR] Failed to process 00045137_00001.json: list index out of range
+2025-11-11 23:22:31,294 [INFO] [ERROR] Failed to process 00045619_00002.json: list index out of range
+2025-11-11 23:22:31,294 [INFO] [ERROR] Failed to process 00046092_00001.json: list index out of range
+2025-11-11 23:22:31,294 [INFO] [ERROR] Failed to process 00046172_00001.json: list index out of range
+2025-11-11 23:22:31,295 [INFO] [ERROR] Failed to process 00047198_00001.json: list index out of range
+2025-11-11 23:22:31,295 [INFO] [ERROR] Failed to process 00047783_00000.json: list index out of range
+2025-11-11 23:22:31,295 [INFO] [ERROR] Failed to process 00047837_00001.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:31,295 [INFO] [ERROR] Failed to process 00048607_00001.json: list index out of range
+2025-11-11 23:22:31,295 [INFO] [ERROR] Failed to process 00049196_00000.json: list index out of range
+2025-11-11 23:22:31,296 [INFO] [ERROR] Failed to process 00049409_00001.json: list index out of range
+2025-11-11 23:22:31,296 [INFO] [ERROR] Failed to process 00049945_00000.json: list index out of range
+2025-11-11 23:22:31,296 [INFO] [ERROR] Failed to process 00050328_00000.json: list index out of range
+2025-11-11 23:22:31,296 [INFO] [ERROR] Failed to process 00050460_00001.json: list index out of range
+2025-11-11 23:22:31,296 [INFO] [ERROR] Failed to process 00050542_00001.json: list index out of range
+2025-11-11 23:22:31,297 [INFO] [ERROR] Failed to process 00050711_00001.json: list index out of range
+2025-11-11 23:22:31,297 [INFO] [ERROR] Failed to process 00050866_00001.json: list index out of range
+2025-11-11 23:22:31,297 [INFO] [ERROR] Failed to process 00051058_00001.json: list index out of range
+2025-11-11 23:22:36,563 [INFO] [ERROR] Failed to process 00051346_00001.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:36,563 [INFO] [ERROR] Failed to process 00051347_00001.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:36,563 [INFO] [ERROR] Failed to process 00051371_00001.json: list index out of range
+2025-11-11 23:22:36,564 [INFO] [ERROR] Failed to process 00051371_00003.json: list index out of range
+2025-11-11 23:22:36,564 [INFO] [ERROR] Failed to process 00051371_00005.json: list index out of range
+2025-11-11 23:22:36,564 [INFO] [ERROR] Failed to process 00051382_00001.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:36,564 [INFO] [ERROR] Failed to process 00051382_00003.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:36,564 [INFO] [ERROR] Failed to process 00051382_00005.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:36,565 [INFO] [ERROR] Failed to process 00051382_00007.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:36,565 [INFO] [ERROR] Failed to process 00051384_00001.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:36,565 [INFO] [ERROR] Failed to process 00051384_00003.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:36,565 [INFO] [ERROR] Failed to process 00051385_00001.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:36,565 [INFO] [ERROR] Failed to process 00051385_00003.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:36,565 [INFO] [ERROR] Failed to process 00051386_00001.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:36,567 [INFO] [ERROR] Failed to process 00051386_00003.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:36,567 [INFO] [ERROR] Failed to process 00051544_00001.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:36,567 [INFO] [ERROR] Failed to process 00051544_00003.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:36,567 [INFO] [ERROR] Failed to process 00051544_00005.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:36,567 [INFO] [ERROR] Failed to process 00051642_00001.json: list index out of range
+2025-11-11 23:22:36,567 [INFO] [ERROR] Failed to process 00051835_00001.json: list index out of range
+2025-11-11 23:22:36,568 [INFO] [ERROR] Failed to process 00051889_00001.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:36,568 [INFO] [ERROR] Failed to process 00051891_00001.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:36,568 [INFO] [ERROR] Failed to process 00051892_00001.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:36,568 [INFO] [ERROR] Failed to process 00051900_00001.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:36,568 [INFO] [ERROR] Failed to process 00051902_00001.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:36,569 [INFO] [ERROR] Failed to process 00052232_00003.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:36,569 [INFO] [ERROR] Failed to process 00052364_00001.json: list index out of range
+2025-11-11 23:22:36,569 [INFO] [ERROR] Failed to process 00052364_00003.json: list index out of range
+2025-11-11 23:22:36,569 [INFO] [ERROR] Failed to process 00053102_00001.json: list index out of range
+2025-11-11 23:22:36,570 [INFO] [ERROR] Failed to process 00053660_00001.json: list index out of range
+2025-11-11 23:22:36,570 [INFO] [ERROR] Failed to process 00053661_00001.json: list index out of range
+2025-11-11 23:22:36,570 [INFO] [ERROR] Failed to process 00053904_00001.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:36,570 [INFO] [ERROR] Failed to process 00053904_00003.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:36,570 [INFO] [ERROR] Failed to process 00053989_00001.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:36,571 [INFO] [ERROR] Failed to process 00054075_00001.json: list index out of range
+2025-11-11 23:22:36,571 [INFO] [ERROR] Failed to process 00054290_00001.json: list index out of range
+2025-11-11 23:22:36,571 [INFO] [ERROR] Failed to process 00054291_00001.json: list index out of range
+2025-11-11 23:22:36,571 [INFO] [ERROR] Failed to process 00054380_00004.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:36,571 [INFO] [ERROR] Failed to process 00054414_00001.json: list index out of range
+2025-11-11 23:22:36,571 [INFO] [ERROR] Failed to process 00054428_00001.json: list index out of range
+2025-11-11 23:22:36,572 [INFO] [ERROR] Failed to process 00055079_00001.json: list index out of range
+2025-11-11 23:22:36,572 [INFO] [ERROR] Failed to process 00055491_00001.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:36,572 [INFO] [ERROR] Failed to process 00055491_00003.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:36,572 [INFO] [ERROR] Failed to process 00055498_00001.json: list index out of range
+2025-11-11 23:22:36,572 [INFO] [ERROR] Failed to process 00055899_00001.json: list index out of range
+2025-11-11 23:22:36,573 [INFO] [ERROR] Failed to process 00056032_00001.json: list index out of range
+2025-11-11 23:22:36,573 [INFO] [ERROR] Failed to process 00056368_00000.json: list index out of range
+2025-11-11 23:22:36,573 [INFO] [ERROR] Failed to process 00056909_00001.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:36,573 [INFO] [ERROR] Failed to process 00057626_00001.json: list index out of range
+2025-11-11 23:22:36,574 [INFO] [ERROR] Failed to process 00057707_00001.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:36,574 [INFO] [ERROR] Failed to process 00058369_00003.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:36,574 [INFO] [ERROR] Failed to process 00058551_00000.json: list index out of range
+2025-11-11 23:22:36,574 [INFO] [ERROR] Failed to process 00058830_00000.json: list index out of range
+2025-11-11 23:22:36,574 [INFO] [ERROR] Failed to process 00059008_00001.json: list index out of range
+2025-11-11 23:22:36,575 [INFO] [ERROR] Failed to process 00059092_00001.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:36,575 [INFO] [ERROR] Failed to process 00059092_00003.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:36,575 [INFO] [ERROR] Failed to process 00059092_00005.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:36,575 [INFO] [ERROR] Failed to process 00059092_00007.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:36,575 [INFO] [ERROR] Failed to process 00059751_00001.json: list index out of range
+2025-11-11 23:22:36,576 [INFO] [ERROR] Failed to process 00059800_00001.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:36,576 [INFO] [ERROR] Failed to process 00059800_00003.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:36,576 [INFO] [ERROR] Failed to process 00059800_00005.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:36,576 [INFO] [ERROR] Failed to process 00060196_00001.json: list index out of range
+2025-11-11 23:22:36,576 [INFO] [ERROR] Failed to process 00060374_00001.json: list index out of range
+2025-11-11 23:22:36,577 [INFO] [ERROR] Failed to process 00060375_00001.json: list index out of range
+2025-11-11 23:22:36,577 [INFO] [ERROR] Failed to process 00060376_00001.json: list index out of range
+2025-11-11 23:22:36,577 [INFO] [ERROR] Failed to process 00060377_00001.json: list index out of range
+2025-11-11 23:22:36,577 [INFO] [ERROR] Failed to process 00060378_00001.json: list index out of range
+2025-11-11 23:22:36,577 [INFO] [ERROR] Failed to process 00060379_00001.json: list index out of range
+2025-11-11 23:22:36,577 [INFO] [ERROR] Failed to process 00060380_00001.json: list index out of range
+2025-11-11 23:22:36,577 [INFO] [ERROR] Failed to process 00060381_00001.json: list index out of range
+2025-11-11 23:22:36,577 [INFO] [ERROR] Failed to process 00060384_00001.json: list index out of range
+2025-11-11 23:22:36,578 [INFO] [ERROR] Failed to process 00060916_00001.json: list index out of range
+2025-11-11 23:22:36,578 [INFO] [ERROR] Failed to process 00060916_00004.json: list index out of range
+2025-11-11 23:22:36,578 [INFO] [ERROR] Failed to process 00061530_00001.json: list index out of range
+2025-11-11 23:22:39,258 [INFO] [ERROR] Failed to process 00061652_00001.json: list index out of range
+2025-11-11 23:22:39,258 [INFO] [ERROR] Failed to process 00061655_00001.json: list index out of range
+2025-11-11 23:22:39,258 [INFO] [ERROR] Failed to process 00062308_00001.json: list index out of range
+2025-11-11 23:22:39,258 [INFO] [ERROR] Failed to process 00062311_00001.json: list index out of range
+2025-11-11 23:22:39,260 [INFO] [ERROR] Failed to process 00062937_00001.json: list index out of range
+2025-11-11 23:22:39,260 [INFO] [ERROR] Failed to process 00063583_00001.json: list index out of range
+2025-11-11 23:22:39,260 [INFO] [ERROR] Failed to process 00063827_00001.json: list index out of range
+2025-11-11 23:22:39,260 [INFO] [ERROR] Failed to process 00063926_00001.json: list index out of range
+2025-11-11 23:22:39,260 [INFO] [ERROR] Failed to process 00064219_00000.json: list index out of range
+2025-11-11 23:22:39,261 [INFO] [ERROR] Failed to process 00064859_00001.json: list index out of range
+2025-11-11 23:22:39,261 [INFO] [ERROR] Failed to process 00064934_00000.json: list index out of range
+2025-11-11 23:22:39,261 [INFO] [ERROR] Failed to process 00065188_00000.json: list index out of range
+2025-11-11 23:22:39,261 [INFO] [ERROR] Failed to process 00065989_00001.json: list index out of range
+2025-11-11 23:22:39,261 [INFO] [ERROR] Failed to process 00065998_00001.json: list index out of range
+2025-11-11 23:22:39,262 [INFO] [ERROR] Failed to process 00066033_00000.json: list index out of range
+2025-11-11 23:22:39,262 [INFO] [ERROR] Failed to process 00066106_00001.json: list index out of range
+2025-11-11 23:22:39,262 [INFO] [ERROR] Failed to process 00066147_00001.json: list index out of range
+2025-11-11 23:22:39,262 [INFO] [ERROR] Failed to process 00066157_00001.json: list index out of range
+2025-11-11 23:22:39,262 [INFO] [ERROR] Failed to process 00066385_00001.json: list index out of range
+2025-11-11 23:22:39,262 [INFO] [ERROR] Failed to process 00066416_00001.json: list index out of range
+2025-11-11 23:22:39,263 [INFO] [ERROR] Failed to process 00066416_00002.json: list index out of range
+2025-11-11 23:22:39,263 [INFO] [ERROR] Failed to process 00066416_00003.json: list index out of range
+2025-11-11 23:22:39,263 [INFO] [ERROR] Failed to process 00066416_00004.json: list index out of range
+2025-11-11 23:22:39,263 [INFO] [ERROR] Failed to process 00066499_00002.json: list index out of range
+2025-11-11 23:22:39,263 [INFO] [ERROR] Failed to process 00066499_00004.json: list index out of range
+2025-11-11 23:22:39,264 [INFO] [ERROR] Failed to process 00067148_00001.json: list index out of range
+2025-11-11 23:22:39,264 [INFO] [ERROR] Failed to process 00067354_00001.json: list index out of range
+2025-11-11 23:22:39,264 [INFO] [ERROR] Failed to process 00067414_00001.json: list index out of range
+2025-11-11 23:22:39,264 [INFO] [ERROR] Failed to process 00067443_00001.json: list index out of range
+2025-11-11 23:22:39,264 [INFO] [ERROR] Failed to process 00067501_00000.json: list index out of range
+2025-11-11 23:22:39,264 [INFO] [ERROR] Failed to process 00067659_00001.json: list index out of range
+2025-11-11 23:22:39,265 [INFO] [ERROR] Failed to process 00067692_00004.json: Wrong number or type of arguments for overloaded function 'new_BRepAlgoAPI_Cut'.
+2025-11-11 23:22:39,265 [INFO] [ERROR] Failed to process 00067692_00005.json: Wrong number or type of arguments for overloaded function 'new_BRepAlgoAPI_Cut'.
+2025-11-11 23:22:39,265 [INFO] [ERROR] Failed to process 00067692_00006.json: Wrong number or type of arguments for overloaded function 'new_BRepAlgoAPI_Cut'.
+2025-11-11 23:22:39,265 [INFO] [ERROR] Failed to process 00067692_00007.json: Wrong number or type of arguments for overloaded function 'new_BRepAlgoAPI_Cut'.
+2025-11-11 23:22:39,265 [INFO] [ERROR] Failed to process 00067692_00008.json: Wrong number or type of arguments for overloaded function 'new_BRepAlgoAPI_Cut'.
+2025-11-11 23:22:39,265 [INFO] [ERROR] Failed to process 00067692_00010.json: Wrong number or type of arguments for overloaded function 'new_BRepAlgoAPI_Cut'.
+2025-11-11 23:22:39,265 [INFO] [ERROR] Failed to process 00067692_00012.json: Wrong number or type of arguments for overloaded function 'new_BRepAlgoAPI_Cut'.
+2025-11-11 23:22:39,265 [INFO] [ERROR] Failed to process 00067692_00014.json: Wrong number or type of arguments for overloaded function 'new_BRepAlgoAPI_Cut'.
+2025-11-11 23:22:39,267 [INFO] [ERROR] Failed to process 00067872_00000.json: list index out of range
+2025-11-11 23:22:39,267 [INFO] [ERROR] Failed to process 00068114_00000.json: list index out of range
+2025-11-11 23:22:39,267 [INFO] [ERROR] Failed to process 00068449_00001.json: list index out of range
+2025-11-11 23:22:39,267 [INFO] [ERROR] Failed to process 00068449_00003.json: list index out of range
+2025-11-11 23:22:39,268 [INFO] [ERROR] Failed to process 00069561_00001.json: list index out of range
+2025-11-11 23:22:39,268 [INFO] [ERROR] Failed to process 00069801_00000.json: list index out of range
+2025-11-11 23:22:39,268 [INFO] [ERROR] Failed to process 00069801_00002.json: list index out of range
+2025-11-11 23:22:39,268 [INFO] [ERROR] Failed to process 00070090_00001.json: list index out of range
+2025-11-11 23:22:39,268 [INFO] [ERROR] Failed to process 00070202_00001.json: list index out of range
+2025-11-11 23:22:39,268 [INFO] [ERROR] Failed to process 00070224_00001.json: list index out of range
+2025-11-11 23:22:39,269 [INFO] [ERROR] Failed to process 00070382_00001.json: list index out of range
+2025-11-11 23:22:39,269 [INFO] [ERROR] Failed to process 00070382_00002.json: list index out of range
+2025-11-11 23:22:39,269 [INFO] [ERROR] Failed to process 00071159_00000.json: list index out of range
+2025-11-11 23:22:39,269 [INFO] [ERROR] Failed to process 00071196_00009.json: Standard_ConstructionErrorBRepSweep_Translation::Constructor raised from method BRepPrimAPI_MakePrism of class BRepPrimAPI_MakePrism
+2025-11-11 23:22:39,269 [INFO] [ERROR] Failed to process 00071408_00001.json: list index out of range
+2025-11-11 23:22:39,270 [INFO] [ERROR] Failed to process 00071587_00001.json: list index out of range
+2025-11-11 23:22:39,270 [INFO] [ERROR] Failed to process 00071635_00000.json: list index out of range
+2025-11-11 23:22:39,270 [INFO] [ERROR] Failed to process 00071735_00001.json: list index out of range
+2025-11-11 23:22:39,270 [INFO] [ERROR] Failed to process 00072027_00000.json: list index out of range
+2025-11-11 23:22:39,270 [INFO] [ERROR] Failed to process 00073449_00001.json: list index out of range
+2025-11-11 23:22:41,853 [INFO] [ERROR] Failed to process 00073854_00001.json: list index out of range
+2025-11-11 23:22:41,853 [INFO] [ERROR] Failed to process 00074225_00001.json: list index out of range
+2025-11-11 23:22:41,853 [INFO] [ERROR] Failed to process 00074281_00003.json: Wrong number or type of arguments for overloaded function 'new_BRepAlgoAPI_Fuse'.
+2025-11-11 23:22:41,854 [INFO] [ERROR] Failed to process 00074281_00005.json: Wrong number or type of arguments for overloaded function 'new_BRepAlgoAPI_Fuse'.
+2025-11-11 23:22:41,854 [INFO] [ERROR] Failed to process 00074281_00007.json: Wrong number or type of arguments for overloaded function 'new_BRepAlgoAPI_Fuse'.
+2025-11-11 23:22:41,854 [INFO] [ERROR] Failed to process 00074281_00009.json: Wrong number or type of arguments for overloaded function 'new_BRepAlgoAPI_Fuse'.
+2025-11-11 23:22:41,854 [INFO] [ERROR] Failed to process 00074503_00001.json: list index out of range
+2025-11-11 23:22:41,855 [INFO] [ERROR] Failed to process 00074696_00000.json: list index out of range
+2025-11-11 23:22:41,855 [INFO] [ERROR] Failed to process 00074943_00002.json: list index out of range
+2025-11-11 23:22:41,855 [INFO] [ERROR] Failed to process 00074963_00001.json: list index out of range
+2025-11-11 23:22:41,855 [INFO] [ERROR] Failed to process 00075023_00001.json: list index out of range
+2025-11-11 23:22:41,855 [INFO] [ERROR] Failed to process 00075743_00001.json: list index out of range
+2025-11-11 23:22:41,856 [INFO] [ERROR] Failed to process 00076023_00001.json: list index out of range
+2025-11-11 23:22:41,856 [INFO] [ERROR] Failed to process 00076274_00001.json: list index out of range
+2025-11-11 23:22:41,856 [INFO] [ERROR] Failed to process 00076677_00001.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:41,856 [INFO] [ERROR] Failed to process 00076677_00002.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:41,856 [INFO] [ERROR] Failed to process 00076677_00003.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:41,857 [INFO] [ERROR] Failed to process 00076756_00001.json: list index out of range
+2025-11-11 23:22:41,857 [INFO] [ERROR] Failed to process 00076837_00001.json: list index out of range
+2025-11-11 23:22:41,857 [INFO] [ERROR] Failed to process 00076864_00001.json: list index out of range
+2025-11-11 23:22:41,857 [INFO] [ERROR] Failed to process 00076868_00001.json: list index out of range
+2025-11-11 23:22:41,857 [INFO] [ERROR] Failed to process 00077440_00000.json: list index out of range
+2025-11-11 23:22:41,857 [INFO] [ERROR] Failed to process 00077551_00001.json: list index out of range
+2025-11-11 23:22:41,857 [INFO] [ERROR] Failed to process 00077551_00003.json: list index out of range
+2025-11-11 23:22:41,857 [INFO] [ERROR] Failed to process 00077551_00004.json: list index out of range
+2025-11-11 23:22:41,859 [INFO] [ERROR] Failed to process 00077919_00001.json: list index out of range
+2025-11-11 23:22:41,859 [INFO] [ERROR] Failed to process 00078010_00005.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:41,859 [INFO] [ERROR] Failed to process 00078010_00006.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:41,859 [INFO] [ERROR] Failed to process 00078010_00008.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:41,859 [INFO] [ERROR] Failed to process 00078010_00010.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:41,860 [INFO] [ERROR] Failed to process 00078024_00001.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:41,860 [INFO] [ERROR] Failed to process 00078025_00001.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:41,860 [INFO] [ERROR] Failed to process 00078026_00001.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:41,861 [INFO] [ERROR] Failed to process 00078133_00004.json: list index out of range
+2025-11-11 23:22:41,861 [INFO] [ERROR] Failed to process 00078377_00003.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:41,861 [INFO] [ERROR] Failed to process 00078510_00001.json: list index out of range
+2025-11-11 23:22:41,861 [INFO] [ERROR] Failed to process 00078625_00001.json: list index out of range
+2025-11-11 23:22:41,861 [INFO] [ERROR] Failed to process 00078929_00001.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:41,861 [INFO] [ERROR] Failed to process 00079320_00001.json: list index out of range
+2025-11-11 23:22:41,861 [INFO] [ERROR] Failed to process 00079470_00001.json: list index out of range
+2025-11-11 23:22:41,861 [INFO] [ERROR] Failed to process 00079531_00001.json: list index out of range
+2025-11-11 23:22:41,862 [INFO] [ERROR] Failed to process 00079968_00000.json: list index out of range
+2025-11-11 23:22:41,862 [INFO] [ERROR] Failed to process 00079978_00002.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:41,862 [INFO] [ERROR] Failed to process 00079978_00004.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:41,862 [INFO] [ERROR] Failed to process 00080330_00001.json: list index out of range
+2025-11-11 23:22:41,863 [INFO] [ERROR] Failed to process 00080330_00002.json: list index out of range
+2025-11-11 23:22:41,863 [INFO] [ERROR] Failed to process 00080885_00001.json: list index out of range
+2025-11-11 23:22:41,863 [INFO] [ERROR] Failed to process 00080942_00001.json: list index out of range
+2025-11-11 23:22:41,863 [INFO] [ERROR] Failed to process 00080942_00002.json: list index out of range
+2025-11-11 23:22:41,863 [INFO] [ERROR] Failed to process 00081226_00001.json: list index out of range
+2025-11-11 23:22:41,865 [INFO] [ERROR] Failed to process 00081517_00003.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:41,865 [INFO] [ERROR] Failed to process 00081540_00002.json: list index out of range
+2025-11-11 23:22:41,865 [INFO] [ERROR] Failed to process 00082507_00000.json: list index out of range
+2025-11-11 23:22:41,865 [INFO] [ERROR] Failed to process 00082629_00001.json: list index out of range
+2025-11-11 23:22:41,865 [INFO] [ERROR] Failed to process 00082854_00001.json: list index out of range
+2025-11-11 23:22:41,865 [INFO] [ERROR] Failed to process 00082886_00003.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:41,866 [INFO] [ERROR] Failed to process 00083093_00001.json: list index out of range
+2025-11-11 23:22:41,866 [INFO] [ERROR] Failed to process 00083180_00000.json: list index out of range
+2025-11-11 23:22:41,866 [INFO] [ERROR] Failed to process 00083529_00002.json: list index out of range
+2025-11-11 23:22:41,866 [INFO] [ERROR] Failed to process 00084105_00001.json: list index out of range
+2025-11-11 23:22:41,866 [INFO] [ERROR] Failed to process 00084339_00001.json: list index out of range
+2025-11-11 23:22:41,866 [INFO] [ERROR] Failed to process 00084920_00001.json: list index out of range
+2025-11-11 23:22:41,867 [INFO] [ERROR] Failed to process 00085299_00001.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:41,867 [INFO] [ERROR] Failed to process 00085422_00000.json: list index out of range
+2025-11-11 23:22:41,867 [INFO] [ERROR] Failed to process 00085812_00001.json: list index out of range
+2025-11-11 23:22:41,867 [INFO] [ERROR] Failed to process 00085817_00001.json: Standard_ConstructionErrorBRepSweep_Translation::Constructor raised from method BRepPrimAPI_MakePrism of class BRepPrimAPI_MakePrism
+2025-11-11 23:22:41,867 [INFO] [ERROR] Failed to process 00086327_00001.json: list index out of range
+2025-11-11 23:22:41,867 [INFO] [ERROR] Failed to process 00086563_00001.json: StdFail_NotDoneBRep_API: command not done raised from method Wire of class BRepBuilderAPI_MakeWire
+2025-11-11 23:22:46,220 [INFO] 
+[Completed in 46s]
+2025-11-11 23:22:46,221 [ERROR] 
+ERROR: STEP export failed!

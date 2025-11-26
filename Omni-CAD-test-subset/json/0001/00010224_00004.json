@@ -1,0 +1,1551 @@
+{
+ "entities": {
+  "FfwbqtGV4pwYsF1_0": {
+   "reference_plane": {},
+   "type": "Sketch",
+   "name": "Sketch 1",
+   "profiles": {
+    "JGC": {
+     "loops": [
+      {
+       "profile_curves": [
+        {
+         "start_point": {
+          "y": 0.05843096,
+          "x": 0.0295384,
+          "z": 0.0
+         },
+         "type": "Line3D",
+         "curve": "JGB",
+         "end_point": {
+          "y": 0.01168619,
+          "x": 0.01581176,
+          "z": 0.0
+         }
+        },
+        {
+         "start_point": {
+          "y": 0.01168619,
+          "x": 0.01581176,
+          "z": 0.0
+         },
+         "type": "Line3D",
+         "curve": "JGF",
+         "end_point": {
+          "y": 0.00241144,
+          "x": 0.00431106,
+          "z": 0.0
+         }
+        },
+        {
+         "start_point": {
+          "y": 0.00241144,
+          "x": 0.00431106,
+          "z": 0.0
+         },
+         "type": "Line3D",
+         "curve": "JGJ",
+         "end_point": {
+          "y": -0.01688005,
+          "x": 0.01173087,
+          "z": 0.0
+         }
+        },
+        {
+         "start_point": {
+          "y": -0.01688005,
+          "x": 0.01173087,
+          "z": 0.0
+         },
+         "type": "Line3D",
+         "curve": "JGN",
+         "end_point": {
+          "y": -0.01970073,
+          "x": 0.00439712,
+          "z": 0.0
+         }
+        },
+        {
+         "center_point": {
+          "y": -0.02404074,
+          "x": -0.0040671,
+          "z": 0.0
+         },
+         "start_angle": 0.0,
+         "radius": 0.00951203,
+         "end_point": {
+          "y": -0.02838075,
+          "x": 0.00439712,
+          "z": 0.0
+         },
+         "start_point": {
+          "y": -0.01970073,
+          "x": 0.00439712,
+          "z": 0.0
+         },
+         "normal": {
+          "y": -1.0,
+          "x": 0.0,
+          "z": 0.0
+         },
+         "type": "Arc3D",
+         "curve": "JGR",
+         "end_angle": 0.9475874908130368,
+         "reference_vector": {
+          "y": -0.45626540128354315,
+          "x": 0.8898437411093968,
+          "z": 0.0
+         }
+        },
+        {
+         "center_point": {
+          "y": -0.02973483,
+          "x": -0.00620649,
+          "z": 0.0
+         },
+         "start_angle": 0.0,
+         "radius": 0.01068972,
+         "end_point": {
+          "y": -0.03765551,
+          "x": 0.00097215,
+          "z": 0.0
+         },
+         "start_point": {
+          "y": -0.02838075,
+          "x": 0.00439712,
+          "z": 0.0
+         },
+         "normal": {
+          "y": -1.0,
+          "x": 0.0,
+          "z": 0.0
+         },
+         "type": "Arc3D",
+         "curve": "JGV",
+         "end_angle": 0.9615150668288042,
+         "reference_vector": {
+          "y": -0.7409625713250193,
+          "x": 0.6715463259488623,
+          "z": 0.0
+         }
+        },
+        {
+         "center_point": {
+          "y": -0.24906624,
+          "x": -0.19058816,
+          "z": 0.0
+         },
+         "start_angle": 0.0,
+         "radius": 0.28528907,
+         "end_point": {
+          "y": 0.02041416,
+          "x": -0.096939,
+          "z": 0.0
+         },
+         "start_point": {
+          "y": -0.03765551,
+          "x": 0.00097215,
+          "z": 0.0
+         },
+         "normal": {
+          "y": -1.0,
+          "x": 0.0,
+          "z": 0.0
+         },
+         "type": "Arc3D",
+         "curve": "KGNB",
+         "end_angle": 0.4017162392388013,
+         "reference_vector": {
+          "y": 0.7410404318333811,
+          "x": 0.671460407163517,
+          "z": 0.0
+         }
+        },
+        {
+         "center_point": {
+          "y": 0.09410057,
+          "x": -0.09783394,
+          "z": 0.0
+         },
+         "start_angle": 0.0,
+         "radius": 0.07369184,
+         "end_point": {
+          "y": 0.02651251,
+          "x": -0.06846828,
+          "z": 0.0
+         },
+         "start_point": {
+          "y": 0.02041416,
+          "x": -0.096939,
+          "z": 0.0
+         },
+         "normal": {
+          "y": -1.0,
+          "x": 0.0,
+          "z": 0.0
+         },
+         "type": "Arc3D",
+         "curve": "KGFB",
+         "end_angle": 0.39772815470229617,
+         "reference_vector": {
+          "y": -0.9999262545883459,
+          "x": 0.012144356093359567,
+          "z": 0.0
+         }
+        },
+        {
+         "center_point": {
+          "y": -0.06636675,
+          "x": -0.02434257,
+          "z": 0.0
+         },
+         "start_angle": 0.0,
+         "radius": 0.10282818,
+         "end_point": {
+          "y": 0.02651251,
+          "x": -0.06846828,
+          "z": 0.0
+         },
+         "start_point": {
+          "y": 0.03645864,
+          "x": -0.02509996,
+          "z": 0.0
+         },
+         "normal": {
+          "y": -1.0,
+          "x": 0.0,
+          "z": 0.0
+         },
+         "type": "Arc3D",
+         "curve": "KGJB",
+         "end_angle": 0.436153496796289,
+         "reference_vector": {
+          "y": 0.9999728736890665,
+          "x": -0.00736558796230544,
+          "z": 0.0
+         }
+        },
+        {
+         "center_point": {
+          "y": 0.00784102,
+          "x": -0.04581037,
+          "z": 0.0
+         },
+         "start_angle": 0.0,
+         "radius": 0.03532548,
+         "end_point": {
+          "y": 0.03645864,
+          "x": -0.02509996,
+          "z": 0.0
+         },
+         "start_point": {
+          "y": 0.03863424,
+          "x": -0.06312125,
+          "z": 0.0
+         },
+         "normal": {
+          "y": -1.0,
+          "x": 0.0,
+          "z": 0.0
+         },
+         "type": "Arc3D",
+         "curve": "JGt",
+         "end_angle": 1.1385870272235532,
+         "reference_vector": {
+          "y": 0.8101127915362264,
+          "x": 0.5862740528024266,
+          "z": 0.0
+         }
+        },
+        {
+         "center_point": {
+          "y": 0.08697793,
+          "x": -0.09420122,
+          "z": 0.0
+         },
+         "start_angle": 0.0,
+         "radius": 0.05747239,
+         "end_point": {
+          "y": 0.03863424,
+          "x": -0.06312125,
+          "z": 0.0
+         },
+         "start_point": {
+          "y": 0.0298421,
+          "x": -0.08799043,
+          "z": 0.0
+         },
+         "normal": {
+          "y": -1.0,
+          "x": 0.0,
+          "z": 0.0
+         },
+         "type": "Arc3D",
+         "curve": "JGd",
+         "end_angle": 0.4630879932294567,
+         "reference_vector": {
+          "y": -0.9941437645431289,
+          "x": 0.10806560701729243,
+          "z": 0.0
+         }
+        },
+        {
+         "center_point": {
+          "y": 0.1479988,
+          "x": -0.10553555,
+          "z": 0.0
+         },
+         "start_angle": 0.0,
+         "radius": 0.11945224,
+         "end_point": {
+          "y": 0.02883729,
+          "x": -0.11386444,
+          "z": 0.0
+         },
+         "start_point": {
+          "y": 0.0298421,
+          "x": -0.08799043,
+          "z": 0.0
+         },
+         "normal": {
+          "y": -1.0,
+          "x": 0.0,
+          "z": 0.0
+         },
+         "type": "Arc3D",
+         "curve": "JGh",
+         "end_angle": 0.21719542741289732,
+         "reference_vector": {
+          "y": -0.9975662020056357,
+          "x": -0.06972569552217582,
+          "z": 0.0
+         }
+        },
+        {
+         "center_point": {
+          "y": 0.11773059,
+          "x": -0.12397379,
+          "z": 0.0
+         },
+         "start_angle": 0.0,
+         "radius": 0.0894663,
+         "end_point": {
+          "y": 0.0393268,
+          "x": -0.08088013,
+          "z": 0.0
+         },
+         "start_point": {
+          "y": 0.02883729,
+          "x": -0.11386444,
+          "z": 0.0
+         },
+         "normal": {
+          "y": -1.0,
+          "x": 0.0,
+          "z": 0.0
+         },
+         "type": "Arc3D",
+         "curve": "JGl",
+         "end_angle": 0.3893267899280852,
+         "reference_vector": {
+          "y": -0.9935954216439007,
+          "x": 0.11299618616696389,
+          "z": 0.0
+         }
+        },
+        {
+         "center_point": {
+          "y": -0.0101032,
+          "x": -0.04629849,
+          "z": 0.0
+         },
+         "start_angle": 0.0,
+         "radius": 0.0603259,
+         "end_point": {
+          "y": 0.04965669,
+          "x": -0.03805411,
+          "z": 0.0
+         },
+         "start_point": {
+          "y": 0.0393268,
+          "x": -0.08088013,
+          "z": 0.0
+         },
+         "normal": {
+          "y": -1.0,
+          "x": 0.0,
+          "z": 0.0
+         },
+         "type": "Arc3D",
+         "curve": "JGp",
+         "end_angle": 0.7475561019998054,
+         "reference_vector": {
+          "y": 0.990617456882217,
+          "x": 0.1366640191133318,
+          "z": 0.0
+         }
+        },
+        {
+         "center_point": {
+          "y": 0.01410564,
+          "x": -0.06004593,
+          "z": 0.0
+         },
+         "start_angle": 0.0,
+         "radius": 0.04180332,
+         "end_point": {
+          "y": 0.05565514,
+          "x": -0.05544629,
+          "z": 0.0
+         },
+         "start_point": {
+          "y": 0.04965669,
+          "x": -0.03805411,
+          "z": 0.0
+         },
+         "normal": {
+          "y": -1.0,
+          "x": 0.0,
+          "z": 0.0
+         },
+         "type": "Arc3D",
+         "curve": "JG9",
+         "end_angle": 0.4437288847269758,
+         "reference_vector": {
+          "y": 0.8504361051888537,
+          "x": 0.5260783506201457,
+          "z": 0.0
+         }
+        },
+        {
+         "center_point": {
+          "y": 0.01928359,
+          "x": -0.05826009,
+          "z": 0.0
+         },
+         "start_angle": 0.0,
+         "radius": 0.03648023,
+         "end_point": {
+          "y": 0.05169646,
+          "x": -0.07499964,
+          "z": 0.0
+         },
+         "start_point": {
+          "y": 0.05565514,
+          "x": -0.05544629,
+          "z": 0.0
+         },
+         "normal": {
+          "y": -1.0,
+          "x": 0.0,
+          "z": 0.0
+         },
+         "type": "Arc3D",
+         "curve": "KGRB",
+         "end_angle": 0.553927846832019,
+         "reference_vector": {
+          "y": 0.9970208749703788,
+          "x": 0.07713219090172539,
+          "z": 0.0
+         }
+        },
+        {
+         "center_point": {
+          "y": 0.30915769,
+          "x": -0.18075939,
+          "z": 0.0
+         },
+         "start_angle": 0.0,
+         "radius": 0.27833686,
+         "end_point": {
+          "y": 0.05169646,
+          "x": -0.07499964,
+          "z": 0.0
+         },
+         "start_point": {
+          "y": 0.04123018,
+          "x": -0.10535213,
+          "z": 0.0
+         },
+         "normal": {
+          "y": -1.0,
+          "x": 0.0,
+          "z": 0.0
+         },
+         "type": "Arc3D",
+         "curve": "KGBB",
+         "end_angle": 0.11541468287061996,
+         "reference_vector": {
+          "y": -0.9626016250007671,
+          "x": 0.27092085845479374,
+          "z": 0.0
+         }
+        },
+        {
+         "center_point": {
+          "y": 0.10216453,
+          "x": -0.12071103,
+          "z": 0.0
+         },
+         "start_angle": 0.0,
+         "radius": 0.06284021,
+         "end_point": {
+          "y": 0.04123018,
+          "x": -0.10535213,
+          "z": 0.0
+         },
+         "start_point": {
+          "y": 0.04025244,
+          "x": -0.13147135,
+          "z": 0.0
+         },
+         "normal": {
+          "y": -1.0,
+          "x": 0.0,
+          "z": 0.0
+         },
+         "type": "Arc3D",
+         "curve": "JG5",
+         "end_angle": 0.4189943377690346,
+         "reference_vector": {
+          "y": -0.9852305529527985,
+          "x": -0.1712330503387795,
+          "z": 0.0
+         }
+        },
+        {
+         "center_point": {
+          "y": 0.22370198,
+          "x": -0.17557606,
+          "z": 0.0
+         },
+         "start_angle": 0.0,
+         "radius": 0.18867686,
+         "end_point": {
+          "y": 0.05379038,
+          "x": -0.09354554,
+          "z": 0.0
+         },
+         "start_point": {
+          "y": 0.04025244,
+          "x": -0.13147135,
+          "z": 0.0
+         },
+         "normal": {
+          "y": -1.0,
+          "x": 0.0,
+          "z": 0.0
+         },
+         "type": "Arc3D",
+         "curve": "JGx",
+         "end_angle": 0.21383891304899194,
+         "reference_vector": {
+          "y": -0.9722948309328601,
+          "x": 0.2337579126815627,
+          "z": 0.0
+         }
+        },
+        {
+         "center_point": {
+          "y": -0.03675833,
+          "x": -0.04055052,
+          "z": 0.0
+         },
+         "start_angle": 0.0,
+         "radius": 0.10491682,
+         "end_point": {
+          "y": 0.05379038,
+          "x": -0.09354554,
+          "z": 0.0
+         },
+         "start_point": {
+          "y": 0.05843096,
+          "x": 0.00356908,
+          "z": 0.0
+         },
+         "normal": {
+          "y": -1.0,
+          "x": 0.0,
+          "z": 0.0
+         },
+         "type": "Arc3D",
+         "curve": "JG1",
+         "end_angle": 0.9635328630209707,
+         "reference_vector": {
+          "y": 0.9072833701935277,
+          "x": 0.4205197809500456,
+          "z": 0.0
+         }
+        },
+        {
+         "center_point": {
+          "y": 0.08789816,
+          "x": 0.01655374,
+          "z": 0.0
+         },
+         "start_angle": 0.0,
+         "radius": 0.0322012,
+         "end_point": {
+          "y": 0.05843096,
+          "x": 0.00356908,
+          "z": 0.0
+         },
+         "start_point": {
+          "y": 0.05843096,
+          "x": 0.0295384,
+          "z": 0.0
+         },
+         "normal": {
+          "y": -1.0,
+          "x": 0.0,
+          "z": 0.0
+         },
+         "type": "Arc3D",
+         "curve": "JGZ",
+         "end_angle": 0.8300991245930618,
+         "reference_vector": {
+          "y": -0.9150963363517962,
+          "x": -0.4032352851568426,
+          "z": 0.0
+         }
+        }
+       ],
+       "is_outer": true
+      }
+     ],
+     "properties": {}
+    }
+   },
+   "transform": {
+    "origin": {
+     "y": 0.0,
+     "x": 0.0,
+     "z": 0.0
+    },
+    "y_axis": {
+     "y": 0.0,
+     "x": -0.0,
+     "z": 1.0
+    },
+    "x_axis": {
+     "y": 0.0,
+     "x": 1.0,
+     "z": 0.0
+    },
+    "z_axis": {
+     "y": -1.0,
+     "x": 0.0,
+     "z": 0.0
+    }
+   }
+  },
+  "FwwkjPShBR1kVTz_0": {
+   "extent_two": {
+    "distance": {
+     "role": "AgainstDistance",
+     "type": "ModelParameter",
+     "name": "none",
+     "value": 0.0
+    },
+    "type": "DistanceExtentDefinition",
+    "taper_angle": {
+     "role": "Side2TaperAngle",
+     "type": "ModelParameter",
+     "name": "none",
+     "value": 0.0
+    }
+   },
+   "name": "Extrude 1",
+   "extent_one": {
+    "distance": {
+     "role": "AlongDistance",
+     "type": "ModelParameter",
+     "name": "none",
+     "value": 0.006350000000000001
+    },
+    "type": "DistanceExtentDefinition",
+    "taper_angle": {
+     "role": "TaperAngle",
+     "type": "ModelParameter",
+     "name": "none",
+     "value": 0.0
+    }
+   },
+   "extent_type": "OneSideFeatureExtentType",
+   "operation": "NewBodyFeatureOperation",
+   "start_extent": {
+    "type": "ProfilePlaneStartDefinition"
+   },
+   "type": "ExtrudeFeature",
+   "profiles": [
+    {
+     "profile": "JGC",
+     "sketch": "FfwbqtGV4pwYsF1_0"
+    }
+   ]
+  },
+  "FLPJ1JwgiTa8fJa_1": {
+   "reference_plane": {},
+   "type": "Sketch",
+   "name": "Sketch 2",
+   "profiles": {
+    "JJO": {
+     "loops": [
+      {
+       "profile_curves": [
+        {
+         "start_point": {
+          "y": 0.02476461,
+          "x": 0.05793638,
+          "z": 0.0
+         },
+         "type": "Line3D",
+         "curve": "KJNB",
+         "end_point": {
+          "y": 0.01816594,
+          "x": 0.05815734,
+          "z": 0.0
+         }
+        },
+        {
+         "start_point": {
+          "y": 0.01816594,
+          "x": 0.05815734,
+          "z": 0.0
+         },
+         "type": "Line3D",
+         "curve": "KJ1B",
+         "end_point": {
+          "y": 0.0218053,
+          "x": 0.06820117,
+          "z": 0.0
+         }
+        },
+        {
+         "start_point": {
+          "y": 0.02476461,
+          "x": 0.05793638,
+          "z": 0.0
+         },
+         "type": "Line3D",
+         "curve": "KJxB",
+         "end_point": {
+          "y": 0.0218053,
+          "x": 0.06820117,
+          "z": 0.0
+         }
+        }
+       ],
+       "is_outer": true
+      }
+     ],
+     "properties": {}
+    },
+    "JJW": {
+     "loops": [
+      {
+       "profile_curves": [
+        {
+         "start_point": {
+          "y": 0.021125240000000003,
+          "x": 0.04789255,
+          "z": 0.0
+         },
+         "type": "Line3D",
+         "curve": "KJVB",
+         "end_point": {
+          "y": 0.01591668,
+          "x": 0.051949920000000004,
+          "z": 0.0
+         }
+        },
+        {
+         "start_point": {
+          "y": 0.01591668,
+          "x": 0.051949920000000004,
+          "z": 0.0
+         },
+         "type": "Line3D",
+         "curve": "KJhB",
+         "end_point": {
+          "y": 0.012277320000000001,
+          "x": 0.04190609,
+          "z": 0.0
+         }
+        },
+        {
+         "start_point": {
+          "y": 0.021125240000000003,
+          "x": 0.04789255,
+          "z": 0.0
+         },
+         "type": "Line3D",
+         "curve": "KJlB",
+         "end_point": {
+          "y": 0.012277320000000001,
+          "x": 0.04190609,
+          "z": 0.0
+         }
+        }
+       ],
+       "is_outer": true
+      }
+     ],
+     "properties": {}
+    },
+    "JJK": {
+     "loops": [
+      {
+       "profile_curves": [
+        {
+         "start_point": {
+          "y": 0.026593560000000002,
+          "x": 0.05159239,
+          "z": 0.0
+         },
+         "type": "Line3D",
+         "curve": "KJJB",
+         "end_point": {
+          "y": 0.02476461,
+          "x": 0.05793638,
+          "z": 0.0
+         }
+        },
+        {
+         "start_point": {
+          "y": 0.02476461,
+          "x": 0.05793638,
+          "z": 0.0
+         },
+         "type": "Line3D",
+         "curve": "KJ5B",
+         "end_point": {
+          "y": 0.03544148,
+          "x": 0.05757884,
+          "z": 0.0
+         }
+        },
+        {
+         "start_point": {
+          "y": 0.026593560000000002,
+          "x": 0.05159239,
+          "z": 0.0
+         },
+         "type": "Line3D",
+         "curve": "KJ9B",
+         "end_point": {
+          "y": 0.03544148,
+          "x": 0.05757884,
+          "z": 0.0
+         }
+        }
+       ],
+       "is_outer": true
+      }
+     ],
+     "properties": {}
+    },
+    "JJG": {
+     "loops": [
+      {
+       "profile_curves": [
+        {
+         "start_point": {
+          "y": 0.021125240000000003,
+          "x": 0.04789255,
+          "z": 0.0
+         },
+         "type": "Line3D",
+         "curve": "KJFB",
+         "end_point": {
+          "y": 0.026593560000000002,
+          "x": 0.05159239,
+          "z": 0.0
+         }
+        },
+        {
+         "start_point": {
+          "y": 0.026593560000000002,
+          "x": 0.05159239,
+          "z": 0.0
+         },
+         "type": "Line3D",
+         "curve": "KJtB",
+         "end_point": {
+          "y": 0.02955286,
+          "x": 0.0413276,
+          "z": 0.0
+         }
+        },
+        {
+         "start_point": {
+          "y": 0.021125240000000003,
+          "x": 0.04789255,
+          "z": 0.0
+         },
+         "type": "Line3D",
+         "curve": "KJpB",
+         "end_point": {
+          "y": 0.02955286,
+          "x": 0.0413276,
+          "z": 0.0
+         }
+        }
+       ],
+       "is_outer": true
+      }
+     ],
+     "properties": {}
+    },
+    "JJC": {
+     "loops": [
+      {
+       "profile_curves": [
+        {
+         "center_point": {
+          "y": -0.012840049999999999,
+          "x": 0.05527754,
+          "z": 0.0
+         },
+         "start_angle": 0.0,
+         "radius": 0.01061879,
+         "end_point": {
+          "y": -0.012840049999999999,
+          "x": 0.044658750000000004,
+          "z": 0.0
+         },
+         "start_point": {
+          "y": -0.002647189999999999,
+          "x": 0.05230025,
+          "z": 0.0
+         },
+         "normal": {
+          "y": -1.0,
+          "x": 0.0,
+          "z": 0.0
+         },
+         "type": "Arc3D",
+         "curve": "JJB",
+         "end_angle": 1.2866069182119397,
+         "reference_vector": {
+          "y": 0.9598892411724216,
+          "x": -0.2803794655131376,
+          "z": 0.0
+         }
+        },
+        {
+         "start_point": {
+          "y": -0.012840049999999999,
+          "x": 0.044658750000000004,
+          "z": 0.0
+         },
+         "type": "Line3D",
+         "curve": "JJF",
+         "end_point": {
+          "y": -0.012840049999999999,
+          "x": 0.03454782,
+          "z": 0.0
+         }
+        },
+        {
+         "center_point": {
+          "y": -0.011095299999999999,
+          "x": 0.03964322,
+          "z": 0.0
+         },
+         "start_angle": 0.0,
+         "radius": 0.00538584,
+         "end_point": {
+          "y": -0.00573597,
+          "x": 0.04017689,
+          "z": 0.0
+         },
+         "start_point": {
+          "y": -0.012840049999999999,
+          "x": 0.03454782,
+          "z": 0.0
+         },
+         "normal": {
+          "y": -1.0,
+          "x": 0.0,
+          "z": 0.0
+         },
+         "type": "Arc3D",
+         "curve": "JJJ",
+         "end_angle": 1.999950066221425,
+         "reference_vector": {
+          "y": 0.9950787048512659,
+          "x": 0.09908769424871676,
+          "z": 0.0
+         }
+        },
+        {
+         "center_point": {
+          "y": -0.024647660000000002,
+          "x": 0.030844490000000002,
+          "z": 0.0
+         },
+         "start_angle": 0.0,
+         "radius": 0.021089,
+         "end_point": {
+          "y": -0.00573597,
+          "x": 0.021512080000000003,
+          "z": 0.0
+         },
+         "start_point": {
+          "y": -0.00573597,
+          "x": 0.04017689,
+          "z": 0.0
+         },
+         "normal": {
+          "y": -1.0,
+          "x": 0.0,
+          "z": 0.0
+         },
+         "type": "Arc3D",
+         "curve": "JJN",
+         "end_angle": 0.9168244880831025,
+         "reference_vector": {
+          "y": 0.896756343107623,
+          "x": 0.4425246446202099,
+          "z": 0.0
+         }
+        },
+        {
+         "start_point": {
+          "y": -0.00573597,
+          "x": 0.021512080000000003,
+          "z": 0.0
+         },
+         "type": "Line3D",
+         "curve": "JJR",
+         "end_point": {
+          "y": -0.01580904,
+          "x": 0.030400080000000003,
+          "z": 0.0
+         }
+        },
+        {
+         "start_point": {
+          "y": -0.01580904,
+          "x": 0.030400080000000003,
+          "z": 0.0
+         },
+         "type": "Line3D",
+         "curve": "JJV",
+         "end_point": {
+          "y": -0.024647660000000002,
+          "x": 0.030844490000000002,
+          "z": 0.0
+         }
+        },
+        {
+         "center_point": {
+          "y": -0.04479377,
+          "x": 0.005105209999999999,
+          "z": 0.0
+         },
+         "start_angle": 0.0,
+         "radius": 0.03268602,
+         "end_point": {
+          "y": -0.01373517,
+          "x": 0.015290480000000002,
+          "z": 0.0
+         },
+         "start_point": {
+          "y": -0.024647660000000002,
+          "x": 0.030844490000000002,
+          "z": 0.0
+         },
+         "normal": {
+          "y": -1.0,
+          "x": 0.0,
+          "z": 0.0
+         },
+         "type": "Arc3D",
+         "curve": "JJZ",
+         "end_angle": 0.5898079432022789,
+         "reference_vector": {
+          "y": 0.6163523861544575,
+          "x": 0.7874704667996805,
+          "z": 0.0
+         }
+        },
+        {
+         "start_point": {
+          "y": -0.01373517,
+          "x": 0.015290480000000002,
+          "z": 0.0
+         },
+         "type": "Line3D",
+         "curve": "JJd",
+         "end_point": {
+          "y": -0.016648839999999998,
+          "x": 0.011988310000000002,
+          "z": 0.0
+         }
+        },
+        {
+         "center_point": {
+          "y": -0.28424754999999996,
+          "x": -0.17056164999999998,
+          "z": 0.0
+         },
+         "start_angle": 0.0,
+         "radius": 0.3239345,
+         "end_point": {
+          "y": -0.04750958,
+          "x": 0.05054622,
+          "z": 0.0
+         },
+         "start_point": {
+          "y": -0.016648839999999998,
+          "x": 0.011988310000000002,
+          "z": 0.0
+         },
+         "normal": {
+          "y": -1.0,
+          "x": 0.0,
+          "z": 0.0
+         },
+         "type": "Arc3D",
+         "curve": "JJh",
+         "end_angle": 0.15260856819674506,
+         "reference_vector": {
+          "y": 0.7308205027407629,
+          "x": 0.6825696981068955,
+          "z": 0.0
+         }
+        },
+        {
+         "start_point": {
+          "y": -0.04363224,
+          "x": 0.0553636,
+          "z": 0.0
+         },
+         "type": "Line3D",
+         "curve": "JJ5",
+         "end_point": {
+          "y": -0.04750958,
+          "x": 0.05054622,
+          "z": 0.0
+         }
+        },
+        {
+         "start_point": {
+          "y": -0.04363224,
+          "x": 0.0553636,
+          "z": 0.0
+         },
+         "type": "Line3D",
+         "curve": "JJ1",
+         "end_point": {
+          "y": -0.03929223,
+          "x": 0.046899380000000004,
+          "z": 0.0
+         }
+        },
+        {
+         "start_point": {
+          "y": -0.038017510000000004,
+          "x": 0.04906489,
+          "z": 0.0
+         },
+         "type": "Line3D",
+         "curve": "JJx",
+         "end_point": {
+          "y": -0.03929223,
+          "x": 0.046899380000000004,
+          "z": 0.0
+         }
+        },
+        {
+         "start_point": {
+          "y": -0.038017510000000004,
+          "x": 0.05386279,
+          "z": 0.0
+         },
+         "type": "Line3D",
+         "curve": "JJt",
+         "end_point": {
+          "y": -0.038017510000000004,
+          "x": 0.04906489,
+          "z": 0.0
+         }
+        },
+        {
+         "start_point": {
+          "y": -0.033373139999999996,
+          "x": 0.05293341,
+          "z": 0.0
+         },
+         "type": "Line3D",
+         "curve": "JJp",
+         "end_point": {
+          "y": -0.038017510000000004,
+          "x": 0.05386279,
+          "z": 0.0
+         }
+        },
+        {
+         "start_point": {
+          "y": -0.03213154,
+          "x": 0.05913796,
+          "z": 0.0
+         },
+         "type": "Line3D",
+         "curve": "JJl",
+         "end_point": {
+          "y": -0.033373139999999996,
+          "x": 0.05293341,
+          "z": 0.0
+         }
+        },
+        {
+         "start_point": {
+          "y": -0.03213154,
+          "x": 0.05913796,
+          "z": 0.0
+         },
+         "type": "Line3D",
+         "curve": "JJ9",
+         "end_point": {
+          "y": -0.0143535,
+          "x": 0.05230025,
+          "z": 0.0
+         }
+        },
+        {
+         "start_point": {
+          "y": -0.002647189999999999,
+          "x": 0.05230025,
+          "z": 0.0
+         },
+         "type": "Line3D",
+         "curve": "KJBB",
+         "end_point": {
+          "y": -0.0143535,
+          "x": 0.05230025,
+          "z": 0.0
+         }
+        }
+       ],
+       "is_outer": true
+      }
+     ],
+     "properties": {}
+    },
+    "JJS": {
+     "loops": [
+      {
+       "profile_curves": [
+        {
+         "start_point": {
+          "y": 0.01816594,
+          "x": 0.05815734,
+          "z": 0.0
+         },
+         "type": "Line3D",
+         "curve": "KJRB",
+         "end_point": {
+          "y": 0.01591668,
+          "x": 0.051949920000000004,
+          "z": 0.0
+         }
+        },
+        {
+         "start_point": {
+          "y": 0.01591668,
+          "x": 0.051949920000000004,
+          "z": 0.0
+         },
+         "type": "Line3D",
+         "curve": "KJdB",
+         "end_point": {
+          "y": 0.0074890700000000004,
+          "x": 0.058514870000000004,
+          "z": 0.0
+         }
+        },
+        {
+         "start_point": {
+          "y": 0.01816594,
+          "x": 0.05815734,
+          "z": 0.0
+         },
+         "type": "Line3D",
+         "curve": "KJZB",
+         "end_point": {
+          "y": 0.0074890700000000004,
+          "x": 0.058514870000000004,
+          "z": 0.0
+         }
+        }
+       ],
+       "is_outer": true
+      }
+     ],
+     "properties": {}
+    },
+    "JJa": {
+     "loops": [
+      {
+       "profile_curves": [
+        {
+         "start_point": {
+          "y": 0.021125240000000003,
+          "x": 0.04789255,
+          "z": 0.0
+         },
+         "type": "Line3D",
+         "curve": "KJFB",
+         "end_point": {
+          "y": 0.026593560000000002,
+          "x": 0.05159239,
+          "z": 0.0
+         }
+        },
+        {
+         "start_point": {
+          "y": 0.026593560000000002,
+          "x": 0.05159239,
+          "z": 0.0
+         },
+         "type": "Line3D",
+         "curve": "KJJB",
+         "end_point": {
+          "y": 0.02476461,
+          "x": 0.05793638,
+          "z": 0.0
+         }
+        },
+        {
+         "start_point": {
+          "y": 0.02476461,
+          "x": 0.05793638,
+          "z": 0.0
+         },
+         "type": "Line3D",
+         "curve": "KJNB",
+         "end_point": {
+          "y": 0.01816594,
+          "x": 0.05815734,
+          "z": 0.0
+         }
+        },
+        {
+         "start_point": {
+          "y": 0.01816594,
+          "x": 0.05815734,
+          "z": 0.0
+         },
+         "type": "Line3D",
+         "curve": "KJRB",
+         "end_point": {
+          "y": 0.01591668,
+          "x": 0.051949920000000004,
+          "z": 0.0
+         }
+        },
+        {
+         "start_point": {
+          "y": 0.021125240000000003,
+          "x": 0.04789255,
+          "z": 0.0
+         },
+         "type": "Line3D",
+         "curve": "KJVB",
+         "end_point": {
+          "y": 0.01591668,
+          "x": 0.051949920000000004,
+          "z": 0.0
+         }
+        }
+       ],
+       "is_outer": true
+      }
+     ],
+     "properties": {}
+    }
+   },
+   "transform": {
+    "origin": {
+     "y": -0.00635,
+     "x": -0.05096648,
+     "z": 0.01525149
+    },
+    "y_axis": {
+     "y": 0.0,
+     "x": -0.0,
+     "z": 1.0
+    },
+    "x_axis": {
+     "y": 0.0,
+     "x": 1.0,
+     "z": 0.0
+    },
+    "z_axis": {
+     "y": -1.0,
+     "x": 0.0,
+     "z": 0.0
+    }
+   }
+  },
+  "FrgT6CfLQTLz6UE_1": {
+   "extent_two": {
+    "distance": {
+     "role": "AgainstDistance",
+     "type": "ModelParameter",
+     "name": "none",
+     "value": 0.0
+    },
+    "type": "DistanceExtentDefinition",
+    "taper_angle": {
+     "role": "Side2TaperAngle",
+     "type": "ModelParameter",
+     "name": "none",
+     "value": 0.0
+    }
+   },
+   "name": "Extrude 2",
+   "extent_one": {
+    "distance": {
+     "role": "AlongDistance",
+     "type": "ModelParameter",
+     "name": "none",
+     "value": 0.006350000000000001
+    },
+    "type": "DistanceExtentDefinition",
+    "taper_angle": {
+     "role": "TaperAngle",
+     "type": "ModelParameter",
+     "name": "none",
+     "value": 0.0
+    }
+   },
+   "extent_type": "OneSideFeatureExtentType",
+   "operation": "JoinFeatureOperation",
+   "start_extent": {
+    "type": "ProfilePlaneStartDefinition"
+   },
+   "type": "ExtrudeFeature",
+   "profiles": [
+    {
+     "profile": "JJC",
+     "sketch": "FLPJ1JwgiTa8fJa_1"
+    }
+   ]
+  },
+  "Fsz6pG06fCuDmiJ_1": {
+   "extent_two": {
+    "distance": {
+     "role": "AgainstDistance",
+     "type": "ModelParameter",
+     "name": "none",
+     "value": 0.0
+    },
+    "type": "DistanceExtentDefinition",
+    "taper_angle": {
+     "role": "Side2TaperAngle",
+     "type": "ModelParameter",
+     "name": "none",
+     "value": 0.0
+    }
+   },
+   "name": "Extrude 3",
+   "extent_one": {
+    "distance": {
+     "role": "AlongDistance",
+     "type": "ModelParameter",
+     "name": "none",
+     "value": 0.006350000000000001
+    },
+    "type": "DistanceExtentDefinition",
+    "taper_angle": {
+     "role": "TaperAngle",
+     "type": "ModelParameter",
+     "name": "none",
+     "value": 0.0
+    }
+   },
+   "extent_type": "OneSideFeatureExtentType",
+   "operation": "JoinFeatureOperation",
+   "start_extent": {
+    "type": "ProfilePlaneStartDefinition"
+   },
+   "type": "ExtrudeFeature",
+   "profiles": [
+    {
+     "profile": "JJC",
+     "sketch": "FLPJ1JwgiTa8fJa_1"
+    },
+    {
+     "profile": "JJG",
+     "sketch": "FLPJ1JwgiTa8fJa_1"
+    },
+    {
+     "profile": "JJK",
+     "sketch": "FLPJ1JwgiTa8fJa_1"
+    },
+    {
+     "profile": "JJO",
+     "sketch": "FLPJ1JwgiTa8fJa_1"
+    },
+    {
+     "profile": "JJS",
+     "sketch": "FLPJ1JwgiTa8fJa_1"
+    },
+    {
+     "profile": "JJW",
+     "sketch": "FLPJ1JwgiTa8fJa_1"
+    },
+    {
+     "profile": "JJa",
+     "sketch": "FLPJ1JwgiTa8fJa_1"
+    }
+   ]
+  }
+ },
+ "properties": {
+  "bounding_box": {
+   "max_point": {
+    "y": 0.0,
+    "x": 0.02953839860856533,
+    "z": 0.06815849527200302
+   },
+   "type": "BoundingBox3D",
+   "min_point": {
+    "y": -0.012700000000000001,
+    "x": -0.13147135078907018,
+    "z": -0.037655506283044815
+   }
+  }
+ },
+ "sequence": [
+  {
+   "index": 0,
+   "type": "Sketch",
+   "entity": "FfwbqtGV4pwYsF1_0"
+  },
+  {
+   "index": 1,
+   "type": "ExtrudeFeature",
+   "entity": "FwwkjPShBR1kVTz_0"
+  },
+  {
+   "index": 2,
+   "type": "Sketch",
+   "entity": "FLPJ1JwgiTa8fJa_1"
+  },
+  {
+   "index": 3,
+   "type": "ExtrudeFeature",
+   "entity": "FrgT6CfLQTLz6UE_1"
+  },
+  {
+   "index": 4,
+   "type": "ExtrudeFeature",
+   "entity": "Fsz6pG06fCuDmiJ_1"
+  }
+ ]
+}
