@@ -349,18 +349,67 @@ class MultimodalAutocompleteCollator:
         }
 
         # Add optional modalities (batch them if present)
-        if "pixel_values" in batch[0]:
-            # Stack images
-            images = [torch.from_numpy(s["pixel_values"]).float() for s in batch if "pixel_values" in s]
-            if images:
-                # Assume images are (H, W, C), convert to (C, H, W) and stack
-                images = [img.permute(2, 0, 1) if img.dim() == 3 else img for img in images]
-                result["pixel_values"] = torch.stack(images)
+        # IMPORTANT: We don't modify labels here - the model's forward pass
+        # handles padding labels to match inputs_embeds when adding image/PC tokens
+        # CRITICAL: Must handle batches with inconsistent modalities by using zero-filled placeholders
+        batch_size = len(batch)
 
-        if "point_clouds" in batch[0]:
-            # Stack point clouds
-            pcs = [torch.from_numpy(s["point_clouds"]).float() for s in batch if "point_clouds" in s]
-            if pcs:
-                result["point_clouds"] = torch.stack(pcs)
+        # Image batching with zero-filled placeholders for missing images
+        if any("pixel_values" in s for s in batch):
+            images = []
+            for s in batch:
+                if "pixel_values" in s:
+                    img = torch.from_numpy(s["pixel_values"]).float()
+                    # Convert (H, W, C) -> (C, H, W)
+                    if img.dim() == 3 and img.shape[2] == 3:
+                        img = img.permute(2, 0, 1)
+
+                    # Normalize using image_processor if available
+                    if self.image_processor is not None:
+                        # Scale to [0, 1] range
+                        img = img / 255.0
+                        # Apply ImageNet normalization (DINOv2 standard)
+                        mean = torch.tensor(self.image_processor.image_mean).view(3, 1, 1)
+                        std = torch.tensor(self.image_processor.image_std).view(3, 1, 1)
+                        img = (img - mean) / std
+                    else:
+                        # Fallback: just scale to [0, 1]
+                        img = img / 255.0
+
+                    images.append(img)
+                else:
+                    # Zero-filled placeholder for missing image (3, 224, 224)
+                    # Use normalized zeros (mean normalization)
+                    if self.image_processor is not None:
+                        mean = torch.tensor(self.image_processor.image_mean).view(3, 1, 1)
+                        std = torch.tensor(self.image_processor.image_std).view(3, 1, 1)
+                        placeholder = (torch.zeros(3, 224, 224) - mean) / std
+                        images.append(placeholder)
+                    else:
+                        images.append(torch.zeros(3, 224, 224))
+            result["pixel_values"] = torch.stack(images)  # Shape: [batch_size, 3, 224, 224]
+
+        # Point cloud batching with zero-filled placeholders for missing point clouds
+        if any("point_clouds" in s for s in batch):
+            pcs = []
+            for s in batch:
+                if "point_clouds" in s:
+                    pc = torch.from_numpy(s["point_clouds"]).float()
+                    pcs.append(pc)
+                else:
+                    # Zero-filled placeholder for missing point cloud
+                    # Assume point clouds are (num_points, 3), use same shape as present samples
+                    # Get shape from first available sample
+                    ref_shape = None
+                    for ref_s in batch:
+                        if "point_clouds" in ref_s:
+                            ref_shape = ref_s["point_clouds"].shape
+                            break
+                    if ref_shape is not None:
+                        pcs.append(torch.zeros(ref_shape))
+                    else:
+                        # Fallback: use default shape (8192, 3)
+                        pcs.append(torch.zeros(8192, 3))
+            result["point_clouds"] = torch.stack(pcs)  # Shape: [batch_size, num_points, 3]
 
         return result

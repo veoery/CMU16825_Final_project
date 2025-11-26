@@ -36,6 +36,7 @@ from cad_mllm.data.multimodal_autocomplete import (
     MultimodalAutocompleteDataset,
     MultimodalAutocompleteCollator,
 )
+from transformers import AutoImageProcessor
 
 
 def parse_args():
@@ -47,6 +48,8 @@ def parse_args():
     parser.add_argument("--use_lora", action="store_true", default=True, help="Use LoRA")
     parser.add_argument("--lora_r", type=int, default=32, help="LoRA rank")
     parser.add_argument("--lora_alpha", type=int, default=64, help="LoRA alpha")
+    parser.add_argument("--use_gradient_checkpointing", action="store_true",
+                        help="Enable gradient checkpointing to reduce memory usage")
 
     # Training arguments
     parser.add_argument("--output_dir", type=str, default="./outputs_curriculum", help="Output directory")
@@ -371,6 +374,20 @@ def main():
     """Main training function."""
     args = parse_args()
 
+    # If running in wandb sweep, override args with wandb.config
+    if WANDB_AVAILABLE and wandb.run is not None and hasattr(wandb.config, 'keys'):
+        print("\n" + "="*80)
+        print("WANDB SWEEP DETECTED - Using wandb.config parameters")
+        print("="*80)
+        for key in wandb.config.keys():
+            if hasattr(args, key):
+                old_value = getattr(args, key)
+                new_value = wandb.config[key]
+                if old_value != new_value:
+                    setattr(args, key, new_value)
+                    print(f"  {key}: {old_value} → {new_value}")
+        print("="*80 + "\n")
+
     # Set seed
     set_seed(args.seed)
 
@@ -482,6 +499,10 @@ def main():
     print_model_info(model)
     verify_lora_training(model)
 
+    # Enable gradient checkpointing if requested
+    if args.use_gradient_checkpointing:
+        model.enable_gradient_checkpointing()
+
     # Create dataset and collator
     print("\nLoading datasets...")
     if use_dummy:
@@ -507,9 +528,12 @@ def main():
             modality_probs={"text": 0.1, "text+pc": 0.3, "text+img": 0.3, "text+pc+img": 0.3},
             max_samples=args.max_train_samples,
         )
+        # Create image processor for DINOv2 normalization
+        image_processor = AutoImageProcessor.from_pretrained("facebook/dinov2-large")
         collator = MultimodalAutocompleteCollator(
             tokenizer=model.tokenizer,
             max_seq_length=model_config.max_seq_length,
+            image_processor=image_processor,
         )
     else:
         # Use multimodal dataset
