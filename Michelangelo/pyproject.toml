@@ -1,0 +1,18 @@
+[project]
+name = "michelangelo"
+version = "0.4.1"
+description = "Michelangelo: a 3D Shape Generation System."
+authors = [
+    {name = "Zibo Zhao, Wen Liu and Xin Chen", email = "liuwen@shanghaitech.edu.cn"},
+]
+requires-python = ">=3.8"
+dependencies = [
+    "torch",
+    "numpy",
+    "cython",
+    "tqdm",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

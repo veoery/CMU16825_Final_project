@@ -8,3 +8,7 @@ outputs_curriculum/
 **/__pycache__/
 cad_mllm/__pycache__/
 cad_mllm/__pycache__/*.pyc
+models/
+*.safetensors
+*.pt
+*.pth

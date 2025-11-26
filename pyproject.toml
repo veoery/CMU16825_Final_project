@@ -43,3 +43,8 @@ line_length = 100
 
 [tool.uv.sources]
 michelangelo = { path = "Michelangelo", editable = true }
+
+[tool.uv.workspace]
+members = [
+    "Michelangelo",
+]
