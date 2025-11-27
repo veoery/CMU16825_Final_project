@@ -218,41 +218,52 @@ class CADMLLMModel(nn.Module):
         Returns:
             Dictionary containing loss and logits
         """
+        print("Forward input:")
+        print(f"input_ids: {input_ids.shape}")
+        print(f"attention_mask: {attention_mask.shape}")
+        print(f"point_clouds: {point_clouds.shape}")
+        print(f"labels: {labels.shape}")
+        print("Forwarding...")
+
         # Encode and project different modalities
+        # Order: [image] [point_cloud] [text] so that generation happens at the end
         embeddings_list = []
         attention_masks = []
 
-        # Process text input (always present)
-        if input_ids is not None:
-            text_embeds = self.text_encoder(input_ids)
-            text_embeds = self.text_projector(text_embeds)
-            embeddings_list.append(text_embeds)
-            if attention_mask is not None:
-                attention_masks.append(attention_mask)
-
-        # Process image input (if present and encoder is enabled)
+        # Process image input first (if present and encoder is enabled)
         if pixel_values is not None and self.has_image_encoder:
             pixel_values = pixel_values.to(self.torch_dtype)
             image_features = self.image_encoder(pixel_values)
             if self.image_projector is not None:
                 image_embeds = self.image_projector(image_features)
                 embeddings_list.append(image_embeds)
+                print(f"image_embeds: {image_embeds.shape}")
                 # Create attention mask for image features
                 batch_size, seq_len = image_embeds.shape[:2]
                 image_mask = torch.ones(batch_size, seq_len, device=image_embeds.device)
                 attention_masks.append(image_mask)
 
-        # Process point cloud input (if present and encoder is enabled)
+        # Process point cloud input second (if present and encoder is enabled)
         if point_clouds is not None and self.has_point_encoder:
             point_clouds = point_clouds.to(self.torch_dtype)
             point_features = self.point_encoder(point_clouds)
             if self.point_projector is not None:
                 point_embeds = self.point_projector(point_features)
                 embeddings_list.append(point_embeds)
+                print(f"point_embeds: {point_embeds.shape}")
                 # Create attention mask for point features
                 batch_size, seq_len = point_embeds.shape[:2]
                 point_mask = torch.ones(batch_size, seq_len, device=point_embeds.device)
                 attention_masks.append(point_mask)
+
+        # Process text input last (always present) so CAD generation is at the end
+        if input_ids is not None:
+            text_embeds = self.text_encoder(input_ids)
+            text_embeds = self.text_projector(text_embeds)
+            print(f"text_embeds: {text_embeds.shape}")
+            embeddings_list.append(text_embeds)
+            if attention_mask is not None:
+                attention_masks.append(attention_mask)
 
         # Concatenate all embeddings
         if len(embeddings_list) > 1:
@@ -262,6 +273,9 @@ class CADMLLMModel(nn.Module):
         else:
             inputs_embeds = embeddings_list[0]
 
+        print(f"inputs_embeds: {inputs_embeds.shape}")
+        print(f"attention_mask: {attention_mask.shape}")
+        print(f"labels: {labels.shape}")
         # Forward through LLM
         outputs = self.llm(
             inputs_embeds=inputs_embeds,
@@ -317,19 +331,12 @@ class CADMLLMModel(nn.Module):
             point_clouds = point_clouds.to(self.config.device)
 
         # Encode inputs
+        # Order: [image] [point_cloud] [text] so that generation happens at the end
         embeddings_list = []
         attention_masks = []
 
-        # Text
-        text_embeds = self.text_encoder(input_ids)
-        text_embeds = self.text_projector(text_embeds)
-        embeddings_list.append(text_embeds)
-        attention_masks.append(attention_mask)
-
         # Image (if provided)
         if pixel_values is not None and self.has_image_encoder:
-            # print(pixel_values.type)
-            # print(pixel_values.shape)
             pixel_values = pixel_values.to(self.torch_dtype)
             image_features = self.image_encoder(pixel_values)
             if self.image_projector is not None:
@@ -349,6 +356,12 @@ class CADMLLMModel(nn.Module):
                 batch_size, seq_len = point_embeds.shape[:2]
                 point_mask = torch.ones(batch_size, seq_len, device=point_embeds.device)
                 attention_masks.append(point_mask)
+
+        # Text (always present) - add last so generation happens at the end
+        text_embeds = self.text_encoder(input_ids)
+        text_embeds = self.text_projector(text_embeds)
+        embeddings_list.append(text_embeds)
+        attention_masks.append(attention_mask)
 
         # Concatenate embeddings
         # print(len(embeddings_list))

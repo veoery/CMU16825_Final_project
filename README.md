@@ -18,10 +18,36 @@ This is a reproduction of the paper "CAD-MLLM: Unifying Multimodality-Conditione
   - [x] Train with Text + Point Cloud
   - [x] Train with Text + Point Cloud + Image
   - [x] Projector training with separate learning rates
+  - [x] Instruction masking (only compute loss on CAD generation)
   - [ ] Stage 1+2
   - [ ] Stage 1+2+3
 
 - [x] Evaluation metrics
+
+## Architecture Details
+
+### Multimodal Token Ordering
+
+The model uses the following token sequence order for multimodal inputs:
+
+```
+[Image tokens] [Point Cloud tokens] [Instruction + Description] [CAD Commands]
+     256              1                    variable                  variable
+```
+
+**Rationale:**
+- Multimodal features come first, allowing the model to attend to visual/3D context while reading the instruction
+- Follows standard vision-language model architecture (e.g., LLaVA)
+- CAD generation happens at the end where autoregressive generation naturally occurs
+
+**Label Masking:**
+- Image tokens: masked with `-100` (ignored in loss)
+- Point cloud tokens: masked with `-100` (ignored in loss)
+- Instruction + Description: masked with `-100` (ignored in loss)
+- CAD Commands: actual token IDs (compute loss only on generation target)
+
+**Future Exploration:**
+- Alternative ordering: `[Instruction] [PC] [Image] [CAD]` could be explored to place instruction closer to generation target
 
 ## Setup
 
