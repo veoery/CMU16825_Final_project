@@ -241,18 +241,11 @@ class CADMLLMModel(nn.Module):
             Dictionary containing loss and logits
         """
         # Encode and project different modalities
+        # CRITICAL: Order must match collator's label padding: [image, point_cloud, text]
         embeddings_list = []
         attention_masks = []
 
-        # Process text input (always present)
-        if input_ids is not None:
-            text_embeds = self.text_encoder(input_ids)
-            text_embeds = self.text_projector(text_embeds)
-            embeddings_list.append(text_embeds)
-            if attention_mask is not None:
-                attention_masks.append(attention_mask)
-
-        # Process image input (if present and encoder is enabled)
+        # Process image input first (if present and encoder is enabled)
         if pixel_values is not None and self.has_image_encoder:
             pixel_values = pixel_values.to(self.torch_dtype)
             image_features = self.image_encoder(pixel_values)
@@ -264,7 +257,7 @@ class CADMLLMModel(nn.Module):
                 image_mask = torch.ones(batch_size, seq_len, device=image_embeds.device)
                 attention_masks.append(image_mask)
 
-        # Process point cloud input (if present and encoder is enabled)
+        # Process point cloud input second (if present and encoder is enabled)
         if point_clouds is not None and self.has_point_encoder:
             point_clouds = point_clouds.to(self.torch_dtype)
             point_features = self.point_encoder(point_clouds)
@@ -275,6 +268,14 @@ class CADMLLMModel(nn.Module):
                 batch_size, seq_len = point_embeds.shape[:2]
                 point_mask = torch.ones(batch_size, seq_len, device=point_embeds.device)
                 attention_masks.append(point_mask)
+
+        # Process text input last (always present) so CAD generation is at the end
+        if input_ids is not None:
+            text_embeds = self.text_encoder(input_ids)
+            text_embeds = self.text_projector(text_embeds)
+            embeddings_list.append(text_embeds)
+            if attention_mask is not None:
+                attention_masks.append(attention_mask)
 
         # Concatenate all embeddings
         if len(embeddings_list) > 1:
@@ -289,22 +290,9 @@ class CADMLLMModel(nn.Module):
         if hasattr(self.llm, 'peft_config') and self.training:
             inputs_embeds = inputs_embeds.requires_grad_(True)
 
-        # CRITICAL: Pad labels to match inputs_embeds sequence length
-        # When we have multimodal inputs (text + image + PC), inputs_embeds is longer than labels
-        # Labels are created from text tokenization only, so we need to pad with -100
-        if labels is not None and inputs_embeds.shape[1] > labels.shape[1]:
-            batch_size, seq_len = labels.shape
-            target_seq_len = inputs_embeds.shape[1]
-            padding_len = target_seq_len - seq_len
-
-            # Pad labels with -100 (ignore index) to match inputs_embeds length
-            padding = torch.full(
-                (batch_size, padding_len),
-                fill_value=-100,
-                dtype=labels.dtype,
-                device=labels.device
-            )
-            labels = torch.cat([labels, padding], dim=1)
+        # NOTE: Label padding is handled by the collator (MultimodalAutocompleteCollator)
+        # Labels are already pre-padded to match [image, point_cloud, text] order
+        # No additional padding needed here
 
         # Forward through LLM
         outputs = self.llm(

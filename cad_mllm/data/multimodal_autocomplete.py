@@ -161,28 +161,28 @@ class MultimodalAutocompleteDataset(Dataset):
         with open(json_path, 'r') as f:
             return json.load(f)
 
-    def _load_image(self, cad_id: str) -> Optional[np.ndarray]:
+    def _load_image(self, cad_id: str) -> Optional[Image.Image]:
         """Load image for the given CAD ID with robustness checks.
 
         Args:
             cad_id: CAD ID in format "0000/00000071_00005"
 
         Returns:
-            Image as numpy array (H, W, C) or None if not found
+            Image as PIL Image or None if not found
+            Note: Preprocessing (resize/normalize) will be done by image processor in collator
         """
         if not self.image_root or not self.image_root.exists():
             return None
 
-        # Try different extensions
-        for ext in ['.jpg', '.jpeg', '.png']:
-            image_path = self.image_root / f"{cad_id}{ext}"
-            if image_path.exists():
-                try:
-                    img = Image.open(image_path).convert("RGB")
-                    return np.array(img)
-                except Exception as e:
-                    print(f"[WARNING] Failed to load image {image_path}: {e}")
-                    return None
+        # Standard filename pattern: {cad_id}_000.png
+        image_path = self.image_root / f"{cad_id}_000.png"
+        if image_path.exists():
+            try:
+                img = Image.open(image_path).convert("RGB")
+                return img  # Return PIL Image, not numpy array
+            except Exception as e:
+                print(f"[WARNING] Failed to load image {image_path}: {e}")
+                return None
 
         # If not found, log and return None
         self.missing_files["images"] += 1
@@ -290,10 +290,14 @@ class MultimodalAutocompleteCollator:
         tokenizer,
         max_seq_length: int = 32768,
         image_processor=None,
+        num_image_tokens: int = 256,  # DINOv2 with 224x224: 16x16 patches (CLS removed)
+        num_pc_tokens: int = 1,  # Michelangelo outputs single global shape token
     ):
         self.tokenizer = tokenizer
         self.max_seq_length = max_seq_length
         self.image_processor = image_processor
+        self.num_image_tokens = num_image_tokens
+        self.num_pc_tokens = num_pc_tokens
 
     def __call__(self, batch: List[Dict]) -> Dict[str, torch.Tensor]:
         """Collate batch of samples.
@@ -365,49 +369,85 @@ class MultimodalAutocompleteCollator:
             "labels": labels,
         }
 
-        # Add optional modalities (batch them if present)
-        # IMPORTANT: We don't modify labels here - the model's forward pass
-        # handles padding labels to match inputs_embeds when adding image/PC tokens
-        # CRITICAL: Must handle batches with inconsistent modalities by using zero-filled placeholders
+        # Process images if present - use image_processor for proper preprocessing
+        pixel_values_list = []
+        has_image = []
+        for sample in batch:
+            if "pixel_values" in sample and self.image_processor is not None:
+                # Preprocess PIL Image (returns dict with 'pixel_values' tensor)
+                # This handles: resize to 224x224, convert to tensor, normalize
+                processed = self.image_processor(sample["pixel_values"], return_tensors="pt")
+                pixel_values_list.append(processed["pixel_values"].squeeze(0))  # Remove batch dim
+                has_image.append(True)
+            else:
+                pixel_values_list.append(None)
+                has_image.append(False)
+
+        # Process point clouds if present - resample to exactly 2048 points
+        point_cloud_list = []
+        has_pc = []
+        for sample in batch:
+            if "point_clouds" in sample:
+                pc = sample["point_clouds"]
+                # Ensure consistent shape: exactly 2048 points
+                if len(pc) > 2048:
+                    # Random sample
+                    idx = np.random.choice(len(pc), 2048, replace=False)
+                    pc = pc[idx]
+                elif len(pc) < 2048:
+                    # Pad by repeating
+                    pad_idx = np.random.choice(len(pc), 2048 - len(pc), replace=True)
+                    pc = np.concatenate([pc, pc[pad_idx]], axis=0)
+                point_cloud_list.append(torch.tensor(pc))
+                has_pc.append(True)
+            else:
+                point_cloud_list.append(None)
+                has_pc.append(False)
+
+        # CRITICAL: Pre-pad labels to account for image/PC tokens (matching working version)
+        # Order must match forward pass: [image] [point_cloud] [text]
         batch_size = len(batch)
+        text_seq_len = labels.shape[1]
 
-        # Image batching with zero-filled placeholders for missing images
-        if any("pixel_values" in s for s in batch):
-            images = []
-            for s in batch:
-                if "pixel_values" in s:
-                    img = torch.from_numpy(s["pixel_values"]).float()
-                    # Convert (H, W, C) -> (C, H, W)
-                    if img.dim() == 3 and img.shape[2] == 3:
-                        img = img.permute(2, 0, 1)
-                    # NO NORMALIZATION - model's ImageEncoder handles it internally
-                    images.append(img)
-                else:
-                    # Zero-filled placeholder for missing image (3, 224, 224)
-                    images.append(torch.zeros(3, 224, 224))
-            result["pixel_values"] = torch.stack(images)  # Shape: [batch_size, 3, 224, 224]
+        # Calculate total sequence length including multimodal tokens
+        img_tokens = self.num_image_tokens if any(has_image) else 0
+        pc_tokens = self.num_pc_tokens if any(has_pc) else 0
+        max_total_len = img_tokens + pc_tokens + text_seq_len
 
-        # Point cloud batching with zero-filled placeholders for missing point clouds
-        if any("point_clouds" in s for s in batch):
-            pcs = []
-            for s in batch:
-                if "point_clouds" in s:
-                    pc = torch.from_numpy(s["point_clouds"]).float()
-                    pcs.append(pc)
-                else:
-                    # Zero-filled placeholder for missing point cloud
-                    # Assume point clouds are (num_points, 3), use same shape as present samples
-                    # Get shape from first available sample
-                    ref_shape = None
-                    for ref_s in batch:
-                        if "point_clouds" in ref_s:
-                            ref_shape = ref_s["point_clouds"].shape
-                            break
-                    if ref_shape is not None:
-                        pcs.append(torch.zeros(ref_shape))
+        # Pad labels with -100 for multimodal features (image/PC positions)
+        if max_total_len > text_seq_len:
+            # Create padded labels tensor, all initialized to -100
+            padded_labels = torch.full(
+                (batch_size, max_total_len),
+                fill_value=-100,
+                dtype=labels.dtype
+            )
+            # Copy text labels to the END (after image and PC tokens)
+            text_start_idx = img_tokens + pc_tokens
+            padded_labels[:, text_start_idx:text_start_idx + text_seq_len] = labels
+            labels = padded_labels
+
+        result["labels"] = labels
+
+        # Add images to output if any present
+        if any(has_image):
+            # Fill missing with zeros (match shape of processed images)
+            for i, pv in enumerate(pixel_values_list):
+                if pv is None:
+                    # Find a valid image to get the shape
+                    valid_img = next((img for img in pixel_values_list if img is not None), None)
+                    if valid_img is not None:
+                        pixel_values_list[i] = torch.zeros_like(valid_img)
                     else:
-                        # Fallback: use default shape (8192, 3)
-                        pcs.append(torch.zeros(8192, 3))
-            result["point_clouds"] = torch.stack(pcs)  # Shape: [batch_size, num_points, 3]
+                        pixel_values_list[i] = torch.zeros(3, 224, 224)
+            result["pixel_values"] = torch.stack(pixel_values_list)
+
+        # Add point clouds to output if any present
+        if any(has_pc):
+            # Fill missing with zeros
+            for i, pc in enumerate(point_cloud_list):
+                if pc is None:
+                    point_cloud_list[i] = torch.zeros(2048, 3)
+            result["point_clouds"] = torch.stack(point_cloud_list)
 
         return result

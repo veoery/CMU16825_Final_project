@@ -12,7 +12,9 @@
       "Bash(. .venv/Scripts/activate)",
       "Bash(bash:*)",
       "Bash(chmod:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nMemory optimization: Structure-aware masking for autocomplete (50% memory reduction)\n\nCRITICAL FIX: Autocompletion was using 2x memory by including both truncated \nand full JSON in the input sequence. This caused OOM even on 80GB A100.\n\n## Changes:\n\n1. **Dataset (__getitem__)**:\n   - Only load full_seq (removed truncated_seq from input)\n   - Extract kept_operations from truncation_metadata\n   - Result: ~7-8K tokens instead of ~15K tokens per sample\n\n2. **Collator (__call__)**:\n   - Format: \"Caption + Full JSON\" (not \"Caption + Truncated + Full\")\n   - Structure-aware masking: Reconstruct partial JSON from full by slicing\n     sequence[:kept_operations], tokenize to find boundary, mask those tokens\n   - Masks \"already seen\" operations, only compute loss on new operations\n\n## Memory Impact:\n- Sequence length reduced by ~50% (8K vs 15K tokens)\n- Should enable: max_seq_length=8192, batch_size=2 on 80GB A100\n- No accuracy loss: Same training signal, just smarter masking\n\n## Technical Details:\n- Uses truncation_metadata.kept_operations to determine mask boundary\n- Reconstructs partial JSON structure: partial[\"sequence\"] = full[\"sequence\"][:kept_ops]\n- Tokenizes partial to find exact token cutoff point\n- Fallback to prompt-only masking if JSON parsing fails\n\n🤖 Generated with Claude Code\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
     ],
     "deny": [],
     "ask": []
