@@ -241,24 +241,25 @@ class MultimodalAutocompleteDataset(Dataset):
         # Sample modality combination
         modality = self._sample_modality_combination()
 
-        # Load truncated JSON
+        # Load truncated JSON to get metadata (how many operations to mask)
         truncated_json = self._load_json(sample["truncated_path"])
-        truncated_seq = json.dumps(truncated_json, separators=(',', ':'))
+        kept_operations = truncated_json.get("truncation_metadata", {}).get("kept_operations", 0)
 
         # Load full JSON
         full_json_path = self.full_json_root / f"{cad_id}.json"
         if not full_json_path.exists():
             self.missing_files["full_json"] += 1
             # Use truncated as fallback (shouldn't happen in valid data)
-            full_seq = truncated_seq
+            full_seq = json.dumps(truncated_json, separators=(',', ':'))
+            kept_operations = len(truncated_json.get("sequence", []))
         else:
             full_json = self._load_json(full_json_path)
             full_seq = json.dumps(full_json, separators=(',', ':'))
 
         result = {
             "input_text": text_caption,
-            "truncated_seq": truncated_seq,
             "full_seq": full_seq,
+            "kept_operations": kept_operations,  # Used for masking
             "cad_id": cad_id,
             "modality": modality,
         }
@@ -303,17 +304,15 @@ class MultimodalAutocompleteCollator:
         Returns:
             Dictionary containing batched tensors
         """
-        # Format text inputs
+        # MEMORY OPTIMIZATION: Only include full sequence once (not truncated + full)
+        # Use structural masking to mask "already seen" operations
         formatted_texts = []
+        kept_ops_list = []
         for sample in batch:
-            # Instruction format:
-            # "Complete this CAD sequence: {caption}\nPartial: {truncated}\nComplete: {full}"
-            text = (
-                f"Complete this CAD sequence: {sample['input_text']}\n"
-                f"Partial: {sample['truncated_seq']}\n"
-                f"Complete: {sample['full_seq']}"
-            )
+            # Format: Caption + Full JSON (50% memory reduction vs including truncated)
+            text = f"Complete this CAD sequence: {sample['input_text']}\n{sample['full_seq']}"
             formatted_texts.append(text)
+            kept_ops_list.append(sample['kept_operations'])
 
         # Tokenize
         encodings = self.tokenizer(
@@ -324,20 +323,38 @@ class MultimodalAutocompleteCollator:
             return_tensors="pt",
         )
 
-        # CRITICAL: Mask input/context tokens, only compute loss on completion
+        # CRITICAL: Structure-aware masking based on operation indices
+        # Mask tokens corresponding to "seen" operations (in truncated version)
         labels = encodings["input_ids"].clone()
-        for i, text in enumerate(formatted_texts):
-            # Find where "Complete: " starts
-            completion_marker = "Complete: "
-            completion_start_char = text.find(completion_marker) + len(completion_marker)
+        for i, (text, sample) in enumerate(zip(formatted_texts, batch)):
+            kept_operations = sample['kept_operations']
 
-            # Tokenize prefix to find token position
-            prefix = text[:completion_start_char]
-            prefix_tokens = self.tokenizer(prefix, add_special_tokens=False)["input_ids"]
-            prefix_len = len(prefix_tokens)
+            # Parse full JSON to identify mask boundary
+            try:
+                full_json = json.loads(sample['full_seq'])
 
-            # Mask all tokens before completion
-            labels[i, :prefix_len] = -100
+                # Create partial JSON (only operations 0 to kept_operations-1)
+                partial_json = full_json.copy()
+                if "sequence" in partial_json:
+                    partial_json["sequence"] = partial_json["sequence"][:kept_operations]
+
+                # Find where "new" content starts by tokenizing partial
+                # Prompt: "Complete this CAD sequence: {caption}\n"
+                prompt = f"Complete this CAD sequence: {sample['input_text']}\n"
+                partial_json_str = json.dumps(partial_json, separators=(',', ':'))
+                partial_text = prompt + partial_json_str
+
+                # Tokenize to find cutoff
+                partial_tokens = self.tokenizer(partial_text, add_special_tokens=False)["input_ids"]
+                mask_until = len(partial_tokens)
+
+                # Mask all tokens up to this point (prompt + seen operations)
+                labels[i, :mask_until] = -100
+            except (json.JSONDecodeError, KeyError):
+                # Fallback: mask just the prompt if JSON parsing fails
+                prompt = f"Complete this CAD sequence: {sample['input_text']}\n"
+                prompt_tokens = self.tokenizer(prompt, add_special_tokens=False)["input_ids"]
+                labels[i, :len(prompt_tokens)] = -100
 
         # Mask padding tokens
         labels[labels == self.tokenizer.pad_token_id] = -100
