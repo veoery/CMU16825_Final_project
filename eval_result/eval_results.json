@@ -1,0 +1,17 @@
+{
+  "total_pairs": 1,
+  "summary": {
+    "generated_invalid": 1
+  },
+  "results": [
+    {
+      "file": "generated_cad_00003816_00001_v6.json",
+      "match_status": "generated_invalid",
+      "metrics": {
+        "generated_valid": false,
+        "groundtruth_valid": false,
+        "generated_issues": 2
+      }
+    }
+  ]
+}

@@ -12,3 +12,5 @@ models/
 *.safetensors
 *.pt
 *.pth
+guides_md/
+gen_cad_all/
