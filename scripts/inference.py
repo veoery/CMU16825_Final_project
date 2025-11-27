@@ -54,7 +54,7 @@ def main():
 
         pixel_values = None
         if args.image_path != "":
-            image = Image.open(args.image_path)
+            image = Image.open(args.image_path).convert("RGB")
             model.enable_image_encoder()
             model.enable_image_projector()
             pixel_values = model.image_encoder.preprocess(image)

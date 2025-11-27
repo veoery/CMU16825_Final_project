@@ -495,7 +495,9 @@ def main():
             available_modalities=["text"],  # Start with text only
             modality_sample_probs={"text": 1.0},
         )
-        collator = MultimodalCADCollator(model.tokenizer)
+        from transformers import AutoImageProcessor
+        img_processor = AutoImageProcessor.from_pretrained(model_config.image_encoder_name)
+        collator = MultimodalCADCollator(model.tokenizer, img_processor=img_processor)
 
     print(f"Training samples: {len(train_dataset)}")
 

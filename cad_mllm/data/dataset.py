@@ -9,6 +9,7 @@ from typing import Dict, List, Optional, Union
 
 import torch
 from torch.utils.data import Dataset
+from PIL import Image
 
 
 class CADDataset(Dataset):
@@ -446,31 +447,35 @@ class MultimodalCADDataset(Dataset):
 
         return cad_data
 
-    def _load_image(self, cad_id: str) -> Optional[np.ndarray]:
+    def _load_image(self, cad_id: str) -> Optional[Image.Image]:
         """Load image for the given CAD ID.
 
         Args:
             cad_id: CAD ID in format "0000/00000071_00005"
 
         Returns:
-            Image as numpy array (C, H, W) or None if not found
+            Image as PIL Image or None if not found
+            Note: Preprocessing (resize/normalize) will be done by image encoder
         """
-        if self.image_root is None or not self.image_root.exists():
-            print(f"{self.image_root} does not exist.")
+        if self.image_root is None:
             return None
 
         # Try common image extensions
         # cad_id format: "0000/00000071_00005"
-        # image path: img_root/0000/00000071_00005.jpg
-        for ext in ['.jpg', '.jpeg', '.png']:
-            img_path = self.image_root / f"{cad_id}_000{ext}"
-            if img_path.exists():
-                # For now, return a dummy array - in real implementation, use PIL
-                # from PIL import Image
-                # img = Image.open(img_path)
-                # return np.array(img)
-                return np.random.randn(3, 224, 224).astype(np.float32)
-            print(f"{img_path} does not exist.")
+        # image path: img_root/0000/00000071_00005_000.png
+        img_path = self.image_root / f"{cad_id}_000.png"
+        try:
+            img = Image.open(img_path).convert('RGB')
+            return img
+        except FileNotFoundError:
+            print(f"{img_path} not found. Skipping...")
+            return None
+        except (OSError, IOError) as e:
+            print(f"Warning: I/O error loading {img_path}: {e}. Skipping...")
+            return None
+        except Exception as e:
+            print(f"Warning: Error loading {img_path}: {e}. Skipping...")
+            return None
 
         return None
 
@@ -582,12 +587,14 @@ class MultimodalCADCollator:
         padding: str = "max_length",
         num_image_tokens: int = 256,  # DINOv2 with 224x224: 16x16 patches (CLS removed)
         num_pc_tokens: int = 1,  # Michelangelo outputs single global shape token
+        image_processor=None,  # DINOv2 image processor for proper preprocessing
     ):
         self.tokenizer = tokenizer
         self.max_seq_length = max_seq_length
         self.padding = padding
         self.num_image_tokens = num_image_tokens
         self.num_pc_tokens = num_pc_tokens
+        self.image_processor = image_processor
 
     def __call__(self, batch: List[Dict]) -> Dict[str, torch.Tensor]:
         """Collate batch of samples with variable modalities."""
@@ -636,8 +643,10 @@ class MultimodalCADCollator:
         pixel_values_list = []
         has_image = []
         for sample in batch:
-            if "pixel_values" in sample:
-                pixel_values_list.append(torch.tensor(sample["pixel_values"]))
+            if "pixel_values" in sample and self.image_processor is not None:
+                # Preprocess PIL Image (returns dict with 'pixel_values' tensor)
+                processed = self.image_processor(sample["pixel_values"], return_tensors="pt")
+                pixel_values_list.append(processed["pixel_values"].squeeze(0))  # Remove batch dim
                 has_image.append(True)
             else:
                 pixel_values_list.append(None)
@@ -695,10 +704,15 @@ class MultimodalCADCollator:
 
         # Add images to output if any present
         if any(has_image):
-            # Fill missing with zeros
+            # Fill missing with zeros (match shape of processed images)
             for i, pv in enumerate(pixel_values_list):
                 if pv is None:
-                    pixel_values_list[i] = torch.zeros(3, 224, 224)
+                    # Find a valid image to get the shape
+                    valid_img = next((img for img in pixel_values_list if img is not None), None)
+                    if valid_img is not None:
+                        pixel_values_list[i] = torch.zeros_like(valid_img)
+                    else:
+                        pixel_values_list[i] = torch.zeros(3, 224, 224)
             output["pixel_values"] = torch.stack(pixel_values_list)
 
         # Add point clouds to output if any present
