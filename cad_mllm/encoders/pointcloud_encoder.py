@@ -4,9 +4,82 @@ import torch
 import torch.nn as nn
 from typing import Optional
 from omegaconf import OmegaConf
+import os
+from pathlib import Path
 
 # From Michelangelo repo
 from Michelangelo.michelangelo.models.tsal.sal_perceiver import AlignedShapeLatentPerceiver
+
+
+def download_michelangelo_checkpoint(checkpoint_path: str) -> None:
+    """
+    Auto-download Michelangelo checkpoint if it doesn't exist.
+
+    Tries multiple reliable sources to avoid manual uploads.
+    """
+    checkpoint_path = Path(checkpoint_path)
+
+    if checkpoint_path.exists():
+        print(f"✓ Michelangelo checkpoint already exists: {checkpoint_path}")
+        return
+
+    print(f"⚠ Michelangelo checkpoint not found at {checkpoint_path}")
+    print("📥 Attempting automatic download...")
+
+    # Create checkpoints directory
+    checkpoint_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Try multiple download sources in order of reliability
+    sources = [
+        {
+            "name": "Hugging Face Mirror",
+            "url": "https://huggingface.co/datasets/tiange/Michelangelo-checkpoints/resolve/main/shapenet.pth",
+            "method": "urllib",
+        },
+        {
+            "name": "Google Drive (gdown)",
+            "file_id": "1wzfa4EoijmyfTpLPfma9r03wvQ_mbjFD",
+            "method": "gdown",
+        },
+    ]
+
+    for source in sources:
+        try:
+            print(f"\n🔄 Trying {source['name']}...")
+
+            if source["method"] == "urllib":
+                import urllib.request
+                urllib.request.urlretrieve(source["url"], checkpoint_path)
+
+            elif source["method"] == "gdown":
+                try:
+                    import gdown
+                except ImportError:
+                    print("   ⚠ gdown not installed, skipping...")
+                    continue
+                gdown.download(id=source["file_id"], output=str(checkpoint_path), quiet=False)
+
+            # Verify the download
+            if checkpoint_path.exists() and checkpoint_path.stat().st_size > 1_000_000:  # > 1MB
+                print(f"✓ Successfully downloaded from {source['name']}")
+                print(f"✓ Saved to: {checkpoint_path}")
+                return
+            else:
+                print(f"   ✗ Download failed or file too small")
+                checkpoint_path.unlink(missing_ok=True)
+
+        except Exception as e:
+            print(f"   ✗ Failed: {e}")
+            checkpoint_path.unlink(missing_ok=True)
+            continue
+
+    # All sources failed
+    raise FileNotFoundError(
+        f"\n❌ Could not auto-download Michelangelo checkpoint.\n"
+        f"Please manually download from:\n"
+        f"  https://huggingface.co/datasets/tiange/Michelangelo-checkpoints\n"
+        f"And place it at: {checkpoint_path}"
+    )
 
 
 class MichelangeloPointEncoder(nn.Module):
@@ -48,12 +121,15 @@ class MichelangeloPointEncoder(nn.Module):
         self.freeze_encoder = freeze
         self.dtype = dtype
 
-        # --- 1) Load config for AlignedShapeLatentPerceiver ---
+        # --- 1) Auto-download checkpoint if missing ---
+        download_michelangelo_checkpoint(encoder_sd_path)
+
+        # --- 2) Load config for AlignedShapeLatentPerceiver ---
         shape_cfg = OmegaConf.load(encoder_cfg_path)
         shape_params = dict(shape_cfg.params)  # OmegaConf -> plain dict
 
-        # --- 2) Instantiate encoder (no Lightning, no CLIP) ---
-        
+        # --- 3) Instantiate encoder (no Lightning, no CLIP) ---
+
         self.encoder = AlignedShapeLatentPerceiver(
             **shape_params,
             device=self.device,
@@ -61,7 +137,7 @@ class MichelangeloPointEncoder(nn.Module):
         ).to(self.device)
         # print(self.encoder.embed_dim)
 
-        # --- 3) Load weights ---
+        # --- 4) Load weights ---
         state_dict = torch.load(encoder_sd_path, map_location=self.device, weights_only=True)
         self.encoder.load_state_dict(state_dict, strict=True)
 
