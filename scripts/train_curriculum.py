@@ -113,6 +113,8 @@ def train_epoch(
 
     global_step = start_global_step
 
+    saved = False
+
     for step, batch in enumerate(progress_bar):
         # Move batch to device
         batch = {k: v.to(config.device) if isinstance(v, torch.Tensor) else v for k, v in batch.items()}
@@ -168,12 +170,16 @@ def train_epoch(
 
         # Save checkpoint
         if global_step % config.save_steps == 0 and global_step > start_global_step:
-            checkpoint_path = os.path.join(
-                config.output_dir,
-                stage_name,
-                f"checkpoint-epoch{epoch}-step{global_step}"
-            )
-            save_checkpoint(model, optimizer, scheduler, epoch, global_step, checkpoint_path)
+            if saved == False:
+                checkpoint_path = os.path.join(
+                    config.output_dir,
+                    stage_name,
+                    f"checkpoint-epoch{epoch}-step{global_step}"
+                )
+                save_checkpoint(model, optimizer, scheduler, epoch, global_step, checkpoint_path)
+                saved = True
+        else:
+            saved = False
 
     return loss_meter.avg, global_step
 
@@ -320,7 +326,7 @@ def train_curriculum_stage(
     print(f"Trainable projector params: {len(param_groups['projectors'])}")
     print(f"Trainable encoder params: {len(param_groups['encoders'])}")
     print(f"Total training steps: {num_training_steps}\n")
-    verify_lora_training(model)
+    print_model_info(model)
 
     # Training loop for this stage
     global_step = start_global_step
@@ -473,8 +479,8 @@ def main():
             print(f"Will start training from Stage {args.start_from_stage}")
         print(f"{'='*80}\n")
         
-    print_model_info(model)
     print("Base model:")
+    print_model_info(model)
     verify_lora_training(model)
 
     # Create dataset and collator
