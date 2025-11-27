@@ -285,6 +285,7 @@ def save_checkpoint(
     step: int,
     save_path: str,
     is_best: bool = False,
+    add_timestamp: bool = True,
 ):
     """Save training checkpoint.
 
@@ -294,10 +295,17 @@ def save_checkpoint(
         scheduler: Scheduler state
         epoch: Current epoch
         step: Current step
-        save_path: Path to save checkpoint directory
+        save_path: Path to save checkpoint directory (timestamp will be appended if add_timestamp=True)
         is_best: Whether this is the best model
+        add_timestamp: Whether to add timestamp to the path (default: True)
     """
     import os
+    from datetime import datetime
+
+    # Add timestamp to path if requested
+    if add_timestamp:
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        save_path = f"{save_path}-{timestamp}"
 
     # Ensure the checkpoint directory exists
     os.makedirs(save_path, exist_ok=True)

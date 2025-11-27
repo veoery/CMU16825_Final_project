@@ -220,6 +220,8 @@ def load_stage_checkpoint(model, checkpoint_path: str):
             model.point_projector.load_state_dict(loaded_model.point_projector.state_dict())
             print("  ✓ Loaded point cloud module")
 
+        del loaded_model
+        torch.cuda.empty_cache()
         print(f"Checkpoint loaded successfully!\n")
         return True
 
@@ -318,6 +320,7 @@ def train_curriculum_stage(
     print(f"Trainable projector params: {len(param_groups['projectors'])}")
     print(f"Trainable encoder params: {len(param_groups['encoders'])}")
     print(f"Total training steps: {num_training_steps}\n")
+    verify_lora_training(model)
 
     # Training loop for this stage
     global_step = start_global_step
@@ -471,6 +474,7 @@ def main():
         print(f"{'='*80}\n")
         
     print_model_info(model)
+    print("Base model:")
     verify_lora_training(model)
 
     # Create dataset and collator
@@ -497,7 +501,11 @@ def main():
         )
         from transformers import AutoImageProcessor
         img_processor = AutoImageProcessor.from_pretrained(model_config.image_encoder_name)
-        collator = MultimodalCADCollator(model.tokenizer, img_processor=img_processor)
+        collator = MultimodalCADCollator(
+            model.tokenizer,
+            max_seq_length=model_config.max_seq_length,
+            image_processor=img_processor
+        )
 
     print(f"Training samples: {len(train_dataset)}")
 
