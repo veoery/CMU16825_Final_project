@@ -218,12 +218,12 @@ class CADMLLMModel(nn.Module):
         Returns:
             Dictionary containing loss and logits
         """
-        print("Forward input:")
-        print(f"input_ids: {input_ids.shape}")
-        print(f"attention_mask: {attention_mask.shape}")
-        print(f"point_clouds: {point_clouds.shape}")
-        print(f"labels: {labels.shape}")
-        print("Forwarding...")
+        # print("Forward input:")
+        # print(f"input_ids: {input_ids.shape}")
+        # print(f"attention_mask: {attention_mask.shape}")
+        # print(f"point_clouds: {point_clouds.shape}")
+        # print(f"labels: {labels.shape}")
+        # print("Forwarding...")
 
         # Encode and project different modalities
         # Order: [image] [point_cloud] [text] so that generation happens at the end
@@ -237,7 +237,7 @@ class CADMLLMModel(nn.Module):
             if self.image_projector is not None:
                 image_embeds = self.image_projector(image_features)
                 embeddings_list.append(image_embeds)
-                print(f"image_embeds: {image_embeds.shape}")
+                # print(f"image_embeds: {image_embeds.shape}")
                 # Create attention mask for image features
                 batch_size, seq_len = image_embeds.shape[:2]
                 image_mask = torch.ones(batch_size, seq_len, device=image_embeds.device)
@@ -250,7 +250,7 @@ class CADMLLMModel(nn.Module):
             if self.point_projector is not None:
                 point_embeds = self.point_projector(point_features)
                 embeddings_list.append(point_embeds)
-                print(f"point_embeds: {point_embeds.shape}")
+                # print(f"point_embeds: {point_embeds.shape}")
                 # Create attention mask for point features
                 batch_size, seq_len = point_embeds.shape[:2]
                 point_mask = torch.ones(batch_size, seq_len, device=point_embeds.device)
@@ -260,7 +260,7 @@ class CADMLLMModel(nn.Module):
         if input_ids is not None:
             text_embeds = self.text_encoder(input_ids)
             text_embeds = self.text_projector(text_embeds)
-            print(f"text_embeds: {text_embeds.shape}")
+            # print(f"text_embeds: {text_embeds.shape}")
             embeddings_list.append(text_embeds)
             if attention_mask is not None:
                 attention_masks.append(attention_mask)
@@ -273,9 +273,9 @@ class CADMLLMModel(nn.Module):
         else:
             inputs_embeds = embeddings_list[0]
 
-        print(f"inputs_embeds: {inputs_embeds.shape}")
-        print(f"attention_mask: {attention_mask.shape}")
-        print(f"labels: {labels.shape}")
+        # print(f"inputs_embeds: {inputs_embeds.shape}")
+        # print(f"attention_mask: {attention_mask.shape}")
+        # print(f"labels: {labels.shape}")
         # Forward through LLM
         outputs = self.llm(
             inputs_embeds=inputs_embeds,
