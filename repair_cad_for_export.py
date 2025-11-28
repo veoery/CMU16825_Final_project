@@ -240,8 +240,34 @@ def prepare_cad_json(input_json):
                 extrude["extent_type"] = "OneSideFeatureExtentType"
                 ops.append(f"[REPAIR] Added default extent_type to extrude {extrude_id}")
 
-            # Check for other missing fields (non-critical)
-            optional_fields = ["extent_one", "extent_two", "profiles"]
+            # Add default extent_two if missing
+            if "extent_two" not in extrude:
+                extrude["extent_two"] = {"type": "SymmetricExtentDefinition"}
+                ops.append(f"[REPAIR] Added default extent_two to extrude {extrude_id}")
+
+            # Add profiles if missing by finding valid profiles from sketches
+            if "profiles" not in extrude or not extrude["profiles"]:
+                profiles = []
+                for sketch_id, sketch in entities.items():
+                    if sketch.get("type") == "Sketch":
+                        sketch_profiles = sketch.get("profiles", {})
+                        if isinstance(sketch_profiles, dict):
+                            for profile_id in sketch_profiles.keys():
+                                profiles.append({
+                                    "sketch": sketch_id,
+                                    "profile": profile_id
+                                })
+                        if profiles:
+                            break
+
+                if profiles:
+                    extrude["profiles"] = profiles
+                    ops.append(f"[REPAIR] Added {len(profiles)} profile(s) to extrude {extrude_id}")
+                else:
+                    ops.append(f"⚠ Extrude {extrude_id} could not auto-add profiles (no valid sketches found)")
+
+            # Check for remaining missing fields (non-critical)
+            optional_fields = ["extent_one"]
             for field in optional_fields:
                 if field not in extrude:
                     ops.append(f"⚠ Extrude {extrude_id} missing field '{field}' (may cause export errors)")
