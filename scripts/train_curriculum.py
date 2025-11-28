@@ -61,6 +61,7 @@ def parse_args():
     parser.add_argument("--max_seq_length", type=int, default=512, help="Maximum sequence length")
     parser.add_argument("--logging_steps", type=int, default=10, help="Logging frequency")
     parser.add_argument("--save_steps", type=int, default=500, help="Save checkpoint frequency")
+    parser.add_argument("--keep_last_n_checkpoints", type=int, default=3, help="Keep only last N interval checkpoints (0 = keep all)")
     parser.add_argument("--seed", type=int, default=42, help="Random seed")
     parser.add_argument("--projector_lr_multiplier", type=float, default=5.0, help="LR multiplier for projectors")
 
@@ -116,8 +117,15 @@ def train_epoch(
     stage_name,
     config,
     start_global_step=0,
+    best_loss=float('inf'),
+    interval_checkpoints=None,
 ):
-    """Train for one epoch."""
+    """Train for one epoch.
+
+    Args:
+        best_loss: Best loss seen so far (for saving best checkpoint)
+        interval_checkpoints: List to track interval checkpoint paths (for cleanup)
+    """
     model.train()
 
     loss_meter = AverageMeter()
@@ -128,6 +136,10 @@ def train_epoch(
     # Track NaN batches
     total_batches = 0
     nan_batches = 0
+
+    # Initialize interval checkpoints list if not provided
+    if interval_checkpoints is None:
+        interval_checkpoints = []
 
     for step, batch in enumerate(progress_bar):
         # Move batch to device
@@ -196,7 +208,18 @@ def train_epoch(
         if global_step % config.logging_steps == 0 and global_step > start_global_step:
             print(f"\n{stage_name} - Step {global_step} | Loss: {loss_meter.avg:.4f} | LR: {scheduler.get_last_lr()[0]:.2e} | NaN: {nan_batches}/{total_batches} ({nan_pct:.1f}%)")
 
-        # Save checkpoint
+        # Check if this is the best loss so far (only check on valid batches)
+        if not is_nan and loss_meter.avg < best_loss:
+            best_loss = loss_meter.avg
+            best_checkpoint_path = os.path.join(
+                config.output_dir,
+                stage_name,
+                "checkpoint-best"
+            )
+            print(f"\n🏆 New best loss: {best_loss:.4f} - Saving best checkpoint to {best_checkpoint_path}")
+            save_checkpoint(model, optimizer, scheduler, epoch, global_step, best_checkpoint_path, is_best=True)
+
+        # Save interval checkpoint
         if global_step % config.save_steps == 0 and global_step > start_global_step:
             checkpoint_path = os.path.join(
                 config.output_dir,
@@ -205,7 +228,18 @@ def train_epoch(
             )
             save_checkpoint(model, optimizer, scheduler, epoch, global_step, checkpoint_path)
 
-    return loss_meter.avg, global_step
+            # Track this checkpoint for cleanup
+            interval_checkpoints.append(checkpoint_path)
+
+            # Remove old checkpoints if we exceed the limit
+            if config.keep_last_n_checkpoints > 0 and len(interval_checkpoints) > config.keep_last_n_checkpoints:
+                old_checkpoint = interval_checkpoints.pop(0)  # Remove oldest
+                if os.path.exists(old_checkpoint):
+                    import shutil
+                    shutil.rmtree(old_checkpoint)
+                    print(f"🗑️  Removed old checkpoint: {old_checkpoint}")
+
+    return loss_meter.avg, global_step, best_loss, interval_checkpoints
 
 
 def load_stage_checkpoint(model, checkpoint_path: str):
@@ -351,8 +385,11 @@ def train_curriculum_stage(
 
     # Training loop for this stage
     global_step = start_global_step
+    best_loss = float('inf')  # Track best loss for this stage
+    interval_checkpoints = []  # Track interval checkpoints for cleanup
+
     for epoch in range(stage.num_epochs):
-        avg_loss, global_step = train_epoch(
+        avg_loss, global_step, best_loss, interval_checkpoints = train_epoch(
             model,
             train_dataloader,
             optimizer,
@@ -361,6 +398,8 @@ def train_curriculum_stage(
             stage.name,
             config,
             start_global_step=global_step,
+            best_loss=best_loss,
+            interval_checkpoints=interval_checkpoints,
         )
 
         print(f"\n{stage.name} - Epoch {epoch} completed | Average Loss: {avg_loss:.4f}")
@@ -383,6 +422,13 @@ def train_curriculum_stage(
     # Save stage model
     stage_model_path = os.path.join(config.output_dir, f"{stage.name}_model")
     model.save_pretrained(stage_model_path)
+
+    # Print summary
+    print(f"\n{'='*80}")
+    print(f"Stage {stage.name} completed!")
+    print(f"Best loss achieved: {best_loss:.4f}")
+    print(f"Best checkpoint saved at: {os.path.join(config.output_dir, stage.name, 'checkpoint-best')}")
+    print(f"{'='*80}\n")
     print(f"\n{stage.name} completed! Model saved to {stage_model_path}")
 
     return global_step
