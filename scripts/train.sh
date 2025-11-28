@@ -1,0 +1,25 @@
+# Stage 3
+python scripts/train_curriculum.py \
+    --output_dir ./CAD-MLLM-checkpoints \
+    --omnicad_json_root ./data/Omni-CAD-subset-complete/json \
+    --omnicad_txt_path ./data/Omni-CAD-subset-complete/txt \
+    --omnicad_img_root ./data/Omni-CAD-subset-complete/img \
+    --omnicad_pc_root ./data/Omni-CAD-subset-complete/pointcloud \
+    --llm_model_name "Qwen/Qwen3-8B" \
+    --start_from_stage 3 \
+    --stage1_epochs 0 \
+    --stage2_epochs 0 \
+    --stage3_epochs 10 \
+    --stage3_lr 2e-5 \
+    --max_seq_length 512 \
+    --batch_size 1 \
+    --gradient_accumulation_steps 16 \
+    --lora_r 32 \
+    --lora_alpha 64 \
+    --warmup_steps 50 \
+    --logging_steps 10 \
+    --save_steps 1 \
+    --device cuda \
+    --dtype bfloat16 \
+    --wandb_project "CAD-MLLM-stage_3" \
+    --seed 11
