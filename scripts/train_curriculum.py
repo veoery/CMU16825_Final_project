@@ -125,6 +125,10 @@ def train_epoch(
 
     global_step = start_global_step
 
+    # Track NaN batches
+    total_batches = 0
+    nan_batches = 0
+
     for step, batch in enumerate(progress_bar):
         # Move batch to device
         batch = {k: v.to(config.device) if isinstance(v, torch.Tensor) else v for k, v in batch.items()}
@@ -132,6 +136,15 @@ def train_epoch(
         # Forward pass
         outputs = model(**batch)
         loss = outputs.loss
+
+        # Track NaN/Inf batches
+        total_batches += 1
+        is_nan = torch.isnan(loss) or torch.isinf(loss)
+        if is_nan:
+            nan_batches += 1
+
+        # Calculate NaN percentage
+        nan_pct = (nan_batches / total_batches * 100) if total_batches > 0 else 0
 
         # Scale loss for gradient accumulation
         loss = loss / config.gradient_accumulation_steps
@@ -161,22 +174,27 @@ def train_epoch(
                         "train/epoch": epoch,
                         "train/step": global_step,
                         "train/stage": stage_name,
+                        "train/nan_percentage": nan_pct,
+                        "train/nan_count": nan_batches,
+                        "train/total_batches": total_batches,
                     },
                     step=global_step,
                 )
 
-        # Update metrics
-        loss_meter.update(loss.item() * config.gradient_accumulation_steps)
+        # Update metrics - skip NaN/Inf losses to keep progress bar accurate
+        if not is_nan:
+            loss_meter.update(loss.item() * config.gradient_accumulation_steps)
 
         # Update progress bar
         progress_bar.set_postfix({
             "loss": f"{loss_meter.avg:.4f}",
             "lr": f"{scheduler.get_last_lr()[0]:.2e}",
+            "nan%": f"{nan_pct:.1f}",
         })
 
         # Logging
         if global_step % config.logging_steps == 0 and global_step > start_global_step:
-            print(f"\n{stage_name} - Step {global_step} | Loss: {loss_meter.avg:.4f} | LR: {scheduler.get_last_lr()[0]:.2e}")
+            print(f"\n{stage_name} - Step {global_step} | Loss: {loss_meter.avg:.4f} | LR: {scheduler.get_last_lr()[0]:.2e} | NaN: {nan_batches}/{total_batches} ({nan_pct:.1f}%)")
 
         # Save checkpoint
         if global_step % config.save_steps == 0 and global_step > start_global_step:
