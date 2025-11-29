@@ -178,12 +178,38 @@ class CADAutocomplete:
         pixel_values = self._process_image(image) if image else None
         point_cloud_tensor = self._process_point_cloud(point_cloud) if point_cloud else None
 
-        # 5. Generate
+        # 5. Prepare embeddings for generation
+        embeddings_list = []
+        attention_masks = []
+        
+        # Add text embeddings
+        text_embeds = self.model.text_encoder(input_ids)
+        embeddings_list.append(text_embeds)
+        attention_masks.append(torch.ones(text_embeds.shape[:2], device=self.device))
+        
+        # Add image embeddings if available
+        if pixel_values is not None and self.model.image_encoder is not None:
+            image_features = self.model.image_encoder(pixel_values)
+            image_embeds = self.model.image_projector(image_features)
+            embeddings_list.insert(0, image_embeds)  # Prepend image
+            attention_masks.insert(0, torch.ones(image_embeds.shape[:2], device=self.device))
+        
+        # Add point cloud embeddings if available
+        if point_cloud_tensor is not None and self.model.point_encoder is not None:
+            point_features = self.model.point_encoder(point_cloud_tensor)
+            point_embeds = self.model.point_projector(point_features)
+            embeddings_list.insert(0, point_embeds)  # Prepend point cloud
+            attention_masks.insert(0, torch.ones(point_embeds.shape[:2], device=self.device))
+        
+        # Concatenate all embeddings
+        inputs_embeds = torch.cat(embeddings_list, dim=1)
+        attention_mask = torch.cat(attention_masks, dim=1)
+        
+        # 6. Generate using LLM directly
         with torch.no_grad():
-            generated_ids = self.model.generate(
-                input_ids=input_ids,
-                pixel_values=pixel_values,
-                point_cloud=point_cloud_tensor,
+            generated_ids = self.model.llm.generate(
+                inputs_embeds=inputs_embeds,
+                attention_mask=attention_mask,
                 max_new_tokens=max_new_tokens,
                 temperature=temperature,
                 top_p=top_p,
@@ -192,9 +218,14 @@ class CADAutocomplete:
                 eos_token_id=self.tokenizer.eos_token_id,
             )
 
-        # 6. Decode generated tokens
-        generated_tokens = generated_ids[0, input_ids.shape[1]:]
+        # 7. Decode generated tokens (skip the input portion)
+        # Note: inputs_embeds doesn't have token IDs, so decode from start
+        generated_tokens = generated_ids[0]
         generated_text = self.tokenizer.decode(generated_tokens, skip_special_tokens=True)
+        
+        # Remove the prompt from the generated text
+        if prompt in generated_text:
+            generated_text = generated_text.replace(prompt, "").strip()
 
         # 7. Parse generated operations
         generated_ops = self._parse_operations(generated_text)
