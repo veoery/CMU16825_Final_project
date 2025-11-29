@@ -462,6 +462,114 @@ for sample in dataset:
     print(f"Sample {sample['cad_id']}: {len(tokens)} tokens")
 ```
 
+### Inference: Using Trained Models
+
+After training, use the inference wrapper to generate complete CAD sequences:
+
+#### Quick Start
+
+```python
+from cad_mllm.inference import autocomplete_cad
+
+# One-line inference
+result = autocomplete_cad(
+    checkpoint_path="outputs/stage3_all/checkpoint-best",
+    truncated_json="data/json_truncated/0000/00000071_00005_tr_02.json",
+    caption="Modern minimalist chair with wooden legs",
+    image="data/img/0000/00000071_00005.png",
+    point_cloud="data/pointcloud/0000/00000071_00005.npy",
+    output_path="output_complete_chair.json",
+    temperature=0.7,
+    top_p=0.9,
+)
+
+# result["sequence"] is a complete list of CAD operations
+# Ready to be loaded into your CAD engine!
+print(f"Generated {result['metadata']['total_operations']} operations")
+```
+
+#### For Evaluation Pipelines
+
+```python
+from cad_mllm.inference import CADAutocomplete
+
+# Initialize once
+autocomplete = CADAutocomplete(
+    checkpoint_path="outputs/checkpoint-best",
+    device="cuda",
+    dtype="bfloat16",
+)
+
+# Process single sample
+result = autocomplete.complete(
+    truncated_json="path/to/partial.json",
+    caption="A modern chair",
+    image="path/to/image.png",
+    point_cloud="path/to/pc.npy",
+)
+
+# Process batch (for evaluation)
+samples = [
+    {
+        "truncated_json": "sample1_partial.json",
+        "caption": "Chair",
+        "image": "sample1.png",
+        "point_cloud": "sample1.npy",
+    },
+    {
+        "truncated_json": "sample2_partial.json",
+        "caption": "Table",
+        "image": "sample2.png",
+        "point_cloud": "sample2.npy",
+    },
+]
+
+results = autocomplete.batch_complete(samples, temperature=0.7)
+
+# Each result contains:
+# - result["sequence"]: Complete CAD operations (executable!)
+# - result["metadata"]: partial_ops, generated_ops, total_ops
+```
+
+#### Output Format
+
+The inference wrapper automatically merges partial + generated operations:
+
+```python
+# Input: partial sequence with 40 operations
+partial_ops = [op_1, op_2, ..., op_40]
+
+# Model generates: operations 41-100
+generated_ops = [op_41, op_42, ..., op_100]
+
+# Output: complete sequence (ready for CAD engine!)
+result = {
+    "sequence": [op_1, op_2, ..., op_100],  # Full, executable CAD sequence
+    "metadata": {
+        "caption": "Modern chair",
+        "partial_operations": 40,
+        "generated_operations": 60,
+        "total_operations": 100,
+    }
+}
+
+# Save or use directly
+import json
+with open("complete_sequence.json", "w") as f:
+    json.dump(result, f)
+
+# Or load into CAD engine
+# cad_engine.execute(result["sequence"])
+```
+
+#### Key Features
+
+- **Ready for CAD engines**: Output is complete, executable JSON
+- **Automatic post-processing**: Merges partial + generated operations
+- **Batch processing**: Efficient evaluation on multiple samples
+- **Multimodal support**: Text + Image + Point Cloud inputs
+- **Flexible generation**: Control temperature, top_p, sampling strategy
+
 
 ## Project Structure
 

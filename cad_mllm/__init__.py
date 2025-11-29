@@ -2,6 +2,7 @@
 
 from .config import CADMLLMConfig, TrainingConfig, CurriculumStage, CurriculumTrainingConfig
 from .model import CADMLLMModel
+from .inference import CADAutocomplete, autocomplete_cad
 from .utils.training import (
     set_seed,
     count_parameters,
@@ -29,6 +30,9 @@ __all__ = [
     "CurriculumTrainingConfig",
     # Model
     "CADMLLMModel",
+    # Inference
+    "CADAutocomplete",
+    "autocomplete_cad",
     # Training utilities
     "set_seed",
     "count_parameters",
