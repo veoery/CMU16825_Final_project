@@ -7,7 +7,7 @@ CUDA_VISIBLE_DEVICES=4 python scripts/train_curriculum.py \
     --omnicad_img_root ./data/Omni-CAD-subset-complete/img \
     --omnicad_pc_root ./data/Omni-CAD-subset-complete/pointcloud \
     --llm_model_name "Qwen/Qwen3-8B" \
-    --resume_from_ckpt "./CAD-MLLM-checkpoints/stage3_all/checkpoint-epoch0-step100-20251128_220651" \
+    --resume_from_ckpt "./CAD-MLLM-checkpoints/stage3_all/checkpoint-epoch0-step250-20251129_002930" \
     --start_from_stage 3 \
     --stage1_epochs 0 \
     --stage2_epochs 0 \
@@ -20,7 +20,7 @@ CUDA_VISIBLE_DEVICES=4 python scripts/train_curriculum.py \
     --lora_alpha 64 \
     --warmup_steps 50 \
     --logging_steps 1000 \
-    --save_steps 50 \
+    --save_steps 1000 \
     --device cuda \
     --dtype bfloat16 \
     --wandb_project "CAD-MLLM-stage_3" \
