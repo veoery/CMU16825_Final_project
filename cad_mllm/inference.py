@@ -64,15 +64,8 @@ class CADAutocomplete:
         print("✅ Model ready for inference!")
 
     def _load_checkpoint(self, checkpoint_path: str) -> CADMLLMModel:
-        """Load model from checkpoint."""
+        """Load model from checkpoint (supports both legacy and LoRA format)."""
         ckpt_dir = Path(checkpoint_path)
-
-        # Load checkpoint
-        ckpt_file = ckpt_dir / "pytorch_model.bin"
-        if not ckpt_file.exists():
-            raise FileNotFoundError(f"Checkpoint not found: {ckpt_file}")
-
-        checkpoint = torch.load(ckpt_file, map_location=self.device)
 
         # Initialize model with same config
         config = CADMLLMConfig(
@@ -82,10 +75,48 @@ class CADAutocomplete:
             lora_alpha=16,
         )
 
+        print(f"  Initializing base model...")
         model = CADMLLMModel(config)
-        model.load_state_dict(checkpoint["model_state_dict"])
-        model = model.to(self.device).to(self.dtype)
 
+        # Check for SafeTensors LoRA format (new format)
+        adapter_file = ckpt_dir / "adapter_model.safetensors"
+        image_proj_file = ckpt_dir / "image_projector.pt"
+        point_proj_file = ckpt_dir / "point_projector.pt"
+
+        if adapter_file.exists():
+            print(f"  Loading LoRA adapters from {ckpt_dir}...")
+            # Load LoRA adapters using PEFT
+            from peft import PeftModel
+            model.llm = PeftModel.from_pretrained(
+                model.llm.get_base_model(),
+                str(ckpt_dir),
+                is_trainable=False
+            )
+
+            if image_proj_file.exists():
+                print(f"  Loading image projector...")
+                image_proj_state = torch.load(image_proj_file, map_location=self.device)
+                model.image_projector.load_state_dict(image_proj_state)
+
+            if point_proj_file.exists():
+                print(f"  Loading point cloud projector...")
+                point_proj_state = torch.load(point_proj_file, map_location=self.device)
+                model.point_projector.load_state_dict(point_proj_state)
+
+        # Fallback: try legacy pytorch_model.bin format
+        else:
+            legacy_ckpt = ckpt_dir / "pytorch_model.bin"
+            if legacy_ckpt.exists():
+                print(f"  Loading from legacy pytorch_model.bin...")
+                checkpoint = torch.load(legacy_ckpt, map_location=self.device)
+                model.load_state_dict(checkpoint["model_state_dict"])
+            else:
+                raise FileNotFoundError(
+                    f"No checkpoint found in {ckpt_dir}\n"
+                    f"Expected: adapter_model.safetensors OR pytorch_model.bin"
+                )
+
+        model = model.to(self.device).to(self.dtype)
         return model
 
     def complete(
