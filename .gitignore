@@ -13,4 +13,5 @@ models/
 *.pt
 *.pth
 guides_md/
-gen_cad_all/
+gen_cad_ckpt1/
+notebook/
