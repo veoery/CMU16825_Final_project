@@ -3,3 +3,4 @@ data/
 wandb/
 checkpoints/
 outputs_curriculum/
+CAD-MLLM-checkpoints/

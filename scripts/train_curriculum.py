@@ -464,9 +464,6 @@ def main():
     # Load checkpoint if provided
     if args.resume_from_ckpt:
         checkpoint_path = Path(args.resume_from_ckpt)
-        # If relative path, assume it's in output_dir
-        if not checkpoint_path.is_absolute():
-            checkpoint_path = Path(args.output_dir) / args.resume_from_ckpt
 
         print(f"\n{'='*80}")
         print(f"RESUMING FROM CHECKPOINT")
@@ -522,11 +519,9 @@ def main():
             train_config.use_wandb = False
         else:
             # Auto-generate run name if not provided
-            if args.wandb_run_name is None:
-                model_name = args.llm_model_name.split("/")[-1] if "/" in args.llm_model_name else args.llm_model_name
-                run_name = f"{model_name}-curriculum-{args.stage1_epochs}+{args.stage2_epochs}+{args.stage3_epochs}ep"
-            else:
-                run_name = args.wandb_run_name
+            model_name = args.llm_model_name.split("/")[-1] if "/" in args.llm_model_name else args.llm_model_name
+            run_name = f"{model_name}-curriculum-{args.stage1_epochs}+{args.stage2_epochs}+{args.stage3_epochs}ep"
+            run_name = args.wandb_run_name + run_name
 
             wandb.init(
                 project=args.wandb_project,
