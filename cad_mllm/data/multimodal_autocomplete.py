@@ -348,17 +348,28 @@ class MultimodalAutocompleteCollator:
                 partial_json_str = json.dumps(partial_json, separators=(',', ':'))
                 partial_text = prompt + partial_json_str
 
-                # Tokenize to find cutoff
-                partial_tokens = self.tokenizer(partial_text, add_special_tokens=False)["input_ids"]
-                mask_until = len(partial_tokens)
+                # Tokenize to find cutoff - MUST truncate to avoid massive sequences
+                partial_tokens = self.tokenizer(
+                    partial_text,
+                    add_special_tokens=False,
+                    max_length=self.max_seq_length,
+                    truncation=True
+                )["input_ids"]
+                mask_until = min(len(partial_tokens), self.max_seq_length)
 
                 # Mask all tokens up to this point (prompt + seen operations)
                 labels[i, :mask_until] = -100
             except (json.JSONDecodeError, KeyError):
                 # Fallback: mask just the prompt if JSON parsing fails
                 prompt = f"Complete this CAD sequence: {sample['input_text']}\n"
-                prompt_tokens = self.tokenizer(prompt, add_special_tokens=False)["input_ids"]
-                labels[i, :len(prompt_tokens)] = -100
+                prompt_tokens = self.tokenizer(
+                    prompt,
+                    add_special_tokens=False,
+                    max_length=self.max_seq_length,
+                    truncation=True
+                )["input_ids"]
+                mask_until = min(len(prompt_tokens), self.max_seq_length)
+                labels[i, :mask_until] = -100
 
         # Mask padding tokens
         labels[labels == self.tokenizer.pad_token_id] = -100
