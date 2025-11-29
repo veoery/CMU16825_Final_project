@@ -110,6 +110,7 @@ class TrainingConfig:
     logging_steps: int = 10
     save_steps: int = 1000
     eval_steps: int = 500
+    keep_last_n_checkpoints: int = 3  # Keep only last N interval checkpoints (0 = keep all)
     use_wandb: bool = False
     seed: int = 42
     device: str = "cuda"
