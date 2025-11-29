@@ -1,0 +1,618 @@
+[
+  {
+    "file": "00900387_00001_repaired.step",
+    "status": "success",
+    "metrics": {
+      "DangEL": 0.0,
+      "SIR": 1.0,
+      "FluxEE": 8.82006972962603e-18
+    },
+    "mesh_info": {
+      "vertices": 220,
+      "faces": 216,
+      "is_watertight": false
+    }
+  },
+  {
+    "file": "00900654_00001_repaired.step",
+    "status": "success",
+    "metrics": {
+      "DangEL": 0.0,
+      "SIR": 1.0,
+      "FluxEE": 3.2127412749301655e-17
+    },
+    "mesh_info": {
+      "vertices": 134,
+      "faces": 120,
+      "is_watertight": false
+    }
+  },
+  {
+    "file": "00900730_00001_repaired.step",
+    "status": "success",
+    "metrics": {
+      "DangEL": 0.0,
+      "SIR": 1.0,
+      "FluxEE": 0.0
+    },
+    "mesh_info": {
+      "vertices": 24,
+      "faces": 12,
+      "is_watertight": false
+    }
+  },
+  {
+    "file": "00900731_00001_repaired.step",
+    "status": "success",
+    "metrics": {
+      "DangEL": 0.0,
+      "SIR": 1.0,
+      "FluxEE": 2.3953571379000915e-17
+    },
+    "mesh_info": {
+      "vertices": 130,
+      "faces": 116,
+      "is_watertight": false
+    }
+  },
+  {
+    "file": "00900867_00001_repaired.step",
+    "status": "success",
+    "metrics": {
+      "DangEL": 0.0,
+      "SIR": 1.0,
+      "FluxEE": 2.802651192903947e-17
+    },
+    "mesh_info": {
+      "vertices": 130,
+      "faces": 116,
+      "is_watertight": false
+    }
+  },
+  {
+    "file": "00900903_00001_repaired.step",
+    "status": "success",
+    "metrics": {
+      "DangEL": 0.0,
+      "SIR": 1.0,
+      "FluxEE": 4.5237786111520615e-17
+    },
+    "mesh_info": {
+      "vertices": 114,
+      "faces": 108,
+      "is_watertight": false
+    }
+  },
+  {
+    "file": "00901147_00001_repaired.step",
+    "status": "success",
+    "metrics": {
+      "DangEL": 0.0,
+      "SIR": 1.0,
+      "FluxEE": 4.5932766670869356e-17
+    },
+    "mesh_info": {
+      "vertices": 236,
+      "faces": 220,
+      "is_watertight": false
+    }
+  },
+  {
+    "file": "00901173_00001_repaired.step",
+    "status": "success",
+    "metrics": {
+      "DangEL": 0.0,
+      "SIR": 1.0,
+      "FluxEE": 0.0
+    },
+    "mesh_info": {
+      "vertices": 106,
+      "faces": 100,
+      "is_watertight": false
+    }
+  },
+  {
+    "file": "00901224_00001_repaired.step",
+    "status": "success",
+    "metrics": {
+      "DangEL": 0.0,
+      "SIR": 1.0,
+      "FluxEE": 4.524428035998875e-17
+    },
+    "mesh_info": {
+      "vertices": 218,
+      "faces": 212,
+      "is_watertight": false
+    }
+  },
+  {
+    "file": "00901277_00001_repaired.step",
+    "status": "success",
+    "metrics": {
+      "DangEL": 0.0,
+      "SIR": 1.0,
+      "FluxEE": 1.35854429969119e-16
+    },
+    "mesh_info": {
+      "vertices": 130,
+      "faces": 116,
+      "is_watertight": false
+    }
+  },
+  {
+    "file": "00901400_00003_repaired.step",
+    "status": "success",
+    "metrics": {
+      "DangEL": 0.0,
+      "SIR": 1.0,
+      "FluxEE": 1.5933323105237934e-17
+    },
+    "mesh_info": {
+      "vertices": 220,
+      "faces": 216,
+      "is_watertight": false
+    }
+  },
+  {
+    "file": "00901448_00001_repaired.step",
+    "status": "success",
+    "metrics": {
+      "DangEL": 0.0,
+      "SIR": 1.0,
+      "FluxEE": 4.335101643983397e-17
+    },
+    "mesh_info": {
+      "vertices": 184,
+      "faces": 172,
+      "is_watertight": false
+    }
+  },
+  {
+    "file": "00901552_00001_repaired.step",
+    "status": "success",
+    "metrics": {
+      "DangEL": 0.0,
+      "SIR": 1.0,
+      "FluxEE": 1.020254685449948e-17
+    },
+    "mesh_info": {
+      "vertices": 220,
+      "faces": 216,
+      "is_watertight": false
+    }
+  },
+  {
+    "file": "00901596_00001_repaired.step",
+    "status": "success",
+    "metrics": {
+      "DangEL": 0.0,
+      "SIR": 1.0,
+      "FluxEE": 0.0
+    },
+    "mesh_info": {
+      "vertices": 130,
+      "faces": 120,
+      "is_watertight": false
+    }
+  },
+  {
+    "file": "00902084_00001_repaired.step",
+    "status": "success",
+    "metrics": {
+      "DangEL": 0.0,
+      "SIR": 1.0,
+      "FluxEE": 1.756057762258603e-17
+    },
+    "mesh_info": {
+      "vertices": 106,
+      "faces": 100,
+      "is_watertight": false
+    }
+  },
+  {
+    "file": "00902207_00001_repaired.step",
+    "status": "success",
+    "metrics": {
+      "DangEL": 0.0,
+      "SIR": 1.0,
+      "FluxEE": 4.337028935619923e-17
+    },
+    "mesh_info": {
+      "vertices": 130,
+      "faces": 116,
+      "is_watertight": false
+    }
+  },
+  {
+    "file": "00902323_00001_repaired.step",
+    "status": "success",
+    "metrics": {
+      "DangEL": 0.0,
+      "SIR": 1.0,
+      "FluxEE": 1.5673459372776097e-17
+    },
+    "mesh_info": {
+      "vertices": 220,
+      "faces": 216,
+      "is_watertight": false
+    }
+  },
+  {
+    "file": "00902439_00001_repaired.step",
+    "status": "success",
+    "metrics": {
+      "DangEL": 0.0,
+      "SIR": 1.0,
+      "FluxEE": 6.547623798687677e-17
+    },
+    "mesh_info": {
+      "vertices": 130,
+      "faces": 120,
+      "is_watertight": false
+    }
+  },
+  {
+    "file": "00902454_00001_repaired.step",
+    "status": "success",
+    "metrics": {
+      "DangEL": 0.0,
+      "SIR": 1.0,
+      "FluxEE": 3.920965848223645e-17
+    },
+    "mesh_info": {
+      "vertices": 106,
+      "faces": 100,
+      "is_watertight": false
+    }
+  },
+  {
+    "file": "00902526_00001_repaired.step",
+    "status": "success",
+    "metrics": {
+      "DangEL": 0.0,
+      "SIR": 1.0,
+      "FluxEE": 3.651655718591918e-17
+    },
+    "mesh_info": {
+      "vertices": 130,
+      "faces": 120,
+      "is_watertight": false
+    }
+  },
+  {
+    "file": "00902530_00001_repaired.step",
+    "status": "success",
+    "metrics": {
+      "DangEL": 0.0,
+      "SIR": 1.0,
+      "FluxEE": 3.359573369170399e-17
+    },
+    "mesh_info": {
+      "vertices": 138,
+      "faces": 120,
+      "is_watertight": false
+    }
+  },
+  {
+    "file": "00902594_00001_repaired.step",
+    "status": "success",
+    "metrics": {
+      "DangEL": 0.0,
+      "SIR": 1.0,
+      "FluxEE": 1.416374528654613e-17
+    },
+    "mesh_info": {
+      "vertices": 220,
+      "faces": 216,
+      "is_watertight": false
+    }
+  },
+  {
+    "file": "00903009_00001_repaired.step",
+    "status": "success",
+    "metrics": {
+      "DangEL": 0.0,
+      "SIR": 1.0,
+      "FluxEE": 1.2160493812915734e-16
+    },
+    "mesh_info": {
+      "vertices": 236,
+      "faces": 220,
+      "is_watertight": false
+    }
+  },
+  {
+    "file": "00903270_00001_repaired.step",
+    "status": "success",
+    "metrics": {
+      "DangEL": 0.0,
+      "SIR": 1.0,
+      "FluxEE": 2.918852669657674e-17
+    },
+    "mesh_info": {
+      "vertices": 220,
+      "faces": 216,
+      "is_watertight": false
+    }
+  },
+  {
+    "file": "00903275_00001_repaired.step",
+    "status": "success",
+    "metrics": {
+      "DangEL": 0.0,
+      "SIR": 1.0,
+      "FluxEE": 2.0097988312134965e-17
+    },
+    "mesh_info": {
+      "vertices": 114,
+      "faces": 108,
+      "is_watertight": false
+    }
+  },
+  {
+    "file": "00903275_00003_repaired.step",
+    "status": "success",
+    "metrics": {
+      "DangEL": 0.0,
+      "SIR": 1.0,
+      "FluxEE": 0.0
+    },
+    "mesh_info": {
+      "vertices": 272,
+      "faces": 264,
+      "is_watertight": false
+    }
+  },
+  {
+    "file": "00903309_00001_repaired.step",
+    "status": "success",
+    "metrics": {
+      "DangEL": 0.0,
+      "SIR": 1.0,
+      "FluxEE": 8.262572199228458e-17
+    },
+    "mesh_info": {
+      "vertices": 236,
+      "faces": 220,
+      "is_watertight": false
+    }
+  },
+  {
+    "file": "00903327_00001_repaired.step",
+    "status": "success",
+    "metrics": {
+      "DangEL": 0.0,
+      "SIR": 1.0,
+      "FluxEE": 9.046751114236812e-17
+    },
+    "mesh_info": {
+      "vertices": 130,
+      "faces": 120,
+      "is_watertight": false
+    }
+  },
+  {
+    "file": "00903374_00001_repaired.step",
+    "status": "success",
+    "metrics": {
+      "DangEL": 0.0,
+      "SIR": 1.0,
+      "FluxEE": 0.0
+    },
+    "mesh_info": {
+      "vertices": 166,
+      "faces": 160,
+      "is_watertight": false
+    }
+  },
+  {
+    "file": "00903454_00003_repaired.step",
+    "status": "success",
+    "metrics": {
+      "DangEL": 0.0,
+      "SIR": 1.0,
+      "FluxEE": 2.514895149216292e-17
+    },
+    "mesh_info": {
+      "vertices": 114,
+      "faces": 108,
+      "is_watertight": false
+    }
+  },
+  {
+    "file": "00903479_00001_repaired.step",
+    "status": "success",
+    "metrics": {
+      "DangEL": 0.0,
+      "SIR": 1.0,
+      "FluxEE": 7.376127225673701e-17
+    },
+    "mesh_info": {
+      "vertices": 130,
+      "faces": 116,
+      "is_watertight": false
+    }
+  },
+  {
+    "file": "00903530_00001_repaired.step",
+    "status": "success",
+    "metrics": {
+      "DangEL": 0.0,
+      "SIR": 1.0,
+      "FluxEE": 1.5469442275843174e-17
+    },
+    "mesh_info": {
+      "vertices": 130,
+      "faces": 120,
+      "is_watertight": false
+    }
+  },
+  {
+    "file": "00903601_00001_repaired.step",
+    "status": "success",
+    "metrics": {
+      "DangEL": 0.0,
+      "SIR": 1.0,
+      "FluxEE": 2.0097988312134965e-17
+    },
+    "mesh_info": {
+      "vertices": 114,
+      "faces": 108,
+      "is_watertight": false
+    }
+  },
+  {
+    "file": "00903644_00001_repaired.step",
+    "status": "success",
+    "metrics": {
+      "DangEL": 0.0,
+      "SIR": 1.0,
+      "FluxEE": 1.1292260459307332e-17
+    },
+    "mesh_info": {
+      "vertices": 150,
+      "faces": 132,
+      "is_watertight": false
+    }
+  },
+  {
+    "file": "00903796_00001_repaired.step",
+    "status": "success",
+    "metrics": {
+      "DangEL": 0.0,
+      "SIR": 1.0,
+      "FluxEE": 6.791039426050133e-17
+    },
+    "mesh_info": {
+      "vertices": 24,
+      "faces": 12,
+      "is_watertight": false
+    }
+  },
+  {
+    "file": "00903823_00001_repaired.step",
+    "status": "success",
+    "metrics": {
+      "DangEL": 0.0,
+      "SIR": 1.0,
+      "FluxEE": 1.5218021031803448e-16
+    },
+    "mesh_info": {
+      "vertices": 130,
+      "faces": 116,
+      "is_watertight": false
+    }
+  },
+  {
+    "file": "00903889_00001_repaired.step",
+    "status": "success",
+    "metrics": {
+      "DangEL": 0.0,
+      "SIR": 1.0,
+      "FluxEE": 1.9060175750740685e-17
+    },
+    "mesh_info": {
+      "vertices": 106,
+      "faces": 100,
+      "is_watertight": false
+    }
+  },
+  {
+    "file": "00903895_00002_repaired.step",
+    "status": "success",
+    "metrics": {
+      "DangEL": 0.0,
+      "SIR": 1.0,
+      "FluxEE": 2.767970586044588e-17
+    },
+    "mesh_info": {
+      "vertices": 220,
+      "faces": 216,
+      "is_watertight": false
+    }
+  },
+  {
+    "file": "00903931_00001_repaired.step",
+    "status": "success",
+    "metrics": {
+      "DangEL": 0.0,
+      "SIR": 1.0,
+      "FluxEE": 9.586875498815582e-17
+    },
+    "mesh_info": {
+      "vertices": 76,
+      "faces": 64,
+      "is_watertight": false
+    }
+  },
+  {
+    "file": "00903943_00001_repaired.step",
+    "status": "success",
+    "metrics": {
+      "DangEL": 0.0,
+      "SIR": 1.0,
+      "FluxEE": 1.067652075088073e-16
+    },
+    "mesh_info": {
+      "vertices": 130,
+      "faces": 120,
+      "is_watertight": false
+    }
+  },
+  {
+    "file": "00904009_00002_repaired.step",
+    "status": "success",
+    "metrics": {
+      "DangEL": 0.0,
+      "SIR": 1.0,
+      "FluxEE": 7.039552926377244e-17
+    },
+    "mesh_info": {
+      "vertices": 130,
+      "faces": 116,
+      "is_watertight": false
+    }
+  },
+  {
+    "file": "00904100_00001_repaired.step",
+    "status": "success",
+    "metrics": {
+      "DangEL": 0.0,
+      "SIR": 1.0,
+      "FluxEE": 3.920965848223645e-17
+    },
+    "mesh_info": {
+      "vertices": 106,
+      "faces": 100,
+      "is_watertight": false
+    }
+  },
+  {
+    "file": "00904168_00001_repaired.step",
+    "status": "success",
+    "metrics": {
+      "DangEL": 0.0,
+      "SIR": 1.0,
+      "FluxEE": 5.965934469996135e-17
+    },
+    "mesh_info": {
+      "vertices": 130,
+      "faces": 120,
+      "is_watertight": false
+    }
+  },
+  {
+    "file": "00904399_00001_repaired.step",
+    "status": "success",
+    "metrics": {
+      "DangEL": 0.0,
+      "SIR": 1.0,
+      "FluxEE": 2.2320322505343345e-17
+    },
+    "mesh_info": {
+      "vertices": 130,
+      "faces": 120,
+      "is_watertight": false
+    }
+  }
+]

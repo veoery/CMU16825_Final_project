@@ -1,0 +1,914 @@
+[
+  {
+    "file": "00900284_00001_repaired.json",
+    "status": "success",
+    "metrics": {
+      "entity_count_acc": 0.0,
+      "entity_type_sequence_acc": 1.0,
+      "type_distribution_sim": 0.5,
+      "gen_entity_count": 6,
+      "gt_entity_count": 3,
+      "gen_entity_types": {
+        "Sketch": 5,
+        "ExtrudeFeature": 1
+      },
+      "gt_entity_types": {
+        "Sketch": 2,
+        "ExtrudeFeature": 1
+      }
+    }
+  },
+  {
+    "file": "00900387_00001_repaired.json",
+    "status": "success",
+    "metrics": {
+      "entity_count_acc": 1.0,
+      "entity_type_sequence_acc": 1.0,
+      "type_distribution_sim": 1.0,
+      "gen_entity_count": 2,
+      "gt_entity_count": 2,
+      "gen_entity_types": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      },
+      "gt_entity_types": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      }
+    }
+  },
+  {
+    "file": "00900654_00001_repaired.json",
+    "status": "success",
+    "metrics": {
+      "entity_count_acc": 0.6666666666666667,
+      "entity_type_sequence_acc": 1.0,
+      "type_distribution_sim": 0.75,
+      "gen_entity_count": 4,
+      "gt_entity_count": 3,
+      "gen_entity_types": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      },
+      "gt_entity_types": {
+        "Sketch": 2,
+        "ExtrudeFeature": 1
+      }
+    }
+  },
+  {
+    "file": "00900730_00001_repaired.json",
+    "status": "success",
+    "metrics": {
+      "entity_count_acc": 1.0,
+      "entity_type_sequence_acc": 1.0,
+      "type_distribution_sim": 1.0,
+      "gen_entity_count": 2,
+      "gt_entity_count": 2,
+      "gen_entity_types": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      },
+      "gt_entity_types": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      }
+    }
+  },
+  {
+    "file": "00900731_00001_repaired.json",
+    "status": "success",
+    "metrics": {
+      "entity_count_acc": 0.0,
+      "entity_type_sequence_acc": 1.0,
+      "type_distribution_sim": 0.5,
+      "gen_entity_count": 4,
+      "gt_entity_count": 2,
+      "gen_entity_types": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      },
+      "gt_entity_types": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      }
+    }
+  },
+  {
+    "file": "00900867_00001_repaired.json",
+    "status": "success",
+    "metrics": {
+      "entity_count_acc": 0.6666666666666667,
+      "entity_type_sequence_acc": 1.0,
+      "type_distribution_sim": 0.75,
+      "gen_entity_count": 4,
+      "gt_entity_count": 3,
+      "gen_entity_types": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      },
+      "gt_entity_types": {
+        "Sketch": 2,
+        "ExtrudeFeature": 1
+      }
+    }
+  },
+  {
+    "file": "00900903_00001_repaired.json",
+    "status": "success",
+    "metrics": {
+      "entity_count_acc": 1.0,
+      "entity_type_sequence_acc": 1.0,
+      "type_distribution_sim": 1.0,
+      "gen_entity_count": 2,
+      "gt_entity_count": 2,
+      "gen_entity_types": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      },
+      "gt_entity_types": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      }
+    }
+  },
+  {
+    "file": "00900920_00001_repaired.json",
+    "status": "success",
+    "metrics": {
+      "entity_count_acc": 0.0,
+      "entity_type_sequence_acc": 1.0,
+      "type_distribution_sim": 0.5,
+      "gen_entity_count": 4,
+      "gt_entity_count": 2,
+      "gen_entity_types": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      },
+      "gt_entity_types": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      }
+    }
+  },
+  {
+    "file": "00901147_00001_repaired.json",
+    "status": "success",
+    "metrics": {
+      "entity_count_acc": 0.6666666666666667,
+      "entity_type_sequence_acc": 1.0,
+      "type_distribution_sim": 0.75,
+      "gen_entity_count": 4,
+      "gt_entity_count": 3,
+      "gen_entity_types": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      },
+      "gt_entity_types": {
+        "Sketch": 2,
+        "ExtrudeFeature": 1
+      }
+    }
+  },
+  {
+    "file": "00901173_00001_repaired.json",
+    "status": "success",
+    "metrics": {
+      "entity_count_acc": 1.0,
+      "entity_type_sequence_acc": 1.0,
+      "type_distribution_sim": 1.0,
+      "gen_entity_count": 2,
+      "gt_entity_count": 2,
+      "gen_entity_types": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      },
+      "gt_entity_types": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      }
+    }
+  },
+  {
+    "file": "00901224_00001_repaired.json",
+    "status": "success",
+    "metrics": {
+      "entity_count_acc": 0.0,
+      "entity_type_sequence_acc": 1.0,
+      "type_distribution_sim": 0.5,
+      "gen_entity_count": 4,
+      "gt_entity_count": 2,
+      "gen_entity_types": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      },
+      "gt_entity_types": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      }
+    }
+  },
+  {
+    "file": "00901277_00001_repaired.json",
+    "status": "success",
+    "metrics": {
+      "entity_count_acc": 0.0,
+      "entity_type_sequence_acc": 1.0,
+      "type_distribution_sim": 0.5,
+      "gen_entity_count": 4,
+      "gt_entity_count": 2,
+      "gen_entity_types": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      },
+      "gt_entity_types": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      }
+    }
+  },
+  {
+    "file": "00901400_00003_repaired.json",
+    "status": "success",
+    "metrics": {
+      "entity_count_acc": 0.5,
+      "entity_type_sequence_acc": 0.5,
+      "type_distribution_sim": 0.5,
+      "gen_entity_count": 2,
+      "gt_entity_count": 4,
+      "gen_entity_types": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      },
+      "gt_entity_types": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      }
+    }
+  },
+  {
+    "file": "00901448_00001_repaired.json",
+    "status": "success",
+    "metrics": {
+      "entity_count_acc": -1.0,
+      "entity_type_sequence_acc": 1.0,
+      "type_distribution_sim": 0.3333333333333333,
+      "gen_entity_count": 6,
+      "gt_entity_count": 2,
+      "gen_entity_types": {
+        "Sketch": 3,
+        "ExtrudeFeature": 3
+      },
+      "gt_entity_types": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      }
+    }
+  },
+  {
+    "file": "00901552_00001_repaired.json",
+    "status": "success",
+    "metrics": {
+      "entity_count_acc": 1.0,
+      "entity_type_sequence_acc": 1.0,
+      "type_distribution_sim": 1.0,
+      "gen_entity_count": 2,
+      "gt_entity_count": 2,
+      "gen_entity_types": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      },
+      "gt_entity_types": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      }
+    }
+  },
+  {
+    "file": "00901596_00001_repaired.json",
+    "status": "success",
+    "metrics": {
+      "entity_count_acc": 0.0,
+      "entity_type_sequence_acc": 1.0,
+      "type_distribution_sim": 0.5,
+      "gen_entity_count": 4,
+      "gt_entity_count": 2,
+      "gen_entity_types": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      },
+      "gt_entity_types": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      }
+    }
+  },
+  {
+    "file": "00902084_00001_repaired.json",
+    "status": "success",
+    "metrics": {
+      "entity_count_acc": 1.0,
+      "entity_type_sequence_acc": 1.0,
+      "type_distribution_sim": 1.0,
+      "gen_entity_count": 2,
+      "gt_entity_count": 2,
+      "gen_entity_types": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      },
+      "gt_entity_types": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      }
+    }
+  },
+  {
+    "file": "00902207_00001_repaired.json",
+    "status": "success",
+    "metrics": {
+      "entity_count_acc": 0.0,
+      "entity_type_sequence_acc": 1.0,
+      "type_distribution_sim": 0.5,
+      "gen_entity_count": 4,
+      "gt_entity_count": 2,
+      "gen_entity_types": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      },
+      "gt_entity_types": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      }
+    }
+  },
+  {
+    "file": "00902323_00001_repaired.json",
+    "status": "success",
+    "metrics": {
+      "entity_count_acc": 1.0,
+      "entity_type_sequence_acc": 1.0,
+      "type_distribution_sim": 1.0,
+      "gen_entity_count": 2,
+      "gt_entity_count": 2,
+      "gen_entity_types": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      },
+      "gt_entity_types": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      }
+    }
+  },
+  {
+    "file": "00902439_00001_repaired.json",
+    "status": "success",
+    "metrics": {
+      "entity_count_acc": 1.0,
+      "entity_type_sequence_acc": 0.75,
+      "type_distribution_sim": 0.6,
+      "gen_entity_count": 4,
+      "gt_entity_count": 4,
+      "gen_entity_types": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      },
+      "gt_entity_types": {
+        "Sketch": 3,
+        "ExtrudeFeature": 1
+      }
+    }
+  },
+  {
+    "file": "00902447_00001_repaired.json",
+    "status": "success",
+    "metrics": {
+      "entity_count_acc": 0.75,
+      "entity_type_sequence_acc": 0.25,
+      "type_distribution_sim": 0.4,
+      "gen_entity_count": 3,
+      "gt_entity_count": 4,
+      "gen_entity_types": {
+        "Sketch": 2,
+        "Unknown": 1
+      },
+      "gt_entity_types": {
+        "Sketch": 3,
+        "ExtrudeFeature": 1
+      }
+    }
+  },
+  {
+    "file": "00902454_00001_repaired.json",
+    "status": "success",
+    "metrics": {
+      "entity_count_acc": 0.6666666666666667,
+      "entity_type_sequence_acc": 0.6666666666666666,
+      "type_distribution_sim": 0.6666666666666666,
+      "gen_entity_count": 2,
+      "gt_entity_count": 3,
+      "gen_entity_types": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      },
+      "gt_entity_types": {
+        "Sketch": 2,
+        "ExtrudeFeature": 1
+      }
+    }
+  },
+  {
+    "file": "00902526_00001_repaired.json",
+    "status": "success",
+    "metrics": {
+      "entity_count_acc": 0.0,
+      "entity_type_sequence_acc": 1.0,
+      "type_distribution_sim": 0.5,
+      "gen_entity_count": 4,
+      "gt_entity_count": 2,
+      "gen_entity_types": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      },
+      "gt_entity_types": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      }
+    }
+  },
+  {
+    "file": "00902530_00001_repaired.json",
+    "status": "success",
+    "metrics": {
+      "entity_count_acc": 0.0,
+      "entity_type_sequence_acc": 1.0,
+      "type_distribution_sim": 0.5,
+      "gen_entity_count": 4,
+      "gt_entity_count": 2,
+      "gen_entity_types": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      },
+      "gt_entity_types": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      }
+    }
+  },
+  {
+    "file": "00902594_00001_repaired.json",
+    "status": "success",
+    "metrics": {
+      "entity_count_acc": 1.0,
+      "entity_type_sequence_acc": 1.0,
+      "type_distribution_sim": 1.0,
+      "gen_entity_count": 2,
+      "gt_entity_count": 2,
+      "gen_entity_types": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      },
+      "gt_entity_types": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      }
+    }
+  },
+  {
+    "file": "00903009_00001_repaired.json",
+    "status": "success",
+    "metrics": {
+      "entity_count_acc": 0.0,
+      "entity_type_sequence_acc": 1.0,
+      "type_distribution_sim": 0.5,
+      "gen_entity_count": 4,
+      "gt_entity_count": 2,
+      "gen_entity_types": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      },
+      "gt_entity_types": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      }
+    }
+  },
+  {
+    "file": "00903270_00001_repaired.json",
+    "status": "success",
+    "metrics": {
+      "entity_count_acc": 1.0,
+      "entity_type_sequence_acc": 1.0,
+      "type_distribution_sim": 1.0,
+      "gen_entity_count": 2,
+      "gt_entity_count": 2,
+      "gen_entity_types": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      },
+      "gt_entity_types": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      }
+    }
+  },
+  {
+    "file": "00903275_00001_repaired.json",
+    "status": "success",
+    "metrics": {
+      "entity_count_acc": 0.5,
+      "entity_type_sequence_acc": 0.5,
+      "type_distribution_sim": 0.5,
+      "gen_entity_count": 2,
+      "gt_entity_count": 4,
+      "gen_entity_types": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      },
+      "gt_entity_types": {
+        "Sketch": 3,
+        "ExtrudeFeature": 1
+      }
+    }
+  },
+  {
+    "file": "00903275_00003_repaired.json",
+    "status": "success",
+    "metrics": {
+      "entity_count_acc": 1.0,
+      "entity_type_sequence_acc": 0.75,
+      "type_distribution_sim": 0.6,
+      "gen_entity_count": 4,
+      "gt_entity_count": 4,
+      "gen_entity_types": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      },
+      "gt_entity_types": {
+        "Sketch": 3,
+        "ExtrudeFeature": 1
+      }
+    }
+  },
+  {
+    "file": "00903309_00001_repaired.json",
+    "status": "success",
+    "metrics": {
+      "entity_count_acc": 0.0,
+      "entity_type_sequence_acc": 1.0,
+      "type_distribution_sim": 0.5,
+      "gen_entity_count": 4,
+      "gt_entity_count": 2,
+      "gen_entity_types": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      },
+      "gt_entity_types": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      }
+    }
+  },
+  {
+    "file": "00903327_00001_repaired.json",
+    "status": "success",
+    "metrics": {
+      "entity_count_acc": 0.0,
+      "entity_type_sequence_acc": 1.0,
+      "type_distribution_sim": 0.5,
+      "gen_entity_count": 4,
+      "gt_entity_count": 2,
+      "gen_entity_types": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      },
+      "gt_entity_types": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      }
+    }
+  },
+  {
+    "file": "00903374_00001_repaired.json",
+    "status": "success",
+    "metrics": {
+      "entity_count_acc": 0.0,
+      "entity_type_sequence_acc": 1.0,
+      "type_distribution_sim": 0.5,
+      "gen_entity_count": 4,
+      "gt_entity_count": 2,
+      "gen_entity_types": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      },
+      "gt_entity_types": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      }
+    }
+  },
+  {
+    "file": "00903454_00003_repaired.json",
+    "status": "success",
+    "metrics": {
+      "entity_count_acc": 0.4,
+      "entity_type_sequence_acc": 0.4,
+      "type_distribution_sim": 0.4,
+      "gen_entity_count": 2,
+      "gt_entity_count": 5,
+      "gen_entity_types": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      },
+      "gt_entity_types": {
+        "Sketch": 3,
+        "ExtrudeFeature": 2
+      }
+    }
+  },
+  {
+    "file": "00903479_00001_repaired.json",
+    "status": "success",
+    "metrics": {
+      "entity_count_acc": 0.0,
+      "entity_type_sequence_acc": 1.0,
+      "type_distribution_sim": 0.5,
+      "gen_entity_count": 4,
+      "gt_entity_count": 2,
+      "gen_entity_types": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      },
+      "gt_entity_types": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      }
+    }
+  },
+  {
+    "file": "00903530_00001_repaired.json",
+    "status": "success",
+    "metrics": {
+      "entity_count_acc": 0.0,
+      "entity_type_sequence_acc": 1.0,
+      "type_distribution_sim": 0.5,
+      "gen_entity_count": 4,
+      "gt_entity_count": 2,
+      "gen_entity_types": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      },
+      "gt_entity_types": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      }
+    }
+  },
+  {
+    "file": "00903601_00001_repaired.json",
+    "status": "success",
+    "metrics": {
+      "entity_count_acc": 1.0,
+      "entity_type_sequence_acc": 1.0,
+      "type_distribution_sim": 1.0,
+      "gen_entity_count": 2,
+      "gt_entity_count": 2,
+      "gen_entity_types": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      },
+      "gt_entity_types": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      }
+    }
+  },
+  {
+    "file": "00903644_00001_repaired.json",
+    "status": "success",
+    "metrics": {
+      "entity_count_acc": 0.6666666666666667,
+      "entity_type_sequence_acc": 1.0,
+      "type_distribution_sim": 0.75,
+      "gen_entity_count": 4,
+      "gt_entity_count": 3,
+      "gen_entity_types": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      },
+      "gt_entity_types": {
+        "Sketch": 2,
+        "ExtrudeFeature": 1
+      }
+    }
+  },
+  {
+    "file": "00903796_00001_repaired.json",
+    "status": "success",
+    "metrics": {
+      "entity_count_acc": 1.0,
+      "entity_type_sequence_acc": 1.0,
+      "type_distribution_sim": 1.0,
+      "gen_entity_count": 2,
+      "gt_entity_count": 2,
+      "gen_entity_types": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      },
+      "gt_entity_types": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      }
+    }
+  },
+  {
+    "file": "00903823_00001_repaired.json",
+    "status": "success",
+    "metrics": {
+      "entity_count_acc": 0.6666666666666667,
+      "entity_type_sequence_acc": 1.0,
+      "type_distribution_sim": 0.75,
+      "gen_entity_count": 4,
+      "gt_entity_count": 3,
+      "gen_entity_types": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      },
+      "gt_entity_types": {
+        "Sketch": 2,
+        "ExtrudeFeature": 1
+      }
+    }
+  },
+  {
+    "file": "00903889_00001_repaired.json",
+    "status": "success",
+    "metrics": {
+      "entity_count_acc": 0.6666666666666667,
+      "entity_type_sequence_acc": 0.6666666666666666,
+      "type_distribution_sim": 0.6666666666666666,
+      "gen_entity_count": 2,
+      "gt_entity_count": 3,
+      "gen_entity_types": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      },
+      "gt_entity_types": {
+        "Sketch": 2,
+        "ExtrudeFeature": 1
+      }
+    }
+  },
+  {
+    "file": "00903895_00002_repaired.json",
+    "status": "success",
+    "metrics": {
+      "entity_count_acc": 0.6666666666666667,
+      "entity_type_sequence_acc": 0.6666666666666666,
+      "type_distribution_sim": 0.6666666666666666,
+      "gen_entity_count": 2,
+      "gt_entity_count": 3,
+      "gen_entity_types": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      },
+      "gt_entity_types": {
+        "Sketch": 1,
+        "ExtrudeFeature": 2
+      }
+    }
+  },
+  {
+    "file": "00903931_00001_repaired.json",
+    "status": "success",
+    "metrics": {
+      "entity_count_acc": 1.0,
+      "entity_type_sequence_acc": 0.75,
+      "type_distribution_sim": 0.6,
+      "gen_entity_count": 4,
+      "gt_entity_count": 4,
+      "gen_entity_types": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      },
+      "gt_entity_types": {
+        "Sketch": 3,
+        "ExtrudeFeature": 1
+      }
+    }
+  },
+  {
+    "file": "00903943_00001_repaired.json",
+    "status": "success",
+    "metrics": {
+      "entity_count_acc": 0.6666666666666667,
+      "entity_type_sequence_acc": 1.0,
+      "type_distribution_sim": 0.75,
+      "gen_entity_count": 4,
+      "gt_entity_count": 3,
+      "gen_entity_types": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      },
+      "gt_entity_types": {
+        "Sketch": 2,
+        "ExtrudeFeature": 1
+      }
+    }
+  },
+  {
+    "file": "00904009_00002_repaired.json",
+    "status": "success",
+    "metrics": {
+      "entity_count_acc": 0.0,
+      "entity_type_sequence_acc": 1.0,
+      "type_distribution_sim": 0.5,
+      "gen_entity_count": 4,
+      "gt_entity_count": 2,
+      "gen_entity_types": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      },
+      "gt_entity_types": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      }
+    }
+  },
+  {
+    "file": "00904065_00001_repaired.json",
+    "status": "success",
+    "metrics": {
+      "entity_count_acc": 1.0,
+      "entity_type_sequence_acc": 1.0,
+      "type_distribution_sim": 1.0,
+      "gen_entity_count": 2,
+      "gt_entity_count": 2,
+      "gen_entity_types": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      },
+      "gt_entity_types": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      }
+    }
+  },
+  {
+    "file": "00904100_00001_repaired.json",
+    "status": "success",
+    "metrics": {
+      "entity_count_acc": 1.0,
+      "entity_type_sequence_acc": 1.0,
+      "type_distribution_sim": 1.0,
+      "gen_entity_count": 2,
+      "gt_entity_count": 2,
+      "gen_entity_types": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      },
+      "gt_entity_types": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      }
+    }
+  },
+  {
+    "file": "00904168_00001_repaired.json",
+    "status": "success",
+    "metrics": {
+      "entity_count_acc": 0.0,
+      "entity_type_sequence_acc": 1.0,
+      "type_distribution_sim": 0.5,
+      "gen_entity_count": 4,
+      "gt_entity_count": 2,
+      "gen_entity_types": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      },
+      "gt_entity_types": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      }
+    }
+  },
+  {
+    "file": "00904399_00001_repaired.json",
+    "status": "success",
+    "metrics": {
+      "entity_count_acc": 0.0,
+      "entity_type_sequence_acc": 1.0,
+      "type_distribution_sim": 0.5,
+      "gen_entity_count": 4,
+      "gt_entity_count": 2,
+      "gen_entity_types": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      },
+      "gt_entity_types": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      }
+    }
+  }
+]

@@ -1,0 +1,2031 @@
+[
+  {
+    "file": "00900284_00001_repaired.json",
+    "path": "../output_ckpt_2/output_checkpoint-epoch0-step140-20251128_072200_eval_B1/00900284_00001_repaired.json",
+    "status": "valid",
+    "errors": [],
+    "warnings": [],
+    "metrics": {
+      "entity_count": 6,
+      "entity_types": [
+        "Sketch",
+        "ExtrudeFeature",
+        "Sketch",
+        "Sketch",
+        "Sketch",
+        "Sketch"
+      ],
+      "type_distribution": {
+        "Sketch": 5,
+        "ExtrudeFeature": 1
+      },
+      "parameters": {},
+      "has_properties": false,
+      "has_sequence": false,
+      "gt_comparison": {
+        "status": "compared",
+        "gt_file": "00900284_00001.json",
+        "entity_count": {
+          "generated": 6,
+          "groundtruth": 3,
+          "difference": 3,
+          "match": false
+        },
+        "entity_types": {
+          "generated": {
+            "Sketch": 5,
+            "ExtrudeFeature": 1
+          },
+          "groundtruth": {
+            "Sketch": 2,
+            "ExtrudeFeature": 1
+          }
+        }
+      }
+    }
+  },
+  {
+    "file": "00900387_00001_repaired.json",
+    "path": "../output_ckpt_2/output_checkpoint-epoch0-step140-20251128_072200_eval_B1/00900387_00001_repaired.json",
+    "status": "valid",
+    "errors": [],
+    "warnings": [],
+    "metrics": {
+      "entity_count": 2,
+      "entity_types": [
+        "Sketch",
+        "ExtrudeFeature"
+      ],
+      "type_distribution": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      },
+      "parameters": {},
+      "has_properties": true,
+      "has_sequence": true,
+      "gt_comparison": {
+        "status": "compared",
+        "gt_file": "00900387_00001.json",
+        "entity_count": {
+          "generated": 2,
+          "groundtruth": 2,
+          "difference": 0,
+          "match": true
+        },
+        "entity_types": {
+          "generated": {
+            "Sketch": 1,
+            "ExtrudeFeature": 1
+          },
+          "groundtruth": {
+            "Sketch": 1,
+            "ExtrudeFeature": 1
+          }
+        }
+      }
+    }
+  },
+  {
+    "file": "00900654_00001_repaired.json",
+    "path": "../output_ckpt_2/output_checkpoint-epoch0-step140-20251128_072200_eval_B1/00900654_00001_repaired.json",
+    "status": "valid",
+    "errors": [],
+    "warnings": [],
+    "metrics": {
+      "entity_count": 4,
+      "entity_types": [
+        "Sketch",
+        "ExtrudeFeature",
+        "Sketch",
+        "ExtrudeFeature"
+      ],
+      "type_distribution": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      },
+      "parameters": {},
+      "has_properties": true,
+      "has_sequence": true,
+      "gt_comparison": {
+        "status": "compared",
+        "gt_file": "00900654_00001.json",
+        "entity_count": {
+          "generated": 4,
+          "groundtruth": 3,
+          "difference": 1,
+          "match": false
+        },
+        "entity_types": {
+          "generated": {
+            "Sketch": 2,
+            "ExtrudeFeature": 2
+          },
+          "groundtruth": {
+            "Sketch": 2,
+            "ExtrudeFeature": 1
+          }
+        }
+      }
+    }
+  },
+  {
+    "file": "00900730_00001_repaired.json",
+    "path": "../output_ckpt_2/output_checkpoint-epoch0-step140-20251128_072200_eval_B1/00900730_00001_repaired.json",
+    "status": "valid",
+    "errors": [],
+    "warnings": [],
+    "metrics": {
+      "entity_count": 2,
+      "entity_types": [
+        "Sketch",
+        "ExtrudeFeature"
+      ],
+      "type_distribution": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      },
+      "parameters": {},
+      "has_properties": true,
+      "has_sequence": true,
+      "gt_comparison": {
+        "status": "compared",
+        "gt_file": "00900730_00001.json",
+        "entity_count": {
+          "generated": 2,
+          "groundtruth": 2,
+          "difference": 0,
+          "match": true
+        },
+        "entity_types": {
+          "generated": {
+            "Sketch": 1,
+            "ExtrudeFeature": 1
+          },
+          "groundtruth": {
+            "Sketch": 1,
+            "ExtrudeFeature": 1
+          }
+        }
+      }
+    }
+  },
+  {
+    "file": "00900731_00001_repaired.json",
+    "path": "../output_ckpt_2/output_checkpoint-epoch0-step140-20251128_072200_eval_B1/00900731_00001_repaired.json",
+    "status": "valid",
+    "errors": [],
+    "warnings": [],
+    "metrics": {
+      "entity_count": 4,
+      "entity_types": [
+        "Sketch",
+        "ExtrudeFeature",
+        "Sketch",
+        "ExtrudeFeature"
+      ],
+      "type_distribution": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      },
+      "parameters": {},
+      "has_properties": true,
+      "has_sequence": true,
+      "gt_comparison": {
+        "status": "compared",
+        "gt_file": "00900731_00001.json",
+        "entity_count": {
+          "generated": 4,
+          "groundtruth": 2,
+          "difference": 2,
+          "match": false
+        },
+        "entity_types": {
+          "generated": {
+            "Sketch": 2,
+            "ExtrudeFeature": 2
+          },
+          "groundtruth": {
+            "Sketch": 1,
+            "ExtrudeFeature": 1
+          }
+        }
+      }
+    }
+  },
+  {
+    "file": "00900867_00001_repaired.json",
+    "path": "../output_ckpt_2/output_checkpoint-epoch0-step140-20251128_072200_eval_B1/00900867_00001_repaired.json",
+    "status": "valid",
+    "errors": [],
+    "warnings": [],
+    "metrics": {
+      "entity_count": 4,
+      "entity_types": [
+        "Sketch",
+        "ExtrudeFeature",
+        "Sketch",
+        "ExtrudeFeature"
+      ],
+      "type_distribution": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      },
+      "parameters": {},
+      "has_properties": true,
+      "has_sequence": true,
+      "gt_comparison": {
+        "status": "compared",
+        "gt_file": "00900867_00001.json",
+        "entity_count": {
+          "generated": 4,
+          "groundtruth": 3,
+          "difference": 1,
+          "match": false
+        },
+        "entity_types": {
+          "generated": {
+            "Sketch": 2,
+            "ExtrudeFeature": 2
+          },
+          "groundtruth": {
+            "Sketch": 2,
+            "ExtrudeFeature": 1
+          }
+        }
+      }
+    }
+  },
+  {
+    "file": "00900903_00001_repaired.json",
+    "path": "../output_ckpt_2/output_checkpoint-epoch0-step140-20251128_072200_eval_B1/00900903_00001_repaired.json",
+    "status": "valid",
+    "errors": [],
+    "warnings": [],
+    "metrics": {
+      "entity_count": 2,
+      "entity_types": [
+        "Sketch",
+        "ExtrudeFeature"
+      ],
+      "type_distribution": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      },
+      "parameters": {},
+      "has_properties": true,
+      "has_sequence": true,
+      "gt_comparison": {
+        "status": "compared",
+        "gt_file": "00900903_00001.json",
+        "entity_count": {
+          "generated": 2,
+          "groundtruth": 2,
+          "difference": 0,
+          "match": true
+        },
+        "entity_types": {
+          "generated": {
+            "Sketch": 1,
+            "ExtrudeFeature": 1
+          },
+          "groundtruth": {
+            "Sketch": 1,
+            "ExtrudeFeature": 1
+          }
+        }
+      }
+    }
+  },
+  {
+    "file": "00900920_00001_repaired.json",
+    "path": "../output_ckpt_2/output_checkpoint-epoch0-step140-20251128_072200_eval_B1/00900920_00001_repaired.json",
+    "status": "valid",
+    "errors": [],
+    "warnings": [],
+    "metrics": {
+      "entity_count": 4,
+      "entity_types": [
+        "Sketch",
+        "ExtrudeFeature",
+        "Sketch",
+        "ExtrudeFeature"
+      ],
+      "type_distribution": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      },
+      "parameters": {},
+      "has_properties": true,
+      "has_sequence": true,
+      "gt_comparison": {
+        "status": "compared",
+        "gt_file": "00900920_00001.json",
+        "entity_count": {
+          "generated": 4,
+          "groundtruth": 2,
+          "difference": 2,
+          "match": false
+        },
+        "entity_types": {
+          "generated": {
+            "Sketch": 2,
+            "ExtrudeFeature": 2
+          },
+          "groundtruth": {
+            "Sketch": 1,
+            "ExtrudeFeature": 1
+          }
+        }
+      }
+    }
+  },
+  {
+    "file": "00901147_00001_repaired.json",
+    "path": "../output_ckpt_2/output_checkpoint-epoch0-step140-20251128_072200_eval_B1/00901147_00001_repaired.json",
+    "status": "valid",
+    "errors": [],
+    "warnings": [],
+    "metrics": {
+      "entity_count": 4,
+      "entity_types": [
+        "Sketch",
+        "ExtrudeFeature",
+        "Sketch",
+        "ExtrudeFeature"
+      ],
+      "type_distribution": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      },
+      "parameters": {},
+      "has_properties": true,
+      "has_sequence": true,
+      "gt_comparison": {
+        "status": "compared",
+        "gt_file": "00901147_00001.json",
+        "entity_count": {
+          "generated": 4,
+          "groundtruth": 3,
+          "difference": 1,
+          "match": false
+        },
+        "entity_types": {
+          "generated": {
+            "Sketch": 2,
+            "ExtrudeFeature": 2
+          },
+          "groundtruth": {
+            "Sketch": 2,
+            "ExtrudeFeature": 1
+          }
+        }
+      }
+    }
+  },
+  {
+    "file": "00901173_00001_repaired.json",
+    "path": "../output_ckpt_2/output_checkpoint-epoch0-step140-20251128_072200_eval_B1/00901173_00001_repaired.json",
+    "status": "valid",
+    "errors": [],
+    "warnings": [],
+    "metrics": {
+      "entity_count": 2,
+      "entity_types": [
+        "Sketch",
+        "ExtrudeFeature"
+      ],
+      "type_distribution": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      },
+      "parameters": {},
+      "has_properties": true,
+      "has_sequence": true,
+      "gt_comparison": {
+        "status": "compared",
+        "gt_file": "00901173_00001.json",
+        "entity_count": {
+          "generated": 2,
+          "groundtruth": 2,
+          "difference": 0,
+          "match": true
+        },
+        "entity_types": {
+          "generated": {
+            "Sketch": 1,
+            "ExtrudeFeature": 1
+          },
+          "groundtruth": {
+            "Sketch": 1,
+            "ExtrudeFeature": 1
+          }
+        }
+      }
+    }
+  },
+  {
+    "file": "00901224_00001_repaired.json",
+    "path": "../output_ckpt_2/output_checkpoint-epoch0-step140-20251128_072200_eval_B1/00901224_00001_repaired.json",
+    "status": "valid",
+    "errors": [],
+    "warnings": [],
+    "metrics": {
+      "entity_count": 4,
+      "entity_types": [
+        "Sketch",
+        "ExtrudeFeature",
+        "Sketch",
+        "ExtrudeFeature"
+      ],
+      "type_distribution": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      },
+      "parameters": {},
+      "has_properties": true,
+      "has_sequence": true,
+      "gt_comparison": {
+        "status": "compared",
+        "gt_file": "00901224_00001.json",
+        "entity_count": {
+          "generated": 4,
+          "groundtruth": 2,
+          "difference": 2,
+          "match": false
+        },
+        "entity_types": {
+          "generated": {
+            "Sketch": 2,
+            "ExtrudeFeature": 2
+          },
+          "groundtruth": {
+            "Sketch": 1,
+            "ExtrudeFeature": 1
+          }
+        }
+      }
+    }
+  },
+  {
+    "file": "00901277_00001_repaired.json",
+    "path": "../output_ckpt_2/output_checkpoint-epoch0-step140-20251128_072200_eval_B1/00901277_00001_repaired.json",
+    "status": "valid",
+    "errors": [],
+    "warnings": [],
+    "metrics": {
+      "entity_count": 4,
+      "entity_types": [
+        "Sketch",
+        "ExtrudeFeature",
+        "Sketch",
+        "ExtrudeFeature"
+      ],
+      "type_distribution": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      },
+      "parameters": {},
+      "has_properties": true,
+      "has_sequence": true,
+      "gt_comparison": {
+        "status": "compared",
+        "gt_file": "00901277_00001.json",
+        "entity_count": {
+          "generated": 4,
+          "groundtruth": 2,
+          "difference": 2,
+          "match": false
+        },
+        "entity_types": {
+          "generated": {
+            "Sketch": 2,
+            "ExtrudeFeature": 2
+          },
+          "groundtruth": {
+            "Sketch": 1,
+            "ExtrudeFeature": 1
+          }
+        }
+      }
+    }
+  },
+  {
+    "file": "00901400_00003_repaired.json",
+    "path": "../output_ckpt_2/output_checkpoint-epoch0-step140-20251128_072200_eval_B1/00901400_00003_repaired.json",
+    "status": "valid",
+    "errors": [],
+    "warnings": [],
+    "metrics": {
+      "entity_count": 2,
+      "entity_types": [
+        "Sketch",
+        "ExtrudeFeature"
+      ],
+      "type_distribution": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      },
+      "parameters": {},
+      "has_properties": true,
+      "has_sequence": true,
+      "gt_comparison": {
+        "status": "compared",
+        "gt_file": "00901400_00003.json",
+        "entity_count": {
+          "generated": 2,
+          "groundtruth": 4,
+          "difference": -2,
+          "match": false
+        },
+        "entity_types": {
+          "generated": {
+            "Sketch": 1,
+            "ExtrudeFeature": 1
+          },
+          "groundtruth": {
+            "Sketch": 2,
+            "ExtrudeFeature": 2
+          }
+        }
+      }
+    }
+  },
+  {
+    "file": "00901448_00001_repaired.json",
+    "path": "../output_ckpt_2/output_checkpoint-epoch0-step140-20251128_072200_eval_B1/00901448_00001_repaired.json",
+    "status": "valid",
+    "errors": [],
+    "warnings": [],
+    "metrics": {
+      "entity_count": 6,
+      "entity_types": [
+        "Sketch",
+        "ExtrudeFeature",
+        "Sketch",
+        "ExtrudeFeature",
+        "Sketch",
+        "ExtrudeFeature"
+      ],
+      "type_distribution": {
+        "Sketch": 3,
+        "ExtrudeFeature": 3
+      },
+      "parameters": {},
+      "has_properties": true,
+      "has_sequence": true,
+      "gt_comparison": {
+        "status": "compared",
+        "gt_file": "00901448_00001.json",
+        "entity_count": {
+          "generated": 6,
+          "groundtruth": 2,
+          "difference": 4,
+          "match": false
+        },
+        "entity_types": {
+          "generated": {
+            "Sketch": 3,
+            "ExtrudeFeature": 3
+          },
+          "groundtruth": {
+            "Sketch": 1,
+            "ExtrudeFeature": 1
+          }
+        }
+      }
+    }
+  },
+  {
+    "file": "00901552_00001_repaired.json",
+    "path": "../output_ckpt_2/output_checkpoint-epoch0-step140-20251128_072200_eval_B1/00901552_00001_repaired.json",
+    "status": "valid",
+    "errors": [],
+    "warnings": [],
+    "metrics": {
+      "entity_count": 2,
+      "entity_types": [
+        "Sketch",
+        "ExtrudeFeature"
+      ],
+      "type_distribution": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      },
+      "parameters": {},
+      "has_properties": true,
+      "has_sequence": true,
+      "gt_comparison": {
+        "status": "compared",
+        "gt_file": "00901552_00001.json",
+        "entity_count": {
+          "generated": 2,
+          "groundtruth": 2,
+          "difference": 0,
+          "match": true
+        },
+        "entity_types": {
+          "generated": {
+            "Sketch": 1,
+            "ExtrudeFeature": 1
+          },
+          "groundtruth": {
+            "Sketch": 1,
+            "ExtrudeFeature": 1
+          }
+        }
+      }
+    }
+  },
+  {
+    "file": "00901596_00001_repaired.json",
+    "path": "../output_ckpt_2/output_checkpoint-epoch0-step140-20251128_072200_eval_B1/00901596_00001_repaired.json",
+    "status": "valid",
+    "errors": [],
+    "warnings": [],
+    "metrics": {
+      "entity_count": 4,
+      "entity_types": [
+        "Sketch",
+        "ExtrudeFeature",
+        "Sketch",
+        "ExtrudeFeature"
+      ],
+      "type_distribution": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      },
+      "parameters": {},
+      "has_properties": true,
+      "has_sequence": true,
+      "gt_comparison": {
+        "status": "compared",
+        "gt_file": "00901596_00001.json",
+        "entity_count": {
+          "generated": 4,
+          "groundtruth": 2,
+          "difference": 2,
+          "match": false
+        },
+        "entity_types": {
+          "generated": {
+            "Sketch": 2,
+            "ExtrudeFeature": 2
+          },
+          "groundtruth": {
+            "Sketch": 1,
+            "ExtrudeFeature": 1
+          }
+        }
+      }
+    }
+  },
+  {
+    "file": "00902084_00001_repaired.json",
+    "path": "../output_ckpt_2/output_checkpoint-epoch0-step140-20251128_072200_eval_B1/00902084_00001_repaired.json",
+    "status": "valid",
+    "errors": [],
+    "warnings": [],
+    "metrics": {
+      "entity_count": 2,
+      "entity_types": [
+        "Sketch",
+        "ExtrudeFeature"
+      ],
+      "type_distribution": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      },
+      "parameters": {},
+      "has_properties": true,
+      "has_sequence": true,
+      "gt_comparison": {
+        "status": "compared",
+        "gt_file": "00902084_00001.json",
+        "entity_count": {
+          "generated": 2,
+          "groundtruth": 2,
+          "difference": 0,
+          "match": true
+        },
+        "entity_types": {
+          "generated": {
+            "Sketch": 1,
+            "ExtrudeFeature": 1
+          },
+          "groundtruth": {
+            "Sketch": 1,
+            "ExtrudeFeature": 1
+          }
+        }
+      }
+    }
+  },
+  {
+    "file": "00902207_00001_repaired.json",
+    "path": "../output_ckpt_2/output_checkpoint-epoch0-step140-20251128_072200_eval_B1/00902207_00001_repaired.json",
+    "status": "valid",
+    "errors": [],
+    "warnings": [],
+    "metrics": {
+      "entity_count": 4,
+      "entity_types": [
+        "Sketch",
+        "ExtrudeFeature",
+        "Sketch",
+        "ExtrudeFeature"
+      ],
+      "type_distribution": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      },
+      "parameters": {},
+      "has_properties": true,
+      "has_sequence": true,
+      "gt_comparison": {
+        "status": "compared",
+        "gt_file": "00902207_00001.json",
+        "entity_count": {
+          "generated": 4,
+          "groundtruth": 2,
+          "difference": 2,
+          "match": false
+        },
+        "entity_types": {
+          "generated": {
+            "Sketch": 2,
+            "ExtrudeFeature": 2
+          },
+          "groundtruth": {
+            "Sketch": 1,
+            "ExtrudeFeature": 1
+          }
+        }
+      }
+    }
+  },
+  {
+    "file": "00902323_00001_repaired.json",
+    "path": "../output_ckpt_2/output_checkpoint-epoch0-step140-20251128_072200_eval_B1/00902323_00001_repaired.json",
+    "status": "valid",
+    "errors": [],
+    "warnings": [],
+    "metrics": {
+      "entity_count": 2,
+      "entity_types": [
+        "Sketch",
+        "ExtrudeFeature"
+      ],
+      "type_distribution": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      },
+      "parameters": {},
+      "has_properties": true,
+      "has_sequence": true,
+      "gt_comparison": {
+        "status": "compared",
+        "gt_file": "00902323_00001.json",
+        "entity_count": {
+          "generated": 2,
+          "groundtruth": 2,
+          "difference": 0,
+          "match": true
+        },
+        "entity_types": {
+          "generated": {
+            "Sketch": 1,
+            "ExtrudeFeature": 1
+          },
+          "groundtruth": {
+            "Sketch": 1,
+            "ExtrudeFeature": 1
+          }
+        }
+      }
+    }
+  },
+  {
+    "file": "00902439_00001_repaired.json",
+    "path": "../output_ckpt_2/output_checkpoint-epoch0-step140-20251128_072200_eval_B1/00902439_00001_repaired.json",
+    "status": "valid",
+    "errors": [],
+    "warnings": [],
+    "metrics": {
+      "entity_count": 4,
+      "entity_types": [
+        "Sketch",
+        "ExtrudeFeature",
+        "Sketch",
+        "ExtrudeFeature"
+      ],
+      "type_distribution": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      },
+      "parameters": {},
+      "has_properties": true,
+      "has_sequence": true,
+      "gt_comparison": {
+        "status": "compared",
+        "gt_file": "00902439_00001.json",
+        "entity_count": {
+          "generated": 4,
+          "groundtruth": 4,
+          "difference": 0,
+          "match": true
+        },
+        "entity_types": {
+          "generated": {
+            "Sketch": 2,
+            "ExtrudeFeature": 2
+          },
+          "groundtruth": {
+            "Sketch": 3,
+            "ExtrudeFeature": 1
+          }
+        }
+      }
+    }
+  },
+  {
+    "file": "00902447_00001_repaired.json",
+    "path": "../output_ckpt_2/output_checkpoint-epoch0-step140-20251128_072200_eval_B1/00902447_00001_repaired.json",
+    "status": "valid",
+    "errors": [],
+    "warnings": [],
+    "metrics": {
+      "entity_count": 3,
+      "entity_types": [
+        "Sketch",
+        "Unknown",
+        "Sketch"
+      ],
+      "type_distribution": {
+        "Sketch": 2,
+        "Unknown": 1
+      },
+      "parameters": {},
+      "has_properties": false,
+      "has_sequence": false,
+      "gt_comparison": {
+        "status": "compared",
+        "gt_file": "00902447_00001.json",
+        "entity_count": {
+          "generated": 3,
+          "groundtruth": 4,
+          "difference": -1,
+          "match": false
+        },
+        "entity_types": {
+          "generated": {
+            "Sketch": 2,
+            "null": 1
+          },
+          "groundtruth": {
+            "Sketch": 3,
+            "ExtrudeFeature": 1
+          }
+        }
+      }
+    }
+  },
+  {
+    "file": "00902454_00001_repaired.json",
+    "path": "../output_ckpt_2/output_checkpoint-epoch0-step140-20251128_072200_eval_B1/00902454_00001_repaired.json",
+    "status": "valid",
+    "errors": [],
+    "warnings": [],
+    "metrics": {
+      "entity_count": 2,
+      "entity_types": [
+        "Sketch",
+        "ExtrudeFeature"
+      ],
+      "type_distribution": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      },
+      "parameters": {},
+      "has_properties": true,
+      "has_sequence": true,
+      "gt_comparison": {
+        "status": "compared",
+        "gt_file": "00902454_00001.json",
+        "entity_count": {
+          "generated": 2,
+          "groundtruth": 3,
+          "difference": -1,
+          "match": false
+        },
+        "entity_types": {
+          "generated": {
+            "Sketch": 1,
+            "ExtrudeFeature": 1
+          },
+          "groundtruth": {
+            "Sketch": 2,
+            "ExtrudeFeature": 1
+          }
+        }
+      }
+    }
+  },
+  {
+    "file": "00902526_00001_repaired.json",
+    "path": "../output_ckpt_2/output_checkpoint-epoch0-step140-20251128_072200_eval_B1/00902526_00001_repaired.json",
+    "status": "valid",
+    "errors": [],
+    "warnings": [],
+    "metrics": {
+      "entity_count": 4,
+      "entity_types": [
+        "Sketch",
+        "ExtrudeFeature",
+        "Sketch",
+        "ExtrudeFeature"
+      ],
+      "type_distribution": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      },
+      "parameters": {},
+      "has_properties": true,
+      "has_sequence": true,
+      "gt_comparison": {
+        "status": "compared",
+        "gt_file": "00902526_00001.json",
+        "entity_count": {
+          "generated": 4,
+          "groundtruth": 2,
+          "difference": 2,
+          "match": false
+        },
+        "entity_types": {
+          "generated": {
+            "Sketch": 2,
+            "ExtrudeFeature": 2
+          },
+          "groundtruth": {
+            "Sketch": 1,
+            "ExtrudeFeature": 1
+          }
+        }
+      }
+    }
+  },
+  {
+    "file": "00902530_00001_repaired.json",
+    "path": "../output_ckpt_2/output_checkpoint-epoch0-step140-20251128_072200_eval_B1/00902530_00001_repaired.json",
+    "status": "valid",
+    "errors": [],
+    "warnings": [],
+    "metrics": {
+      "entity_count": 4,
+      "entity_types": [
+        "Sketch",
+        "ExtrudeFeature",
+        "Sketch",
+        "ExtrudeFeature"
+      ],
+      "type_distribution": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      },
+      "parameters": {},
+      "has_properties": true,
+      "has_sequence": true,
+      "gt_comparison": {
+        "status": "compared",
+        "gt_file": "00902530_00001.json",
+        "entity_count": {
+          "generated": 4,
+          "groundtruth": 2,
+          "difference": 2,
+          "match": false
+        },
+        "entity_types": {
+          "generated": {
+            "Sketch": 2,
+            "ExtrudeFeature": 2
+          },
+          "groundtruth": {
+            "Sketch": 1,
+            "ExtrudeFeature": 1
+          }
+        }
+      }
+    }
+  },
+  {
+    "file": "00902594_00001_repaired.json",
+    "path": "../output_ckpt_2/output_checkpoint-epoch0-step140-20251128_072200_eval_B1/00902594_00001_repaired.json",
+    "status": "valid",
+    "errors": [],
+    "warnings": [],
+    "metrics": {
+      "entity_count": 2,
+      "entity_types": [
+        "Sketch",
+        "ExtrudeFeature"
+      ],
+      "type_distribution": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      },
+      "parameters": {},
+      "has_properties": true,
+      "has_sequence": true,
+      "gt_comparison": {
+        "status": "compared",
+        "gt_file": "00902594_00001.json",
+        "entity_count": {
+          "generated": 2,
+          "groundtruth": 2,
+          "difference": 0,
+          "match": true
+        },
+        "entity_types": {
+          "generated": {
+            "Sketch": 1,
+            "ExtrudeFeature": 1
+          },
+          "groundtruth": {
+            "Sketch": 1,
+            "ExtrudeFeature": 1
+          }
+        }
+      }
+    }
+  },
+  {
+    "file": "00903009_00001_repaired.json",
+    "path": "../output_ckpt_2/output_checkpoint-epoch0-step140-20251128_072200_eval_B1/00903009_00001_repaired.json",
+    "status": "valid",
+    "errors": [],
+    "warnings": [],
+    "metrics": {
+      "entity_count": 4,
+      "entity_types": [
+        "Sketch",
+        "ExtrudeFeature",
+        "Sketch",
+        "ExtrudeFeature"
+      ],
+      "type_distribution": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      },
+      "parameters": {},
+      "has_properties": true,
+      "has_sequence": true,
+      "gt_comparison": {
+        "status": "compared",
+        "gt_file": "00903009_00001.json",
+        "entity_count": {
+          "generated": 4,
+          "groundtruth": 2,
+          "difference": 2,
+          "match": false
+        },
+        "entity_types": {
+          "generated": {
+            "Sketch": 2,
+            "ExtrudeFeature": 2
+          },
+          "groundtruth": {
+            "Sketch": 1,
+            "ExtrudeFeature": 1
+          }
+        }
+      }
+    }
+  },
+  {
+    "file": "00903270_00001_repaired.json",
+    "path": "../output_ckpt_2/output_checkpoint-epoch0-step140-20251128_072200_eval_B1/00903270_00001_repaired.json",
+    "status": "valid",
+    "errors": [],
+    "warnings": [],
+    "metrics": {
+      "entity_count": 2,
+      "entity_types": [
+        "Sketch",
+        "ExtrudeFeature"
+      ],
+      "type_distribution": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      },
+      "parameters": {},
+      "has_properties": true,
+      "has_sequence": true,
+      "gt_comparison": {
+        "status": "compared",
+        "gt_file": "00903270_00001.json",
+        "entity_count": {
+          "generated": 2,
+          "groundtruth": 2,
+          "difference": 0,
+          "match": true
+        },
+        "entity_types": {
+          "generated": {
+            "Sketch": 1,
+            "ExtrudeFeature": 1
+          },
+          "groundtruth": {
+            "Sketch": 1,
+            "ExtrudeFeature": 1
+          }
+        }
+      }
+    }
+  },
+  {
+    "file": "00903275_00001_repaired.json",
+    "path": "../output_ckpt_2/output_checkpoint-epoch0-step140-20251128_072200_eval_B1/00903275_00001_repaired.json",
+    "status": "valid",
+    "errors": [],
+    "warnings": [],
+    "metrics": {
+      "entity_count": 2,
+      "entity_types": [
+        "Sketch",
+        "ExtrudeFeature"
+      ],
+      "type_distribution": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      },
+      "parameters": {},
+      "has_properties": true,
+      "has_sequence": true,
+      "gt_comparison": {
+        "status": "compared",
+        "gt_file": "00903275_00001.json",
+        "entity_count": {
+          "generated": 2,
+          "groundtruth": 4,
+          "difference": -2,
+          "match": false
+        },
+        "entity_types": {
+          "generated": {
+            "Sketch": 1,
+            "ExtrudeFeature": 1
+          },
+          "groundtruth": {
+            "Sketch": 3,
+            "ExtrudeFeature": 1
+          }
+        }
+      }
+    }
+  },
+  {
+    "file": "00903275_00003_repaired.json",
+    "path": "../output_ckpt_2/output_checkpoint-epoch0-step140-20251128_072200_eval_B1/00903275_00003_repaired.json",
+    "status": "valid",
+    "errors": [],
+    "warnings": [],
+    "metrics": {
+      "entity_count": 4,
+      "entity_types": [
+        "Sketch",
+        "ExtrudeFeature",
+        "Sketch",
+        "ExtrudeFeature"
+      ],
+      "type_distribution": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      },
+      "parameters": {},
+      "has_properties": true,
+      "has_sequence": true,
+      "gt_comparison": {
+        "status": "compared",
+        "gt_file": "00903275_00001.json",
+        "entity_count": {
+          "generated": 4,
+          "groundtruth": 4,
+          "difference": 0,
+          "match": true
+        },
+        "entity_types": {
+          "generated": {
+            "Sketch": 2,
+            "ExtrudeFeature": 2
+          },
+          "groundtruth": {
+            "Sketch": 3,
+            "ExtrudeFeature": 1
+          }
+        }
+      }
+    }
+  },
+  {
+    "file": "00903309_00001_repaired.json",
+    "path": "../output_ckpt_2/output_checkpoint-epoch0-step140-20251128_072200_eval_B1/00903309_00001_repaired.json",
+    "status": "valid",
+    "errors": [],
+    "warnings": [],
+    "metrics": {
+      "entity_count": 4,
+      "entity_types": [
+        "Sketch",
+        "ExtrudeFeature",
+        "Sketch",
+        "ExtrudeFeature"
+      ],
+      "type_distribution": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      },
+      "parameters": {},
+      "has_properties": true,
+      "has_sequence": true,
+      "gt_comparison": {
+        "status": "compared",
+        "gt_file": "00903309_00001.json",
+        "entity_count": {
+          "generated": 4,
+          "groundtruth": 2,
+          "difference": 2,
+          "match": false
+        },
+        "entity_types": {
+          "generated": {
+            "Sketch": 2,
+            "ExtrudeFeature": 2
+          },
+          "groundtruth": {
+            "Sketch": 1,
+            "ExtrudeFeature": 1
+          }
+        }
+      }
+    }
+  },
+  {
+    "file": "00903327_00001_repaired.json",
+    "path": "../output_ckpt_2/output_checkpoint-epoch0-step140-20251128_072200_eval_B1/00903327_00001_repaired.json",
+    "status": "valid",
+    "errors": [],
+    "warnings": [],
+    "metrics": {
+      "entity_count": 4,
+      "entity_types": [
+        "Sketch",
+        "ExtrudeFeature",
+        "Sketch",
+        "ExtrudeFeature"
+      ],
+      "type_distribution": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      },
+      "parameters": {},
+      "has_properties": true,
+      "has_sequence": true,
+      "gt_comparison": {
+        "status": "compared",
+        "gt_file": "00903327_00001.json",
+        "entity_count": {
+          "generated": 4,
+          "groundtruth": 2,
+          "difference": 2,
+          "match": false
+        },
+        "entity_types": {
+          "generated": {
+            "Sketch": 2,
+            "ExtrudeFeature": 2
+          },
+          "groundtruth": {
+            "Sketch": 1,
+            "ExtrudeFeature": 1
+          }
+        }
+      }
+    }
+  },
+  {
+    "file": "00903374_00001_repaired.json",
+    "path": "../output_ckpt_2/output_checkpoint-epoch0-step140-20251128_072200_eval_B1/00903374_00001_repaired.json",
+    "status": "valid",
+    "errors": [],
+    "warnings": [],
+    "metrics": {
+      "entity_count": 4,
+      "entity_types": [
+        "Sketch",
+        "ExtrudeFeature",
+        "Sketch",
+        "ExtrudeFeature"
+      ],
+      "type_distribution": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      },
+      "parameters": {},
+      "has_properties": true,
+      "has_sequence": true,
+      "gt_comparison": {
+        "status": "compared",
+        "gt_file": "00903374_00001.json",
+        "entity_count": {
+          "generated": 4,
+          "groundtruth": 2,
+          "difference": 2,
+          "match": false
+        },
+        "entity_types": {
+          "generated": {
+            "Sketch": 2,
+            "ExtrudeFeature": 2
+          },
+          "groundtruth": {
+            "Sketch": 1,
+            "ExtrudeFeature": 1
+          }
+        }
+      }
+    }
+  },
+  {
+    "file": "00903454_00003_repaired.json",
+    "path": "../output_ckpt_2/output_checkpoint-epoch0-step140-20251128_072200_eval_B1/00903454_00003_repaired.json",
+    "status": "valid",
+    "errors": [],
+    "warnings": [],
+    "metrics": {
+      "entity_count": 2,
+      "entity_types": [
+        "Sketch",
+        "ExtrudeFeature"
+      ],
+      "type_distribution": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      },
+      "parameters": {},
+      "has_properties": true,
+      "has_sequence": true,
+      "gt_comparison": {
+        "status": "compared",
+        "gt_file": "00903454_00003.json",
+        "entity_count": {
+          "generated": 2,
+          "groundtruth": 5,
+          "difference": -3,
+          "match": false
+        },
+        "entity_types": {
+          "generated": {
+            "Sketch": 1,
+            "ExtrudeFeature": 1
+          },
+          "groundtruth": {
+            "Sketch": 3,
+            "ExtrudeFeature": 2
+          }
+        }
+      }
+    }
+  },
+  {
+    "file": "00903479_00001_repaired.json",
+    "path": "../output_ckpt_2/output_checkpoint-epoch0-step140-20251128_072200_eval_B1/00903479_00001_repaired.json",
+    "status": "valid",
+    "errors": [],
+    "warnings": [],
+    "metrics": {
+      "entity_count": 4,
+      "entity_types": [
+        "Sketch",
+        "ExtrudeFeature",
+        "Sketch",
+        "ExtrudeFeature"
+      ],
+      "type_distribution": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      },
+      "parameters": {},
+      "has_properties": true,
+      "has_sequence": true,
+      "gt_comparison": {
+        "status": "compared",
+        "gt_file": "00903479_00001.json",
+        "entity_count": {
+          "generated": 4,
+          "groundtruth": 2,
+          "difference": 2,
+          "match": false
+        },
+        "entity_types": {
+          "generated": {
+            "Sketch": 2,
+            "ExtrudeFeature": 2
+          },
+          "groundtruth": {
+            "Sketch": 1,
+            "ExtrudeFeature": 1
+          }
+        }
+      }
+    }
+  },
+  {
+    "file": "00903530_00001_repaired.json",
+    "path": "../output_ckpt_2/output_checkpoint-epoch0-step140-20251128_072200_eval_B1/00903530_00001_repaired.json",
+    "status": "valid",
+    "errors": [],
+    "warnings": [],
+    "metrics": {
+      "entity_count": 4,
+      "entity_types": [
+        "Sketch",
+        "ExtrudeFeature",
+        "Sketch",
+        "ExtrudeFeature"
+      ],
+      "type_distribution": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      },
+      "parameters": {},
+      "has_properties": true,
+      "has_sequence": true,
+      "gt_comparison": {
+        "status": "compared",
+        "gt_file": "00903530_00001.json",
+        "entity_count": {
+          "generated": 4,
+          "groundtruth": 2,
+          "difference": 2,
+          "match": false
+        },
+        "entity_types": {
+          "generated": {
+            "Sketch": 2,
+            "ExtrudeFeature": 2
+          },
+          "groundtruth": {
+            "Sketch": 1,
+            "ExtrudeFeature": 1
+          }
+        }
+      }
+    }
+  },
+  {
+    "file": "00903601_00001_repaired.json",
+    "path": "../output_ckpt_2/output_checkpoint-epoch0-step140-20251128_072200_eval_B1/00903601_00001_repaired.json",
+    "status": "valid",
+    "errors": [],
+    "warnings": [],
+    "metrics": {
+      "entity_count": 2,
+      "entity_types": [
+        "Sketch",
+        "ExtrudeFeature"
+      ],
+      "type_distribution": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      },
+      "parameters": {},
+      "has_properties": true,
+      "has_sequence": true,
+      "gt_comparison": {
+        "status": "compared",
+        "gt_file": "00903601_00001.json",
+        "entity_count": {
+          "generated": 2,
+          "groundtruth": 2,
+          "difference": 0,
+          "match": true
+        },
+        "entity_types": {
+          "generated": {
+            "Sketch": 1,
+            "ExtrudeFeature": 1
+          },
+          "groundtruth": {
+            "Sketch": 1,
+            "ExtrudeFeature": 1
+          }
+        }
+      }
+    }
+  },
+  {
+    "file": "00903644_00001_repaired.json",
+    "path": "../output_ckpt_2/output_checkpoint-epoch0-step140-20251128_072200_eval_B1/00903644_00001_repaired.json",
+    "status": "valid",
+    "errors": [],
+    "warnings": [],
+    "metrics": {
+      "entity_count": 4,
+      "entity_types": [
+        "Sketch",
+        "ExtrudeFeature",
+        "Sketch",
+        "ExtrudeFeature"
+      ],
+      "type_distribution": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      },
+      "parameters": {},
+      "has_properties": true,
+      "has_sequence": true,
+      "gt_comparison": {
+        "status": "compared",
+        "gt_file": "00903644_00001.json",
+        "entity_count": {
+          "generated": 4,
+          "groundtruth": 3,
+          "difference": 1,
+          "match": false
+        },
+        "entity_types": {
+          "generated": {
+            "Sketch": 2,
+            "ExtrudeFeature": 2
+          },
+          "groundtruth": {
+            "Sketch": 2,
+            "ExtrudeFeature": 1
+          }
+        }
+      }
+    }
+  },
+  {
+    "file": "00903796_00001_repaired.json",
+    "path": "../output_ckpt_2/output_checkpoint-epoch0-step140-20251128_072200_eval_B1/00903796_00001_repaired.json",
+    "status": "valid",
+    "errors": [],
+    "warnings": [],
+    "metrics": {
+      "entity_count": 2,
+      "entity_types": [
+        "Sketch",
+        "ExtrudeFeature"
+      ],
+      "type_distribution": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      },
+      "parameters": {},
+      "has_properties": true,
+      "has_sequence": true,
+      "gt_comparison": {
+        "status": "compared",
+        "gt_file": "00903796_00001.json",
+        "entity_count": {
+          "generated": 2,
+          "groundtruth": 2,
+          "difference": 0,
+          "match": true
+        },
+        "entity_types": {
+          "generated": {
+            "Sketch": 1,
+            "ExtrudeFeature": 1
+          },
+          "groundtruth": {
+            "Sketch": 1,
+            "ExtrudeFeature": 1
+          }
+        }
+      }
+    }
+  },
+  {
+    "file": "00903823_00001_repaired.json",
+    "path": "../output_ckpt_2/output_checkpoint-epoch0-step140-20251128_072200_eval_B1/00903823_00001_repaired.json",
+    "status": "valid",
+    "errors": [],
+    "warnings": [],
+    "metrics": {
+      "entity_count": 4,
+      "entity_types": [
+        "Sketch",
+        "ExtrudeFeature",
+        "Sketch",
+        "ExtrudeFeature"
+      ],
+      "type_distribution": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      },
+      "parameters": {},
+      "has_properties": true,
+      "has_sequence": true,
+      "gt_comparison": {
+        "status": "compared",
+        "gt_file": "00903823_00001.json",
+        "entity_count": {
+          "generated": 4,
+          "groundtruth": 3,
+          "difference": 1,
+          "match": false
+        },
+        "entity_types": {
+          "generated": {
+            "Sketch": 2,
+            "ExtrudeFeature": 2
+          },
+          "groundtruth": {
+            "Sketch": 2,
+            "ExtrudeFeature": 1
+          }
+        }
+      }
+    }
+  },
+  {
+    "file": "00903889_00001_repaired.json",
+    "path": "../output_ckpt_2/output_checkpoint-epoch0-step140-20251128_072200_eval_B1/00903889_00001_repaired.json",
+    "status": "valid",
+    "errors": [],
+    "warnings": [],
+    "metrics": {
+      "entity_count": 2,
+      "entity_types": [
+        "Sketch",
+        "ExtrudeFeature"
+      ],
+      "type_distribution": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      },
+      "parameters": {},
+      "has_properties": true,
+      "has_sequence": true,
+      "gt_comparison": {
+        "status": "compared",
+        "gt_file": "00903889_00001.json",
+        "entity_count": {
+          "generated": 2,
+          "groundtruth": 3,
+          "difference": -1,
+          "match": false
+        },
+        "entity_types": {
+          "generated": {
+            "Sketch": 1,
+            "ExtrudeFeature": 1
+          },
+          "groundtruth": {
+            "Sketch": 2,
+            "ExtrudeFeature": 1
+          }
+        }
+      }
+    }
+  },
+  {
+    "file": "00903895_00002_repaired.json",
+    "path": "../output_ckpt_2/output_checkpoint-epoch0-step140-20251128_072200_eval_B1/00903895_00002_repaired.json",
+    "status": "valid",
+    "errors": [],
+    "warnings": [],
+    "metrics": {
+      "entity_count": 2,
+      "entity_types": [
+        "Sketch",
+        "ExtrudeFeature"
+      ],
+      "type_distribution": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      },
+      "parameters": {},
+      "has_properties": true,
+      "has_sequence": true,
+      "gt_comparison": {
+        "status": "compared",
+        "gt_file": "00903895_00002.json",
+        "entity_count": {
+          "generated": 2,
+          "groundtruth": 3,
+          "difference": -1,
+          "match": false
+        },
+        "entity_types": {
+          "generated": {
+            "Sketch": 1,
+            "ExtrudeFeature": 1
+          },
+          "groundtruth": {
+            "Sketch": 1,
+            "ExtrudeFeature": 2
+          }
+        }
+      }
+    }
+  },
+  {
+    "file": "00903931_00001_repaired.json",
+    "path": "../output_ckpt_2/output_checkpoint-epoch0-step140-20251128_072200_eval_B1/00903931_00001_repaired.json",
+    "status": "valid",
+    "errors": [],
+    "warnings": [],
+    "metrics": {
+      "entity_count": 4,
+      "entity_types": [
+        "Sketch",
+        "ExtrudeFeature",
+        "Sketch",
+        "ExtrudeFeature"
+      ],
+      "type_distribution": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      },
+      "parameters": {},
+      "has_properties": true,
+      "has_sequence": true,
+      "gt_comparison": {
+        "status": "compared",
+        "gt_file": "00903931_00001.json",
+        "entity_count": {
+          "generated": 4,
+          "groundtruth": 4,
+          "difference": 0,
+          "match": true
+        },
+        "entity_types": {
+          "generated": {
+            "Sketch": 2,
+            "ExtrudeFeature": 2
+          },
+          "groundtruth": {
+            "Sketch": 3,
+            "ExtrudeFeature": 1
+          }
+        }
+      }
+    }
+  },
+  {
+    "file": "00903943_00001_repaired.json",
+    "path": "../output_ckpt_2/output_checkpoint-epoch0-step140-20251128_072200_eval_B1/00903943_00001_repaired.json",
+    "status": "valid",
+    "errors": [],
+    "warnings": [],
+    "metrics": {
+      "entity_count": 4,
+      "entity_types": [
+        "Sketch",
+        "ExtrudeFeature",
+        "Sketch",
+        "ExtrudeFeature"
+      ],
+      "type_distribution": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      },
+      "parameters": {},
+      "has_properties": true,
+      "has_sequence": true,
+      "gt_comparison": {
+        "status": "compared",
+        "gt_file": "00903943_00001.json",
+        "entity_count": {
+          "generated": 4,
+          "groundtruth": 3,
+          "difference": 1,
+          "match": false
+        },
+        "entity_types": {
+          "generated": {
+            "Sketch": 2,
+            "ExtrudeFeature": 2
+          },
+          "groundtruth": {
+            "Sketch": 2,
+            "ExtrudeFeature": 1
+          }
+        }
+      }
+    }
+  },
+  {
+    "file": "00904009_00002_repaired.json",
+    "path": "../output_ckpt_2/output_checkpoint-epoch0-step140-20251128_072200_eval_B1/00904009_00002_repaired.json",
+    "status": "valid",
+    "errors": [],
+    "warnings": [],
+    "metrics": {
+      "entity_count": 4,
+      "entity_types": [
+        "Sketch",
+        "ExtrudeFeature",
+        "Sketch",
+        "ExtrudeFeature"
+      ],
+      "type_distribution": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      },
+      "parameters": {},
+      "has_properties": true,
+      "has_sequence": true,
+      "gt_comparison": {
+        "status": "compared",
+        "gt_file": "00904009_00002.json",
+        "entity_count": {
+          "generated": 4,
+          "groundtruth": 2,
+          "difference": 2,
+          "match": false
+        },
+        "entity_types": {
+          "generated": {
+            "Sketch": 2,
+            "ExtrudeFeature": 2
+          },
+          "groundtruth": {
+            "Sketch": 1,
+            "ExtrudeFeature": 1
+          }
+        }
+      }
+    }
+  },
+  {
+    "file": "00904065_00001_repaired.json",
+    "path": "../output_ckpt_2/output_checkpoint-epoch0-step140-20251128_072200_eval_B1/00904065_00001_repaired.json",
+    "status": "valid",
+    "errors": [],
+    "warnings": [],
+    "metrics": {
+      "entity_count": 2,
+      "entity_types": [
+        "Sketch",
+        "ExtrudeFeature"
+      ],
+      "type_distribution": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      },
+      "parameters": {},
+      "has_properties": true,
+      "has_sequence": true,
+      "gt_comparison": {
+        "status": "compared",
+        "gt_file": "00904065_00001.json",
+        "entity_count": {
+          "generated": 2,
+          "groundtruth": 2,
+          "difference": 0,
+          "match": true
+        },
+        "entity_types": {
+          "generated": {
+            "Sketch": 1,
+            "ExtrudeFeature": 1
+          },
+          "groundtruth": {
+            "Sketch": 1,
+            "ExtrudeFeature": 1
+          }
+        }
+      }
+    }
+  },
+  {
+    "file": "00904100_00001_repaired.json",
+    "path": "../output_ckpt_2/output_checkpoint-epoch0-step140-20251128_072200_eval_B1/00904100_00001_repaired.json",
+    "status": "valid",
+    "errors": [],
+    "warnings": [],
+    "metrics": {
+      "entity_count": 2,
+      "entity_types": [
+        "Sketch",
+        "ExtrudeFeature"
+      ],
+      "type_distribution": {
+        "Sketch": 1,
+        "ExtrudeFeature": 1
+      },
+      "parameters": {},
+      "has_properties": true,
+      "has_sequence": true,
+      "gt_comparison": {
+        "status": "compared",
+        "gt_file": "00904100_00001.json",
+        "entity_count": {
+          "generated": 2,
+          "groundtruth": 2,
+          "difference": 0,
+          "match": true
+        },
+        "entity_types": {
+          "generated": {
+            "Sketch": 1,
+            "ExtrudeFeature": 1
+          },
+          "groundtruth": {
+            "Sketch": 1,
+            "ExtrudeFeature": 1
+          }
+        }
+      }
+    }
+  },
+  {
+    "file": "00904168_00001_repaired.json",
+    "path": "../output_ckpt_2/output_checkpoint-epoch0-step140-20251128_072200_eval_B1/00904168_00001_repaired.json",
+    "status": "valid",
+    "errors": [],
+    "warnings": [],
+    "metrics": {
+      "entity_count": 4,
+      "entity_types": [
+        "Sketch",
+        "ExtrudeFeature",
+        "Sketch",
+        "ExtrudeFeature"
+      ],
+      "type_distribution": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      },
+      "parameters": {},
+      "has_properties": true,
+      "has_sequence": true,
+      "gt_comparison": {
+        "status": "compared",
+        "gt_file": "00904168_00001.json",
+        "entity_count": {
+          "generated": 4,
+          "groundtruth": 2,
+          "difference": 2,
+          "match": false
+        },
+        "entity_types": {
+          "generated": {
+            "Sketch": 2,
+            "ExtrudeFeature": 2
+          },
+          "groundtruth": {
+            "Sketch": 1,
+            "ExtrudeFeature": 1
+          }
+        }
+      }
+    }
+  },
+  {
+    "file": "00904399_00001_repaired.json",
+    "path": "../output_ckpt_2/output_checkpoint-epoch0-step140-20251128_072200_eval_B1/00904399_00001_repaired.json",
+    "status": "valid",
+    "errors": [],
+    "warnings": [],
+    "metrics": {
+      "entity_count": 4,
+      "entity_types": [
+        "Sketch",
+        "ExtrudeFeature",
+        "Sketch",
+        "ExtrudeFeature"
+      ],
+      "type_distribution": {
+        "Sketch": 2,
+        "ExtrudeFeature": 2
+      },
+      "parameters": {},
+      "has_properties": true,
+      "has_sequence": true,
+      "gt_comparison": {
+        "status": "compared",
+        "gt_file": "00904399_00001.json",
+        "entity_count": {
+          "generated": 4,
+          "groundtruth": 2,
+          "difference": 2,
+          "match": false
+        },
+        "entity_types": {
+          "generated": {
+            "Sketch": 2,
+            "ExtrudeFeature": 2
+          },
+          "groundtruth": {
+            "Sketch": 1,
+            "ExtrudeFeature": 1
+          }
+        }
+      }
+    }
+  }
+]
