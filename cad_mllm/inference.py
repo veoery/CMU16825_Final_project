@@ -67,12 +67,14 @@ class CADAutocomplete:
         """Load model from checkpoint (supports both legacy and LoRA format)."""
         ckpt_dir = Path(checkpoint_path)
 
-        # Initialize model with same config
+        # Initialize model with same config (enable all modalities)
         config = CADMLLMConfig(
             llm_model_name="Qwen/Qwen3-8B",
             use_lora=True,
             lora_r=8,
             lora_alpha=16,
+            use_image=True,  # Enable image projector
+            use_point_cloud=True,  # Enable point cloud projector
         )
 
         print(f"  Initializing base model...")
