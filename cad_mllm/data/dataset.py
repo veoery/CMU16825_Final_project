@@ -631,13 +631,18 @@ class MultimodalCADCollator:
         # Create labels - mask prompt part, only compute loss on target CAD sequence
         labels = encodings["input_ids"].clone()
 
-        # Ensure EOS token is present at the end of each sequence (restore if truncated)
+        # Add EOS token to sequences that ended naturally (have padding)
+        # Do NOT add EOS to truncated sequences (no padding) since they're incomplete
         if hasattr(self.tokenizer, 'eos_token_id') and self.tokenizer.eos_token_id is not None:
             for i in range(labels.shape[0]):
-                # Find the last non-padding token
-                non_pad_mask = labels[i] != self.tokenizer.pad_token_id
-                if non_pad_mask.any():
+                # Check if sequence has padding (meaning it wasn't truncated)
+                has_padding = (labels[i] == self.tokenizer.pad_token_id).any()
+
+                if has_padding:
+                    # Find the last non-padding token
+                    non_pad_mask = labels[i] != self.tokenizer.pad_token_id
                     last_token_idx = non_pad_mask.nonzero(as_tuple=True)[0][-1].item()
+
                     # Replace last token with EOS if it's not already EOS
                     if labels[i, last_token_idx] != self.tokenizer.eos_token_id:
                         labels[i, last_token_idx] = self.tokenizer.eos_token_id
