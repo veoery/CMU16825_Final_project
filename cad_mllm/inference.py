@@ -67,34 +67,32 @@ class CADAutocomplete:
         """Load model from checkpoint (supports both legacy and LoRA format)."""
         ckpt_dir = Path(checkpoint_path)
 
-        # Initialize model with same config (enable all modalities)
-        config = CADMLLMConfig(
-            llm_model_name="Qwen/Qwen3-8B",
-            use_lora=True,
-            lora_r=8,
-            lora_alpha=16,
-            use_image=True,  # Enable image projector
-            use_point_cloud=True,  # Enable point cloud projector
-        )
-
-        print(f"  Initializing base model...")
-        model = CADMLLMModel(config)
-
         # Check for SafeTensors LoRA format (new format)
         adapter_file = ckpt_dir / "adapter_model.safetensors"
         image_proj_file = ckpt_dir / "image_projector.pt"
         point_proj_file = ckpt_dir / "point_projector.pt"
 
         if adapter_file.exists():
+            # Initialize model WITHOUT LoRA first
+            print(f"  Initializing base model (without LoRA)...")
+            config = CADMLLMConfig(
+                llm_model_name="Qwen/Qwen3-8B",
+                use_lora=False,  # Don't wrap in LoRA yet
+                lora_r=8,
+                lora_alpha=16,
+            )
+            model = CADMLLMModel(config)
+
+            # Now load LoRA adapters from checkpoint
             print(f"  Loading LoRA adapters from {ckpt_dir}...")
-            # Load LoRA adapters using PEFT
             from peft import PeftModel
             model.llm = PeftModel.from_pretrained(
-                model.llm.get_base_model(),
+                model.llm,  # Base LLM (not wrapped yet)
                 str(ckpt_dir),
                 is_trainable=False
             )
 
+            # Load projectors
             if image_proj_file.exists():
                 print(f"  Loading image projector...")
                 image_proj_state = torch.load(image_proj_file, map_location=self.device)
