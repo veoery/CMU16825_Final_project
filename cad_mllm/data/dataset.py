@@ -577,7 +577,9 @@ class MultimodalCADCollator:
         max_seq_length: Maximum sequence length for tokenization
         padding: Padding strategy
         num_image_tokens: Number of tokens image features will produce (after projection)
+            Default 256 for DINOv2 (16x16 patches without CLS token)
         num_pc_tokens: Number of tokens point cloud features will produce (after projection)
+            Default 257 for Michelangelo (1 global token + 256 latent tokens)
     """
 
     def __init__(
@@ -586,7 +588,7 @@ class MultimodalCADCollator:
         max_seq_length: int = 512,
         padding: str = "max_length",
         num_image_tokens: int = 256,  # DINOv2 with 224x224: 16x16 patches (CLS removed)
-        num_pc_tokens: int = 1,  # Michelangelo outputs single global shape token
+        num_pc_tokens: int = 257,  # Michelangelo: 1 global token + 256 latent tokens
         image_processor=None,  # DINOv2 image processor for proper preprocessing
     ):
         self.tokenizer = tokenizer

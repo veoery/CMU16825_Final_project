@@ -18,7 +18,7 @@ python scripts/train_curriculum.py \
     --lora_alpha 64 \
     --warmup_steps 50 \
     --logging_steps 10 \
-    --save_steps 1 \
+    --save_steps 10 \
     --device cuda \
     --dtype bfloat16 \
     --wandb_project "CAD-MLLM-stage_3" \

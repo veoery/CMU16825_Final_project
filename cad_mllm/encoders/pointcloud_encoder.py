@@ -145,12 +145,18 @@ class MichelangeloPointEncoder(nn.Module):
 
         if self.freeze_encoder:
             with torch.no_grad():
-                shape_embed, _ = self.encoder.encode_latents(pc, feats)
+                shape_embed, latents = self.encoder.encode_latents(pc, feats)
         else:
-            shape_embed, _ = self.encoder.encode_latents(pc, feats)
+            shape_embed, latents = self.encoder.encode_latents(pc, feats)
 
         # shape_embed: (B, D) → (B, 1, D)
-        return shape_embed.unsqueeze(1)
+        global_token = shape_embed.unsqueeze(1)
+
+        # Result shape: (B, 1 + 512, D) = (B, 513, D)
+        combined_tokens = torch.cat([global_token, latents], dim=1)
+        # print(f"combined_tokens for pc: {combined_tokens.shape}")
+
+        return combined_tokens
 
 
 

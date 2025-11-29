@@ -235,6 +235,7 @@ class CADMLLMModel(nn.Module):
             pixel_values = pixel_values.to(self.torch_dtype)
             image_features = self.image_encoder(pixel_values)
             if self.image_projector is not None:
+                # print(f"image_features: {image_features.shape}")
                 image_embeds = self.image_projector(image_features)
                 embeddings_list.append(image_embeds)
                 # print(f"image_embeds: {image_embeds.shape}")
@@ -248,6 +249,7 @@ class CADMLLMModel(nn.Module):
             point_clouds = point_clouds.to(self.torch_dtype)
             point_features = self.point_encoder(point_clouds)
             if self.point_projector is not None:
+                # print(f"point_features: {point_features.shape}")
                 point_embeds = self.point_projector(point_features)
                 embeddings_list.append(point_embeds)
                 # print(f"point_embeds: {point_embeds.shape}")

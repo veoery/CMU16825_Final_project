@@ -32,7 +32,7 @@ The model uses the following token sequence order for multimodal inputs:
 
 ```
 [Image tokens] [Point Cloud tokens] [Instruction + Description] [CAD Commands]
-     256              1                    variable                  variable
+     256              1+256                    variable                  variable
 ```
 
 **Rationale:**
