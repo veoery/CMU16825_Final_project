@@ -92,14 +92,20 @@ class CADAutocomplete:
                 is_trainable=False
             )
 
-            # Load projectors
+            # Load projectors - MUST enable encoders first!
             if image_proj_file.exists():
-                print(f"  Loading image projector...")
+                print(f"  Enabling image encoder and projector...")
+                model.enable_image_encoder()
+                model.enable_image_projector()
+                print(f"  Loading image projector state...")
                 image_proj_state = torch.load(image_proj_file, map_location=self.device)
                 model.image_projector.load_state_dict(image_proj_state)
 
             if point_proj_file.exists():
-                print(f"  Loading point cloud projector...")
+                print(f"  Enabling point cloud encoder and projector...")
+                model.enable_point_encoder()
+                model.enable_point_projector()
+                print(f"  Loading point cloud projector state...")
                 point_proj_state = torch.load(point_proj_file, map_location=self.device)
                 model.point_projector.load_state_dict(point_proj_state)
 
