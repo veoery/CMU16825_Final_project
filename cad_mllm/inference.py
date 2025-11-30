@@ -210,34 +210,37 @@ class CADAutocomplete:
         attention_mask = torch.cat(attention_masks, dim=1)
         
         # 6. Generate using LLM directly
-        # CRITICAL: PEFT models ignore GenerationConfig with inputs_embeds
-        # We must directly modify the model's generation_config temporarily
+        # DEBUG: Print what we're actually working with
+        print(f"\n{'='*80}")
+        print("DEBUG - Generation Setup:")
+        print(f"{'='*80}")
+        print(f"inputs_embeds.shape: {inputs_embeds.shape}")
+        print(f"attention_mask.shape: {attention_mask.shape}")
+        print(f"Requested max_new_tokens: {max_new_tokens}")
+        print(f"Model's current generation_config.max_length: {self.model.llm.generation_config.max_length}")
+        print(f"Model's current generation_config.max_new_tokens: {self.model.llm.generation_config.max_new_tokens}")
 
-        # Save original config
-        original_max_length = self.model.llm.generation_config.max_length
-        original_max_new_tokens = self.model.llm.generation_config.max_new_tokens
+        # When using inputs_embeds, the input length is the embedding sequence length
+        input_embed_length = inputs_embeds.shape[1]
+        print(f"Input embedding sequence length: {input_embed_length}")
+        print(f"Expected output length: {input_embed_length} (input) + {max_new_tokens} (new) = {input_embed_length + max_new_tokens}")
+        print(f"{'='*80}\n")
 
-        # Temporarily override with our desired values
-        # Use max_new_tokens instead of max_length for inputs_embeds
-        self.model.llm.generation_config.max_new_tokens = max_new_tokens
-        self.model.llm.generation_config.max_length = None  # Disable max_length when using max_new_tokens
+        with torch.no_grad():
+            generated_ids = self.model.llm.generate(
+                inputs_embeds=inputs_embeds,
+                attention_mask=attention_mask,
+                max_new_tokens=max_new_tokens,
+                temperature=temperature,
+                top_p=top_p,
+                do_sample=do_sample,
+                pad_token_id=self.tokenizer.pad_token_id,
+                eos_token_id=self.tokenizer.eos_token_id,
+            )
 
-        try:
-            with torch.no_grad():
-                generated_ids = self.model.llm.generate(
-                    inputs_embeds=inputs_embeds,
-                    attention_mask=attention_mask,
-                    max_new_tokens=max_new_tokens,  # Explicitly pass it too
-                    temperature=temperature,
-                    top_p=top_p,
-                    do_sample=do_sample,
-                    pad_token_id=self.tokenizer.pad_token_id,
-                    eos_token_id=self.tokenizer.eos_token_id,
-                )
-        finally:
-            # Restore original config
-            self.model.llm.generation_config.max_length = original_max_length
-            self.model.llm.generation_config.max_new_tokens = original_max_new_tokens
+        print(f"ACTUAL generated_ids.shape: {generated_ids.shape}")
+        print(f"ACTUAL output length: {generated_ids.shape[1]}")
+        print(f"Difference from expected: {generated_ids.shape[1] - (input_embed_length + max_new_tokens)}")
 
         # 7. Decode generated tokens
         # When using inputs_embeds + max_new_tokens, generated_ids includes:
