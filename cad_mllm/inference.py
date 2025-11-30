@@ -237,7 +237,19 @@ class CADAutocomplete:
             generated_text = ""
         
         print(f"Debug - Prompt length: {prompt_length}, Generated length: {generated_ids.shape[1]}")
-        print(f"Debug - Generated text preview: {generated_text[:300]}")  # Debug output
+        print(f"Debug - New tokens generated: {generated_ids.shape[1] - prompt_length}")
+        print(f"\n{'='*80}")
+        print("RAW MODEL OUTPUT (first 1000 chars):")
+        print(f"{'='*80}")
+        print(generated_text[:1000])
+        print(f"{'='*80}\n")
+        
+        # Save full raw output for debugging
+        if output_path:
+            raw_output_path = str(output_path).replace('.json', '_raw.txt')
+            with open(raw_output_path, 'w') as f:
+                f.write(generated_text)
+            print(f"💾 Full raw output saved to: {raw_output_path}")
 
         # 7. Parse generated operations
         generated_ops = self._parse_operations(generated_text)
