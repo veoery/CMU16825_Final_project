@@ -201,12 +201,14 @@ class CADAutocomplete:
         print(f"{'='*80}\n")
 
         # 3. Tokenize
-        input_ids = self.tokenizer(
+        tokenized = self.tokenizer(
             prompt,
             return_tensors="pt",
             truncation=True,
             max_length=self.max_seq_length,
-        )["input_ids"].to(self.device)
+        )
+        input_ids = tokenized["input_ids"].to(self.device)
+        attention_mask = tokenized["attention_mask"].to(self.device)
 
         # 4. Process multimodal inputs
         pixel_values = self._process_image(image) if image else None
