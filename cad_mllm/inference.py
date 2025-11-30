@@ -210,28 +210,34 @@ class CADAutocomplete:
         attention_mask = torch.cat(attention_masks, dim=1)
         
         # 6. Generate using LLM directly
-        # CRITICAL: Use max_length = input_length + max_new_tokens to avoid truncation
-        max_total_length = inputs_embeds.shape[1] + max_new_tokens
+        # CRITICAL: PEFT models ignore GenerationConfig with inputs_embeds
+        # We must directly modify the model's generation_config temporarily
 
-        # CRITICAL: The model's generation_config.max_length defaults to 20!
-        # We must explicitly override it in the generate call
-        from transformers import GenerationConfig
+        # Save original config
+        original_max_length = self.model.llm.generation_config.max_length
+        original_max_new_tokens = self.model.llm.generation_config.max_new_tokens
 
-        generation_config = GenerationConfig(
-            max_length=max_total_length,
-            temperature=temperature,
-            top_p=top_p,
-            do_sample=do_sample,
-            pad_token_id=self.tokenizer.pad_token_id,
-            eos_token_id=self.tokenizer.eos_token_id,
-        )
+        # Temporarily override with our desired values
+        # Use max_new_tokens instead of max_length for inputs_embeds
+        self.model.llm.generation_config.max_new_tokens = max_new_tokens
+        self.model.llm.generation_config.max_length = None  # Disable max_length when using max_new_tokens
 
-        with torch.no_grad():
-            generated_ids = self.model.llm.generate(
-                inputs_embeds=inputs_embeds,
-                attention_mask=attention_mask,
-                generation_config=generation_config,
-            )
+        try:
+            with torch.no_grad():
+                generated_ids = self.model.llm.generate(
+                    inputs_embeds=inputs_embeds,
+                    attention_mask=attention_mask,
+                    max_new_tokens=max_new_tokens,  # Explicitly pass it too
+                    temperature=temperature,
+                    top_p=top_p,
+                    do_sample=do_sample,
+                    pad_token_id=self.tokenizer.pad_token_id,
+                    eos_token_id=self.tokenizer.eos_token_id,
+                )
+        finally:
+            # Restore original config
+            self.model.llm.generation_config.max_length = original_max_length
+            self.model.llm.generation_config.max_new_tokens = original_max_new_tokens
 
         # 7. Decode generated tokens
         # When using inputs_embeds + max_new_tokens, generated_ids includes:
