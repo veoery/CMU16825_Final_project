@@ -163,9 +163,42 @@ class CADAutocomplete:
 
         partial_ops = partial_data.get("sequence", [])
 
-        # 2. Format input prompt
-        partial_json_str = json.dumps(partial_data, separators=(',', ':'))
-        prompt = f"Complete this CAD sequence: {caption}\n{partial_json_str}"
+        # 2. Format input prompt - CRITICAL: Match training format!
+        # During training, the model sees FULL JSON but labels are masked up to partial boundary
+        # During inference, we give PARTIAL JSON and ask model to generate remaining ops
+        # Key: The JSON must be INCOMPLETE (no closing braces) so model continues the sequence!
+        
+        # Build incomplete JSON that model will complete
+        # Format: {"entities":{...},"sequence":[{op1},{op2},
+        # Model will generate: {op3},{op4},...]}
+        
+        incomplete_json = {
+            "entities": partial_data.get("entities", {}),
+            "sequence": partial_ops
+        }
+        
+        # Convert to string and remove closing braces to make it incomplete
+        json_str = json.dumps(incomplete_json, separators=(',', ':'))
+        
+        # Remove the final "]}}" to make it incomplete
+        # The model will generate more operations and close it properly
+        if json_str.endswith(']}'): 
+            if len(partial_ops) > 0:
+                # If there are operations, remove final ]}} and leave trailing comma
+                # {"entities":{...},"sequence":[{op1},{op2}]}} -> {"entities":{...},"sequence":[{op1},{op2},
+                json_str = json_str[:-2] + ','  # Remove ]}, add comma for continuation
+            else:
+                # If no operations yet, remove final ]} to leave open array
+                # {"entities":{},"sequence":[]}} -> {"entities":{},"sequence":[
+                json_str = json_str[:-2]  # Remove ]}
+        
+        prompt = f"Complete this CAD sequence: {caption}\n{json_str}"
+        
+        print(f"\n{'='*80}")
+        print("PROMPT (last 200 chars):")
+        print(f"{'='*80}")
+        print(prompt[-200:])
+        print(f"{'='*80}\n")
 
         # 3. Tokenize
         input_ids = self.tokenizer(
@@ -179,53 +212,118 @@ class CADAutocomplete:
         pixel_values = self._process_image(image) if image else None
         point_cloud_tensor = self._process_point_cloud(point_cloud) if point_cloud else None
 
-        # 5. TEXT-ONLY GENERATION (PEFT doesn't support inputs_embeds properly)
-        # CRITICAL: During training, model uses input_ids + forward(), not inputs_embeds + generate()
-        # PEFT's generate() completely ignores inputs_embeds and starts from scratch!
-        # We MUST use input_ids for generation to work
-
-        if pixel_values is not None or point_cloud_tensor is not None:
-            print("\n⚠️  WARNING: Image/PC inputs ignored - PEFT doesn't support multimodal generate()")
-            print("   See: https://github.com/huggingface/peft/issues/863")
-
-        # 6. Generate using input_ids (TEXT-ONLY)
+        # 5. MULTIMODAL GENERATION using custom autoregressive loop
+        # We build embeddings manually and use the LLM's forward pass iteratively
         print(f"\n{'='*80}")
-        print("Generation Setup (TEXT-ONLY):")
+        print("Generation Setup (MULTIMODAL):")
         print(f"{'='*80}")
-        print(f"input_ids.shape: {input_ids.shape}")
+        print(f"Text tokens: {input_ids.shape[1]}")
+        print(f"Image: {'✓' if pixel_values is not None else '✗'}")
+        print(f"Point Cloud: {'✓' if point_cloud_tensor is not None else '✗'}")
         print(f"Requested max_new_tokens: {max_new_tokens}")
         print(f"{'='*80}\n")
 
-        with torch.no_grad():
-            generated_ids = self.model.llm.generate(
-                input_ids=input_ids,
-                max_new_tokens=max_new_tokens,
-                temperature=temperature,
-                top_p=top_p,
-                do_sample=do_sample,
-                pad_token_id=self.tokenizer.pad_token_id,
-                eos_token_id=self.tokenizer.eos_token_id,
-            )
-
-        print(f"Generated {generated_ids.shape[1]} total tokens ({generated_ids.shape[1] - input_ids.shape[1]} new)")
-
-        # 7. Decode generated tokens
-        # When using inputs_embeds + max_new_tokens, generated_ids includes:
-        # - Prompt tokens (reconstructed from embeddings by the model)
-        # - New generated tokens
-        # We need to skip the prompt portion
-        prompt_length = input_ids.shape[1]
+        # 6. Prepare initial embeddings (same order as training: image, PC, text)
+        embeddings_list = []
+        attention_list = []
         
-        # Skip the prompt tokens
-        if generated_ids.shape[1] > prompt_length:
-            new_tokens = generated_ids[0, prompt_length:]
-            generated_text = self.tokenizer.decode(new_tokens, skip_special_tokens=True)
+        # Image embeddings
+        if pixel_values is not None and self.model.has_image_encoder:
+            pixel_values = pixel_values.to(self.dtype)
+            image_features = self.model.image_encoder(pixel_values)
+            if self.model.image_projector is not None:
+                image_embeds = self.model.image_projector(image_features)
+                embeddings_list.append(image_embeds)
+                batch_size, seq_len = image_embeds.shape[:2]
+                image_mask = torch.ones(batch_size, seq_len, device=image_embeds.device)
+                attention_list.append(image_mask)
+                print(f"Image embeddings: {image_embeds.shape}")
+        
+        # Point cloud embeddings
+        if point_cloud_tensor is not None and self.model.has_point_encoder:
+            point_cloud_tensor = point_cloud_tensor.to(self.dtype)
+            point_features = self.model.point_encoder(point_cloud_tensor)
+            if self.model.point_projector is not None:
+                point_embeds = self.model.point_projector(point_features)
+                embeddings_list.append(point_embeds)
+                batch_size, seq_len = point_embeds.shape[:2]
+                point_mask = torch.ones(batch_size, seq_len, device=point_embeds.device)
+                attention_list.append(point_mask)
+                print(f"Point cloud embeddings: {point_embeds.shape}")
+        
+        # Text embeddings
+        text_embeds = self.model.text_encoder(input_ids)
+        text_embeds = self.model.text_projector(text_embeds)
+        embeddings_list.append(text_embeds)
+        attention_list.append(attention_mask)
+        print(f"Text embeddings: {text_embeds.shape}")
+        
+        # Concatenate all modalities
+        inputs_embeds = torch.cat(embeddings_list, dim=1)
+        full_attention_mask = torch.cat(attention_list, dim=1)
+        
+        print(f"Combined embeddings: {inputs_embeds.shape}")
+        
+        # 7. Autoregressive generation loop
+        generated_ids = []
+        current_embeds = inputs_embeds
+        current_mask = full_attention_mask
+        
+        with torch.no_grad():
+            for step in range(max_new_tokens):
+                # Forward pass
+                outputs = self.model.llm(
+                    inputs_embeds=current_embeds,
+                    attention_mask=current_mask,
+                    use_cache=False,  # Don't use KV cache with inputs_embeds
+                )
+                
+                # Get next token logits
+                next_token_logits = outputs.logits[:, -1, :]
+                
+                # Apply temperature
+                if temperature > 0:
+                    next_token_logits = next_token_logits / temperature
+                    
+                    # Top-p sampling
+                    if top_p < 1.0:
+                        sorted_logits, sorted_indices = torch.sort(next_token_logits, descending=True)
+                        cumulative_probs = torch.cumsum(torch.softmax(sorted_logits, dim=-1), dim=-1)
+                        sorted_indices_to_remove = cumulative_probs > top_p
+                        sorted_indices_to_remove[..., 1:] = sorted_indices_to_remove[..., :-1].clone()
+                        sorted_indices_to_remove[..., 0] = 0
+                        indices_to_remove = sorted_indices_to_remove.scatter(1, sorted_indices, sorted_indices_to_remove)
+                        next_token_logits[indices_to_remove] = float('-inf')
+                    
+                    # Sample
+                    probs = torch.softmax(next_token_logits, dim=-1)
+                    next_token = torch.multinomial(probs, num_samples=1)
+                else:
+                    # Greedy
+                    next_token = torch.argmax(next_token_logits, dim=-1, keepdim=True)
+                
+                # Check for EOS
+                if next_token.item() == self.tokenizer.eos_token_id:
+                    break
+                
+                generated_ids.append(next_token.item())
+                
+                # Get embedding for next token
+                next_token_embed = self.model.text_encoder(next_token)
+                next_token_embed = self.model.text_projector(next_token_embed)
+                
+                # Append to sequence
+                current_embeds = torch.cat([current_embeds, next_token_embed], dim=1)
+                current_mask = torch.cat([current_mask, torch.ones(1, 1, device=current_mask.device)], dim=1)
+        
+        print(f"Generated {len(generated_ids)} new tokens")
+
+        # 8. Decode generated tokens
+        if generated_ids:
+            generated_text = self.tokenizer.decode(generated_ids, skip_special_tokens=True)
         else:
-            # Model didn't generate anything beyond the prompt
             generated_text = ""
         
-        print(f"Debug - Prompt length: {prompt_length}, Generated length: {generated_ids.shape[1]}")
-        print(f"Debug - New tokens generated: {generated_ids.shape[1] - prompt_length}")
         print(f"\n{'='*80}")
         print("RAW MODEL OUTPUT (first 1000 chars):")
         print(f"{'='*80}")
@@ -239,10 +337,10 @@ class CADAutocomplete:
                 f.write(generated_text)
             print(f"💾 Full raw output saved to: {raw_output_path}")
 
-        # 7. Parse generated operations
+        # 9. Parse generated operations
         generated_ops = self._parse_operations(generated_text)
 
-        # 8. Merge with partial sequence to create complete CAD sequence
+        # 10. Merge with partial sequence to create complete CAD sequence
         full_sequence = partial_ops + generated_ops
 
         return {
@@ -282,16 +380,56 @@ class CADAutocomplete:
         return pc_tensor
 
     def _parse_operations(self, generated_text: str) -> List[Dict]:
-        """Parse generated text into list of CAD operations."""
+        """Parse generated text into list of CAD operations.
+        
+        The model generates continuation of the sequence array, which may include:
+        - Operation objects: {"index":3,"type":"Sketch","entity":"..."}
+        - Closing brackets and braces: ]}}
+        - Other JSON metadata
+        
+        We need to extract ONLY the operation objects.
+        """
         try:
-            # Try parsing as JSON array
+            # Strategy 1: Try to extract sequence array from complete JSON
+            # If model generated: {"index":3,...},{...}]}} 
+            # We want to extract the operation objects
+            
+            # First, try to complete the JSON and parse it
+            # Wrap in array brackets if needed
+            test_json = generated_text.strip()
+            
+            # Remove trailing closing braces that would break array parsing
+            if test_json.endswith(']}'): 
+                # Extract content before the closing sequence array bracket
+                # Find the sequence of operations before ]}}
+                pass
+            
+            # Strategy 2: Use regex to find all operation objects
+            # Match complete JSON objects with index, type, entity fields
+            op_pattern = r'\{[^{}]*"type"\s*:\s*"[^"]*"[^{}]*\}'
+            matches = re.findall(op_pattern, generated_text)
+            
+            operations = []
+            for match in matches:
+                try:
+                    op = json.loads(match)
+                    # Validate it's a CAD operation (has index and type)
+                    if "type" in op:
+                        operations.append(op)
+                except json.JSONDecodeError:
+                    continue
+            
+            if operations:
+                return operations
+            
+            # Strategy 3: Fallback to naive array parsing
             try:
                 return json.loads(f"[{generated_text}]")
             except json.JSONDecodeError:
-                # Extract operation objects using regex
-                op_pattern = r'\{[^}]+\}'
-                matches = re.findall(op_pattern, generated_text)
-                return [json.loads(match) for match in matches]
+                pass
+            
+            return []
+            
         except Exception as e:
             print(f"Warning: Failed to parse operations: {e}")
             print(f"Generated text: {generated_text[:500]}...")
