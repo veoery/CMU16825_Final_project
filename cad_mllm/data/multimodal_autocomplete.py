@@ -161,6 +161,38 @@ class MultimodalAutocompleteDataset(Dataset):
 
         if not samples:
             raise ValueError(f"No truncated JSON files found in {self.truncated_json_root}")
+        
+        # Filter out samples with extremely large partial JSON (>8K tokens)
+        # These samples have huge entity geometry that leaves <1% training signal
+        print(f"Filtering samples by partial JSON size...")
+        filtered_samples = []
+        outlier_count = 0
+        
+        for sample in samples:
+            try:
+                with open(sample["truncated_path"], 'r') as f:
+                    trunc_data = json.load(f)
+                
+                # Estimate tokens: ~4 chars per token
+                json_str = json.dumps(trunc_data, separators=(',', ':'))
+                estimated_tokens = len(json_str) // 4
+                
+                # Keep samples with <8K tokens in partial JSON
+                if estimated_tokens < 8000:
+                    filtered_samples.append(sample)
+                else:
+                    outlier_count += 1
+                    
+            except Exception as e:
+                # Skip if can't read
+                outlier_count += 1
+                continue
+        
+        if outlier_count > 0:
+            print(f"⚠️  Filtered {outlier_count} samples with partial JSON >8K tokens ({outlier_count/len(samples)*100:.1f}%)")
+            print(f"   Kept {len(filtered_samples)}/{len(samples)} samples for training")
+        
+        samples = filtered_samples
 
         return samples
 
