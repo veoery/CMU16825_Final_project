@@ -5,7 +5,8 @@
       "Bash(git fetch:*)",
       "Bash(git ls-tree:*)",
       "Bash(git add:*)",
-      "Bash(git push)"
+      "Bash(git push)",
+      "Bash(python test_text_only.py:*)"
     ],
     "deny": [],
     "ask": []

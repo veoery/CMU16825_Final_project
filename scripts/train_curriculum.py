@@ -368,9 +368,11 @@ def train_curriculum_stage(
     )
 
     # Update dataset modality sampling probabilities
-    if hasattr(train_dataset, 'modality_sample_probs'):
-        train_dataset.modality_sample_probs = stage.modality_sample_probs
-        train_dataset.available_modalities = stage.modalities
+    # FIX: Dataset uses 'modality_probs', not 'modality_sample_probs'
+    if hasattr(train_dataset, 'modality_probs'):
+        train_dataset.modality_probs = stage.modality_sample_probs
+        if hasattr(train_dataset, 'available_modalities'):
+            train_dataset.available_modalities = stage.modalities
         print(f"Updated dataset sampling: {stage.modality_sample_probs}")
 
     # Create dataloader for this stage
@@ -715,8 +717,10 @@ def main():
         else:
             # Auto-generate run name if not provided
             if args.wandb_run_name is None:
+                from datetime import datetime
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                 model_name = args.llm_model_name.split("/")[-1] if "/" in args.llm_model_name else args.llm_model_name
-                run_name = f"{model_name}-curriculum-{args.stage1_epochs}+{args.stage2_epochs}+{args.stage3_epochs}ep"
+                run_name = f"{model_name}-curriculum-{args.stage1_epochs}+{args.stage2_epochs}+{args.stage3_epochs}ep-{timestamp}"
             else:
                 run_name = args.wandb_run_name
 
