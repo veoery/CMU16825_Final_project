@@ -363,33 +363,38 @@ class MultimodalAutocompleteCollator:
                 if "sequence" in partial_json:
                     partial_json["sequence"] = partial_json["sequence"][:kept_operations]
 
-                # Find where "new" content starts by tokenizing partial
-                # Prompt: "Complete this CAD sequence: {caption}\n"
+                # Build partial text
                 prompt = f"Complete this CAD sequence: {sample['input_text']}\n"
                 partial_json_str = json.dumps(partial_json, separators=(',', ':'))
                 partial_text = prompt + partial_json_str
 
-                # Tokenize to find cutoff - MUST truncate to avoid massive sequences
+                # FIXED: Tokenize WITHOUT truncation to get true length
                 partial_tokens = self.tokenizer(
                     partial_text,
                     add_special_tokens=False,
-                    max_length=self.max_seq_length,
-                    truncation=True
+                    truncation=False  # Don't truncate!
                 )["input_ids"]
-                mask_until = min(len(partial_tokens), self.max_seq_length)
+                
+                # Get actual sequence length (may be truncated)
+                actual_seq_len = (encodings["attention_mask"][i] == 1).sum().item()
+                
+                # Mask up to min(partial_length, actual_length)
+                # This handles both truncated and non-truncated cases
+                mask_until = min(len(partial_tokens), actual_seq_len)
 
                 # Mask all tokens up to this point (prompt + seen operations)
                 labels[i, :mask_until] = -100
-            except (json.JSONDecodeError, KeyError):
+                
+            except (json.JSONDecodeError, KeyError) as e:
                 # Fallback: mask just the prompt if JSON parsing fails
                 prompt = f"Complete this CAD sequence: {sample['input_text']}\n"
                 prompt_tokens = self.tokenizer(
                     prompt,
                     add_special_tokens=False,
-                    max_length=self.max_seq_length,
-                    truncation=True
+                    truncation=False
                 )["input_ids"]
-                mask_until = min(len(prompt_tokens), self.max_seq_length)
+                actual_seq_len = (encodings["attention_mask"][i] == 1).sum().item()
+                mask_until = min(len(prompt_tokens), actual_seq_len)
                 labels[i, :mask_until] = -100
 
         # Mask padding tokens
