@@ -436,28 +436,31 @@ class MultimodalAutocompleteCollator:
                 point_cloud_list.append(None)
                 has_pc.append(False)
 
-        # CRITICAL: Pre-pad labels to account for image/PC tokens (matching working version)
+        # CRITICAL: Only pad labels if we actually have multimodal data AND image processor
+        # In Stage 1 (text-only), image_processor is None, so skip padding
         # Order must match forward pass: [image] [point_cloud] [text]
         batch_size = len(batch)
         text_seq_len = labels.shape[1]
 
-        # Calculate total sequence length including multimodal tokens
-        img_tokens = self.num_image_tokens if any(has_image) else 0
-        pc_tokens = self.num_pc_tokens if any(has_pc) else 0
-        max_total_len = img_tokens + pc_tokens + text_seq_len
+        # Only add multimodal padding if image_processor exists (Stage 2/3)
+        if self.image_processor is not None:
+            # Calculate total sequence length including multimodal tokens
+            img_tokens = self.num_image_tokens if any(has_image) else 0
+            pc_tokens = self.num_pc_tokens if any(has_pc) else 0
+            max_total_len = img_tokens + pc_tokens + text_seq_len
 
-        # Pad labels with -100 for multimodal features (image/PC positions)
-        if max_total_len > text_seq_len:
-            # Create padded labels tensor, all initialized to -100
-            padded_labels = torch.full(
-                (batch_size, max_total_len),
-                fill_value=-100,
-                dtype=labels.dtype
-            )
-            # Copy text labels to the END (after image and PC tokens)
-            text_start_idx = img_tokens + pc_tokens
-            padded_labels[:, text_start_idx:text_start_idx + text_seq_len] = labels
-            labels = padded_labels
+            # Pad labels with -100 for multimodal features (image/PC positions)
+            if max_total_len > text_seq_len:
+                # Create padded labels tensor, all initialized to -100
+                padded_labels = torch.full(
+                    (batch_size, max_total_len),
+                    fill_value=-100,
+                    dtype=labels.dtype
+                )
+                # Copy text labels to the END (after image and PC tokens)
+                text_start_idx = img_tokens + pc_tokens
+                padded_labels[:, text_start_idx:text_start_idx + text_seq_len] = labels
+                labels = padded_labels
 
         result["labels"] = labels
 
