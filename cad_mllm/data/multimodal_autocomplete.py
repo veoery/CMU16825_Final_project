@@ -381,22 +381,49 @@ class MultimodalAutocompleteCollator:
         )
 
         # CRITICAL: Structure-aware masking based on operation indices
-        # Mask tokens corresponding to "seen" operations (in truncated version)
+        # Use the smart truncated JSON which has filtered entities
         labels = encodings["input_ids"].clone()
         for i, (text, sample) in enumerate(zip(formatted_texts, batch)):
             kept_operations = sample['kept_operations']
 
-            # Parse full JSON to identify mask boundary
+            # Use the pre-computed smart truncated JSON (with filtered entities)
+            # instead of rebuilding from full JSON
             try:
-                full_json = json.loads(sample['full_seq'])
-
-                # Create partial JSON (only operations 0 to kept_operations-1)
-                partial_json = full_json.copy()
-                if "sequence" in partial_json:
-                    partial_json["sequence"] = partial_json["sequence"][:kept_operations]
-
-                # Build partial text
+                # Build partial text using the already-truncated data
+                # This includes smart entity filtering from your truncation script
                 prompt = f"Complete this CAD sequence: {sample['input_text']}\n"
+                
+                # Parse the truncated JSON (already has filtered entities)
+                # Note: sample['full_seq'] is actually the FULL json, need to load truncated
+                # The truncated version is what we want for masking boundary
+                
+                # Since we're already formatting with full_seq in line 338,
+                # we need to find where the truncated content ends
+                # For now, use the kept_operations to build partial from full
+                full_json = json.loads(sample['full_seq'])
+                
+                # FIXED: Build smart partial with only used entities
+                partial_json = {"sequence": full_json["sequence"][:kept_operations]}
+                
+                # Only include entities used in kept operations
+                if kept_operations > 0:
+                    used_entities = set()
+                    for op in full_json["sequence"][:kept_operations]:
+                        if "entity" in op:
+                            used_entities.add(op["entity"])
+                    
+                    partial_json["entities"] = {
+                        k: v for k, v in full_json.get("entities", {}).items()
+                        if k in used_entities
+                    }
+                else:
+                    partial_json["entities"] = {}
+                
+                # Copy other metadata
+                for key in full_json:
+                    if key not in ["sequence", "entities"]:
+                        partial_json[key] = full_json[key]
+                
                 partial_json_str = json.dumps(partial_json, separators=(',', ':'))
                 partial_text = prompt + partial_json_str
 
@@ -411,7 +438,6 @@ class MultimodalAutocompleteCollator:
                 actual_seq_len = (encodings["attention_mask"][i] == 1).sum().item()
                 
                 # Mask up to min(partial_length, actual_length)
-                # This handles both truncated and non-truncated cases
                 mask_until = min(len(partial_tokens), actual_seq_len)
 
                 # Mask all tokens up to this point (prompt + seen operations)
