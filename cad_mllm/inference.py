@@ -179,57 +179,26 @@ class CADAutocomplete:
         pixel_values = self._process_image(image) if image else None
         point_cloud_tensor = self._process_point_cloud(point_cloud) if point_cloud else None
 
-        # 5. Prepare embeddings for generation
-        embeddings_list = []
-        attention_masks = []
-        
-        # Add text embeddings (with projector!)
-        text_embeds = self.model.text_encoder(input_ids)
-        text_embeds = self.model.text_projector(text_embeds)  # CRITICAL: Was missing!
-        embeddings_list.append(text_embeds)
-        attention_masks.append(torch.ones(text_embeds.shape[:2], device=self.device))
-        
-        # Add image embeddings if available
-        if pixel_values is not None and self.model.image_encoder is not None:
-            pixel_values = pixel_values.to(self.dtype)
-            image_features = self.model.image_encoder(pixel_values)
-            image_embeds = self.model.image_projector(image_features)
-            embeddings_list.append(image_embeds)  # Append after text (not prepend!)
-            attention_masks.append(torch.ones(image_embeds.shape[:2], device=self.device))
-        
-        # Add point cloud embeddings if available
-        if point_cloud_tensor is not None and self.model.point_encoder is not None:
-            point_cloud_tensor = point_cloud_tensor.to(self.dtype)
-            point_features = self.model.point_encoder(point_cloud_tensor)
-            point_embeds = self.model.point_projector(point_features)
-            embeddings_list.append(point_embeds)  # Append after text (not prepend!)
-            attention_masks.append(torch.ones(point_embeds.shape[:2], device=self.device))
-        
-        # Concatenate all embeddings
-        inputs_embeds = torch.cat(embeddings_list, dim=1)
-        attention_mask = torch.cat(attention_masks, dim=1)
-        
-        # 6. Generate using LLM directly
-        # DEBUG: Print what we're actually working with
-        print(f"\n{'='*80}")
-        print("DEBUG - Generation Setup:")
-        print(f"{'='*80}")
-        print(f"inputs_embeds.shape: {inputs_embeds.shape}")
-        print(f"attention_mask.shape: {attention_mask.shape}")
-        print(f"Requested max_new_tokens: {max_new_tokens}")
-        print(f"Model's current generation_config.max_length: {self.model.llm.generation_config.max_length}")
-        print(f"Model's current generation_config.max_new_tokens: {self.model.llm.generation_config.max_new_tokens}")
+        # 5. TEXT-ONLY GENERATION (PEFT doesn't support inputs_embeds properly)
+        # CRITICAL: During training, model uses input_ids + forward(), not inputs_embeds + generate()
+        # PEFT's generate() completely ignores inputs_embeds and starts from scratch!
+        # We MUST use input_ids for generation to work
 
-        # When using inputs_embeds, the input length is the embedding sequence length
-        input_embed_length = inputs_embeds.shape[1]
-        print(f"Input embedding sequence length: {input_embed_length}")
-        print(f"Expected output length: {input_embed_length} (input) + {max_new_tokens} (new) = {input_embed_length + max_new_tokens}")
+        if pixel_values is not None or point_cloud_tensor is not None:
+            print("\n⚠️  WARNING: Image/PC inputs ignored - PEFT doesn't support multimodal generate()")
+            print("   See: https://github.com/huggingface/peft/issues/863")
+
+        # 6. Generate using input_ids (TEXT-ONLY)
+        print(f"\n{'='*80}")
+        print("Generation Setup (TEXT-ONLY):")
+        print(f"{'='*80}")
+        print(f"input_ids.shape: {input_ids.shape}")
+        print(f"Requested max_new_tokens: {max_new_tokens}")
         print(f"{'='*80}\n")
 
         with torch.no_grad():
             generated_ids = self.model.llm.generate(
-                inputs_embeds=inputs_embeds,
-                attention_mask=attention_mask,
+                input_ids=input_ids,
                 max_new_tokens=max_new_tokens,
                 temperature=temperature,
                 top_p=top_p,
@@ -238,9 +207,7 @@ class CADAutocomplete:
                 eos_token_id=self.tokenizer.eos_token_id,
             )
 
-        print(f"ACTUAL generated_ids.shape: {generated_ids.shape}")
-        print(f"ACTUAL output length: {generated_ids.shape[1]}")
-        print(f"Difference from expected: {generated_ids.shape[1] - (input_embed_length + max_new_tokens)}")
+        print(f"Generated {generated_ids.shape[1]} total tokens ({generated_ids.shape[1] - input_ids.shape[1]} new)")
 
         # 7. Decode generated tokens
         # When using inputs_embeds + max_new_tokens, generated_ids includes:
