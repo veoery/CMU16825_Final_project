@@ -4,3 +4,5 @@ wandb/
 checkpoints/
 outputs_curriculum/
 CAD-MLLM-checkpoints/
+*.pyc
+__pycache__/

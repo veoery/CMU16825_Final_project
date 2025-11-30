@@ -43,6 +43,8 @@ def parse_args():
     parser.add_argument("--use_lora", action="store_true", default=True, help="Use LoRA")
     parser.add_argument("--lora_r", type=int, default=32, help="LoRA rank")
     parser.add_argument("--lora_alpha", type=int, default=64, help="LoRA alpha")
+    parser.add_argument("--attn_implementation", type=str, default=None, choices=[None, "flash_attention_2", "sdpa", "eager"],
+                       help="Attention implementation (flash_attention_2 for Flash Attention 2, sdpa for PyTorch SDPA, eager for standard, None for default)")
 
     # Training arguments
     parser.add_argument("--output_dir", type=str, default="./outputs_curriculum", help="Output directory")
@@ -56,6 +58,7 @@ def parse_args():
     parser.add_argument("--save_steps", type=int, default=500, help="Save checkpoint frequency")
     parser.add_argument("--seed", type=int, default=42, help="Random seed")
     parser.add_argument("--projector_lr_multiplier", type=float, default=5.0, help="LR multiplier for projectors")
+    parser.add_argument("--use_gradient_checkpointing", action="store_true", help="Enable gradient checkpointing for memory efficiency")
 
     # Curriculum arguments
     parser.add_argument("--enable_curriculum", action="store_true", default=True, help="Enable curriculum training")
@@ -402,6 +405,7 @@ def main():
         max_seq_length=args.max_seq_length,
         device=args.device,
         dtype=args.dtype,
+        attn_implementation=args.attn_implementation,
     )
 
     # Create curriculum stages
@@ -460,7 +464,7 @@ def main():
     # Initialize model
     print("\nInitializing CAD-MLLM model...")
     model = CADMLLMModel(model_config)
-    
+
     # Load checkpoint if provided
     if args.resume_from_ckpt:
         checkpoint_path = Path(args.resume_from_ckpt)
@@ -475,8 +479,35 @@ def main():
             print(f"Successfully loaded checkpoint from {checkpoint_path}")
             print(f"Will start training from Stage {args.start_from_stage}")
         print(f"{'='*80}\n")
-        
-    print("Base model:")
+
+    # Apply training configurations (after checkpoint load to ensure they override checkpoint settings)
+
+    # Verify attention implementation
+    if hasattr(model.llm.config, '_attn_implementation'):
+        actual_attn = model.llm.config._attn_implementation
+        print(f"Current attention implementation: {actual_attn}")
+        if args.attn_implementation and actual_attn != args.attn_implementation:
+            print(f"  ⚠ Warning: Requested {args.attn_implementation} but model is using {actual_attn}")
+    elif hasattr(model.llm.config, 'attn_implementation'):
+        actual_attn = model.llm.config.attn_implementation
+        print(f"Current attention implementation: {actual_attn}")
+
+    # Enable gradient checkpointing if requested
+    if args.use_gradient_checkpointing:
+        print("Enabling gradient checkpointing for memory efficiency...")
+        try:
+            # For PEFT/LoRA models, enable on the base model
+            if hasattr(model.llm, 'enable_input_require_grads'):
+                model.llm.enable_input_require_grads()
+            if hasattr(model.llm, 'gradient_checkpointing_enable'):
+                model.llm.gradient_checkpointing_enable()
+                print("  ✓ Gradient checkpointing enabled on LLM")
+            else:
+                print("  ⚠ Warning: Model does not support gradient_checkpointing_enable")
+        except Exception as e:
+            print(f"  ⚠ Warning: Could not enable gradient checkpointing: {e}")
+
+    print("\nBase model:")
     print_model_info(model)
     verify_lora_training(model)
 
@@ -520,7 +551,7 @@ def main():
         else:
             # Auto-generate run name if not provided
             model_name = args.llm_model_name.split("/")[-1] if "/" in args.llm_model_name else args.llm_model_name
-            run_name = f"{model_name}-curriculum-{args.stage1_epochs}+{args.stage2_epochs}+{args.stage3_epochs}ep"
+            run_name = f"{model_name}-curriculum-{args.stage1_epochs}+{args.stage2_epochs}+{args.stage3_epochs}ep-{args.max_seq_length}"
             run_name = args.wandb_run_name + run_name
 
             wandb.init(

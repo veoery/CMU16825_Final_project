@@ -71,6 +71,9 @@ uv pip install -e .
 
 # Install Michelangelo
 uv add --editable ./Michelangelo --no-build-isolation
+
+# Install flash_attn (if flash_attn is needed)
+uv pip install flash-attn --no-build-isolation
 ```
 
 Put the Michelangelo config file here:

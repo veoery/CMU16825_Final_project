@@ -78,6 +78,9 @@ class CADMLLMConfig:
     device: str = "cuda"
     dtype: str = "bfloat16"  # "float32", "float16", or "bfloat16"
 
+    # Attention implementation
+    attn_implementation: Optional[str] = None  # None (default), "flash_attention_2", "sdpa", or "eager"
+
 
 @dataclass
 class TrainingConfig:

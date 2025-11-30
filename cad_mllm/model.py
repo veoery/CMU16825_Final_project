@@ -70,11 +70,21 @@ class CADMLLMModel(nn.Module):
         # }
         # torch_dtype = dtype_mapping.get(self.config.dtype, torch.bfloat16)
 
+        # Prepare model loading kwargs
+        model_kwargs = {
+            "torch_dtype": self.torch_dtype,
+            "trust_remote_code": True,
+            "device_map": self.config.device if self.config.device != "cpu" else None,
+        }
+
+        # Add attention implementation if specified
+        if self.config.attn_implementation is not None:
+            model_kwargs["attn_implementation"] = self.config.attn_implementation
+            print(f"Using attention implementation: {self.config.attn_implementation}")
+
         self.llm = AutoModelForCausalLM.from_pretrained(
             self.config.llm_model_name,
-            torch_dtype=self.torch_dtype,
-            trust_remote_code=True,
-            device_map=self.config.device if self.config.device != "cpu" else None,
+            **model_kwargs,
         )
 
         # Update config with actual vocab size and pad token
