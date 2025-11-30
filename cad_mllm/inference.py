@@ -214,10 +214,13 @@ class CADAutocomplete:
         pixel_values = self._process_image(image) if image else None
         point_cloud_tensor = self._process_point_cloud(point_cloud) if point_cloud else None
 
-        # 5. MULTIMODAL GENERATION using custom autoregressive loop
-        # We build embeddings manually and use the LLM's forward pass iteratively
+        # 5. FAST MULTIMODAL GENERATION using KV cache prefill
+        # Strategy: Prefill KV cache with multimodal context, then use fast text generation
+        
+        use_multimodal = pixel_values is not None or point_cloud_tensor is not None
+        
         print(f"\n{'='*80}")
-        print("Generation Setup (MULTIMODAL):")
+        print(f"Generation Mode: {'MULTIMODAL + KV CACHE' if use_multimodal else 'TEXT-ONLY'}")
         print(f"{'='*80}")
         print(f"Text tokens: {input_ids.shape[1]}")
         print(f"Image: {'✓' if pixel_values is not None else '✗'}")
@@ -225,106 +228,122 @@ class CADAutocomplete:
         print(f"Requested max_new_tokens: {max_new_tokens}")
         print(f"{'='*80}\n")
 
-        # 6. Prepare initial embeddings (same order as training: image, PC, text)
-        embeddings_list = []
-        attention_list = []
-        
-        # Image embeddings
-        if pixel_values is not None and self.model.has_image_encoder:
-            pixel_values = pixel_values.to(self.dtype)
-            image_features = self.model.image_encoder(pixel_values)
-            if self.model.image_projector is not None:
-                image_embeds = self.model.image_projector(image_features)
-                embeddings_list.append(image_embeds)
-                batch_size, seq_len = image_embeds.shape[:2]
-                image_mask = torch.ones(batch_size, seq_len, device=image_embeds.device)
-                attention_list.append(image_mask)
-                print(f"Image embeddings: {image_embeds.shape}")
-        
-        # Point cloud embeddings
-        if point_cloud_tensor is not None and self.model.has_point_encoder:
-            point_cloud_tensor = point_cloud_tensor.to(self.dtype)
-            point_features = self.model.point_encoder(point_cloud_tensor)
-            if self.model.point_projector is not None:
-                point_embeds = self.model.point_projector(point_features)
-                embeddings_list.append(point_embeds)
-                batch_size, seq_len = point_embeds.shape[:2]
-                point_mask = torch.ones(batch_size, seq_len, device=point_embeds.device)
-                attention_list.append(point_mask)
-                print(f"Point cloud embeddings: {point_embeds.shape}")
-        
-        # Text embeddings
-        text_embeds = self.model.text_encoder(input_ids)
-        text_embeds = self.model.text_projector(text_embeds)
-        embeddings_list.append(text_embeds)
-        attention_list.append(attention_mask)
-        print(f"Text embeddings: {text_embeds.shape}")
-        
-        # Concatenate all modalities
-        inputs_embeds = torch.cat(embeddings_list, dim=1)
-        full_attention_mask = torch.cat(attention_list, dim=1)
-        
-        print(f"Combined embeddings: {inputs_embeds.shape}")
-        
-        # 7. Autoregressive generation loop
-        generated_ids = []
-        current_embeds = inputs_embeds
-        current_mask = full_attention_mask
-        
-        with torch.no_grad():
-            for step in range(max_new_tokens):
-                # Forward pass
+        if use_multimodal:
+            # 6. MULTIMODAL: Prefill KV cache with image + PC context
+            print("Step 1: Encoding multimodal inputs...")
+            embeddings_list = []
+            attention_list = []
+            
+            # Image embeddings
+            if pixel_values is not None and self.model.has_image_encoder:
+                pixel_values = pixel_values.to(self.dtype)
+                image_features = self.model.image_encoder(pixel_values)
+                if self.model.image_projector is not None:
+                    image_embeds = self.model.image_projector(image_features)
+                    embeddings_list.append(image_embeds)
+                    batch_size, seq_len = image_embeds.shape[:2]
+                    image_mask = torch.ones(batch_size, seq_len, device=image_embeds.device)
+                    attention_list.append(image_mask)
+                    print(f"  Image embeddings: {image_embeds.shape}")
+            
+            # Point cloud embeddings
+            if point_cloud_tensor is not None and self.model.has_point_encoder:
+                point_cloud_tensor = point_cloud_tensor.to(self.dtype)
+                point_features = self.model.point_encoder(point_cloud_tensor)
+                if self.model.point_projector is not None:
+                    point_embeds = self.model.point_projector(point_features)
+                    embeddings_list.append(point_embeds)
+                    batch_size, seq_len = point_embeds.shape[:2]
+                    point_mask = torch.ones(batch_size, seq_len, device=point_embeds.device)
+                    attention_list.append(point_mask)
+                    print(f"  Point cloud embeddings: {point_embeds.shape}")
+            
+            # Text embeddings
+            text_embeds = self.model.text_encoder(input_ids)
+            text_embeds = self.model.text_projector(text_embeds)
+            embeddings_list.append(text_embeds)
+            attention_list.append(attention_mask)
+            print(f"  Text embeddings: {text_embeds.shape}")
+            
+            # Concatenate all modalities
+            inputs_embeds = torch.cat(embeddings_list, dim=1)
+            full_attention_mask = torch.cat(attention_list, dim=1)
+            
+            print(f"  Combined embeddings: {inputs_embeds.shape}")
+            
+            # Step 2: Prefill KV cache with multimodal context
+            print("\nStep 2: Prefilling KV cache with multimodal context...")
+            with torch.no_grad():
+                # Get KV cache from initial forward pass
                 outputs = self.model.llm(
-                    inputs_embeds=current_embeds,
-                    attention_mask=current_mask,
-                    use_cache=False,  # Don't use KV cache with inputs_embeds
+                    inputs_embeds=inputs_embeds,
+                    attention_mask=full_attention_mask,
+                    use_cache=True,
+                    return_dict=True,
                 )
-                
-                # Get next token logits
-                next_token_logits = outputs.logits[:, -1, :]
-                
-                # Apply temperature
-                if temperature > 0:
-                    next_token_logits = next_token_logits / temperature
-                    
-                    # Top-p sampling
-                    if top_p < 1.0:
-                        sorted_logits, sorted_indices = torch.sort(next_token_logits, descending=True)
-                        cumulative_probs = torch.cumsum(torch.softmax(sorted_logits, dim=-1), dim=-1)
-                        sorted_indices_to_remove = cumulative_probs > top_p
-                        sorted_indices_to_remove[..., 1:] = sorted_indices_to_remove[..., :-1].clone()
-                        sorted_indices_to_remove[..., 0] = 0
-                        indices_to_remove = sorted_indices_to_remove.scatter(1, sorted_indices, sorted_indices_to_remove)
-                        next_token_logits[indices_to_remove] = float('-inf')
-                    
-                    # Sample
-                    probs = torch.softmax(next_token_logits, dim=-1)
-                    next_token = torch.multinomial(probs, num_samples=1)
-                else:
-                    # Greedy
-                    next_token = torch.argmax(next_token_logits, dim=-1, keepdim=True)
-                
-                # Check for EOS
-                if next_token.item() == self.tokenizer.eos_token_id:
-                    break
-                
-                generated_ids.append(next_token.item())
-                
-                # Get embedding for next token
-                next_token_embed = self.model.text_encoder(next_token)
-                next_token_embed = self.model.text_projector(next_token_embed)
-                
-                # Append to sequence
-                current_embeds = torch.cat([current_embeds, next_token_embed], dim=1)
-                current_mask = torch.cat([current_mask, torch.ones(1, 1, device=current_mask.device)], dim=1)
-        
-        print(f"Generated {len(generated_ids)} new tokens")
-
-        # 8. Decode generated tokens
-        if generated_ids:
-            generated_text = self.tokenizer.decode(generated_ids, skip_special_tokens=True)
+                past_key_values = outputs.past_key_values
+            
+            print(f"  KV cache prefilled: {len(past_key_values)} layers")
+            
+            # Step 3: Continue generation with KV cache (FAST!)
+            print("\nStep 3: Generating with KV cache (fast)...")
+            
+            # Get the last token's logits to start generation
+            next_token_logits = outputs.logits[:, -1:, :]
+            
+            # Simple greedy/sampling for first token
+            if temperature > 0:
+                next_token_logits = next_token_logits / temperature
+                probs = torch.softmax(next_token_logits, dim=-1)
+                next_token_ids = torch.multinomial(probs.squeeze(1), num_samples=1)
+            else:
+                next_token_ids = torch.argmax(next_token_logits, dim=-1)
+            
+            # Now use generate() with the past KV cache
+            # Note: We pass the last generated token and the cached context
+            generated_ids = self.model.llm.generate(
+                input_ids=next_token_ids,
+                attention_mask=torch.cat([
+                    full_attention_mask,
+                    torch.ones(1, 1, device=full_attention_mask.device)
+                ], dim=1),
+                past_key_values=past_key_values,
+                max_new_tokens=max_new_tokens - 1,  # -1 because we already generated one
+                temperature=temperature,
+                top_p=top_p,
+                do_sample=do_sample,
+                pad_token_id=self.tokenizer.pad_token_id,
+                eos_token_id=self.tokenizer.eos_token_id,
+                use_cache=True,
+            )
+            
+            # Combine first token + rest
+            all_generated_ids = torch.cat([next_token_ids, generated_ids], dim=1)
+            generated_text = self.tokenizer.decode(all_generated_ids[0], skip_special_tokens=True)
+            print(f"  Generated {all_generated_ids.shape[1]} tokens with KV cache!")
+            
         else:
-            generated_text = ""
+            # 6. TEXT-ONLY GENERATION (simple and fast)
+            print("Using fast text-only generation with KV cache...\n")
+            with torch.no_grad():
+                generated_ids = self.model.llm.generate(
+                    input_ids=input_ids,
+                    attention_mask=attention_mask,
+                    max_new_tokens=max_new_tokens,
+                    temperature=temperature,
+                    top_p=top_p,
+                    do_sample=do_sample,
+                    pad_token_id=self.tokenizer.pad_token_id,
+                    eos_token_id=self.tokenizer.eos_token_id,
+                    use_cache=True,
+                )
+            
+            # Decode only new tokens
+            new_token_ids = generated_ids[0, input_ids.shape[1]:]
+            generated_text = self.tokenizer.decode(new_token_ids, skip_special_tokens=True)
+            print(f"Generated {len(new_token_ids)} new tokens")
+        
+        # 8. Display generated text
         
         print(f"\n{'='*80}")
         print("RAW MODEL OUTPUT (first 1000 chars):")
