@@ -212,17 +212,25 @@ class CADAutocomplete:
         # 6. Generate using LLM directly
         # CRITICAL: Use max_length = input_length + max_new_tokens to avoid truncation
         max_total_length = inputs_embeds.shape[1] + max_new_tokens
-        
+
+        # CRITICAL: The model's generation_config.max_length defaults to 20!
+        # We must explicitly override it in the generate call
+        from transformers import GenerationConfig
+
+        generation_config = GenerationConfig(
+            max_length=max_total_length,
+            temperature=temperature,
+            top_p=top_p,
+            do_sample=do_sample,
+            pad_token_id=self.tokenizer.pad_token_id,
+            eos_token_id=self.tokenizer.eos_token_id,
+        )
+
         with torch.no_grad():
             generated_ids = self.model.llm.generate(
                 inputs_embeds=inputs_embeds,
                 attention_mask=attention_mask,
-                max_length=max_total_length,  # Use max_length, not max_new_tokens
-                temperature=temperature,
-                top_p=top_p,
-                do_sample=do_sample,
-                pad_token_id=self.tokenizer.pad_token_id,
-                eos_token_id=self.tokenizer.eos_token_id,
+                generation_config=generation_config,
             )
 
         # 7. Decode generated tokens
