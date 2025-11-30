@@ -9,6 +9,7 @@ from typing import Dict, List, Optional, Union
 
 import torch
 from torch.utils.data import Dataset
+from PIL import Image
 
 
 class CADDataset(Dataset):
@@ -446,29 +447,35 @@ class MultimodalCADDataset(Dataset):
 
         return cad_data
 
-    def _load_image(self, cad_id: str) -> Optional[np.ndarray]:
+    def _load_image(self, cad_id: str) -> Optional[Image.Image]:
         """Load image for the given CAD ID.
 
         Args:
             cad_id: CAD ID in format "0000/00000071_00005"
 
         Returns:
-            Image as numpy array (C, H, W) or None if not found
+            Image as PIL Image or None if not found
+            Note: Preprocessing (resize/normalize) will be done by image encoder
         """
-        if self.image_root is None or not self.image_root.exists():
+        if self.image_root is None:
             return None
 
         # Try common image extensions
         # cad_id format: "0000/00000071_00005"
-        # image path: img_root/0000/00000071_00005.jpg
-        for ext in ['.jpg', '.jpeg', '.png']:
-            img_path = self.image_root / f"{cad_id}{ext}"
-            if img_path.exists():
-                # For now, return a dummy array - in real implementation, use PIL
-                # from PIL import Image
-                # img = Image.open(img_path)
-                # return np.array(img)
-                return np.random.randn(3, 224, 224).astype(np.float32)
+        # image path: img_root/0000/00000071_00005_000.png
+        img_path = self.image_root / f"{cad_id}_000.png"
+        try:
+            img = Image.open(img_path).convert('RGB')
+            return img
+        except FileNotFoundError:
+            print(f"{img_path} not found. Skipping...")
+            return None
+        except (OSError, IOError) as e:
+            print(f"Warning: I/O error loading {img_path}: {e}. Skipping...")
+            return None
+        except Exception as e:
+            print(f"Warning: Error loading {img_path}: {e}. Skipping...")
+            return None
 
         return None
 
@@ -482,6 +489,7 @@ class MultimodalCADDataset(Dataset):
             Point cloud as numpy array (N, 3) or None if not found
         """
         if self.pc_root is None or not self.pc_root.exists():
+            print(f"{self.pc_root} does not exist.")
             return None
 
         # cad_id format: "0000/00000071_00005"
@@ -489,6 +497,7 @@ class MultimodalCADDataset(Dataset):
         pc_path = self.pc_root / f"{cad_id}.npz"
 
         if not pc_path.exists():
+            print(f"{pc_path} does not exist.")
             return None
 
         # Load point cloud from npz file
@@ -532,6 +541,7 @@ class MultimodalCADDataset(Dataset):
 
         # Sample modality combination
         active_modalities = self._sample_modality_combination()
+        # print(active_modalities)
 
         # Prepare output
         output = {
@@ -543,9 +553,11 @@ class MultimodalCADDataset(Dataset):
 
         # Load additional modalities if requested
         if "image" in active_modalities and self.image_root:
+            # print('"image" in active_modalities')
             pixel_values = self._load_image(cad_id)
             if pixel_values is not None:
                 output["pixel_values"] = pixel_values
+                # print(f"pixel_values: {pixel_values.shape}")
 
         if "point_cloud" in active_modalities and self.pc_root:
             point_cloud = self._load_point_cloud(cad_id)
@@ -559,6 +571,15 @@ class MultimodalCADCollator:
     """Collator for batching multimodal CAD dataset samples.
 
     Handles variable modality combinations in the same batch.
+
+    Args:
+        tokenizer: Tokenizer for text processing
+        max_seq_length: Maximum sequence length for tokenization
+        padding: Padding strategy
+        num_image_tokens: Number of tokens image features will produce (after projection)
+            Default 256 for DINOv2 (16x16 patches without CLS token)
+        num_pc_tokens: Number of tokens point cloud features will produce (after projection)
+            Default 257 for Michelangelo (1 global token + 256 latent tokens)
     """
 
     def __init__(
@@ -566,10 +587,16 @@ class MultimodalCADCollator:
         tokenizer,
         max_seq_length: int = 512,
         padding: str = "max_length",
+        num_image_tokens: int = 256,  # DINOv2 with 224x224: 16x16 patches (CLS removed)
+        num_pc_tokens: int = 257,  # Michelangelo: 1 global token + 256 latent tokens
+        image_processor=None,  # DINOv2 image processor for proper preprocessing
     ):
         self.tokenizer = tokenizer
         self.max_seq_length = max_seq_length
         self.padding = padding
+        self.num_image_tokens = num_image_tokens
+        self.num_pc_tokens = num_pc_tokens
+        self.image_processor = image_processor
 
     def __call__(self, batch: List[Dict]) -> Dict[str, torch.Tensor]:
         """Collate batch of samples with variable modalities."""
@@ -577,13 +604,16 @@ class MultimodalCADCollator:
         input_texts = [sample["input_text"] for sample in batch]
         target_texts = [sample["target_text"] for sample in batch]
 
-        # Create instruction format
+        # Create instruction format and tokenize prompts separately to mask them
         formatted_texts = []
+        prompt_texts = []
         for input_text, target_text in zip(input_texts, target_texts):
-            formatted_text = f"Generate a CAD model: {input_text}\n{target_text}"
+            prompt = f"Generate a CAD model: {input_text}\n"
+            formatted_text = f"{prompt}{target_text}"
             formatted_texts.append(formatted_text)
+            prompt_texts.append(prompt)
 
-        # Tokenize
+        # Tokenize full sequences
         encodings = self.tokenizer(
             formatted_texts,
             max_length=self.max_seq_length,
@@ -592,34 +622,58 @@ class MultimodalCADCollator:
             return_tensors="pt",
         )
 
-        # Create labels
-        labels = encodings["input_ids"].clone()
-        labels[labels == self.tokenizer.pad_token_id] = -100
+        # Tokenize prompts to find their lengths (for masking)
+        prompt_encodings = self.tokenizer(
+            prompt_texts,
+            max_length=self.max_seq_length,
+            padding=False,
+            truncation=True,
+        )
 
-        output = {
-            "input_ids": encodings["input_ids"],
-            "attention_mask": encodings["attention_mask"],
-            "labels": labels,
-        }
+        # Create labels - mask prompt part, only compute loss on target CAD sequence
+        labels = encodings["input_ids"].clone()
+
+        # Add EOS token to sequences that ended naturally (have padding)
+        # Do NOT add EOS to truncated sequences (no padding) since they're incomplete
+        if hasattr(self.tokenizer, 'eos_token_id') and self.tokenizer.eos_token_id is not None:
+            for i in range(labels.shape[0]):
+                # Check if sequence has padding (meaning it wasn't truncated)
+                has_padding = (labels[i] == self.tokenizer.pad_token_id).any()
+
+                if has_padding:
+                    # Find the last non-padding token
+                    non_pad_mask = labels[i] != self.tokenizer.pad_token_id
+                    last_token_idx = non_pad_mask.nonzero(as_tuple=True)[0][-1].item()
+
+                    # Replace last token with EOS if it's not already EOS
+                    if labels[i, last_token_idx] != self.tokenizer.eos_token_id:
+                        labels[i, last_token_idx] = self.tokenizer.eos_token_id
+                        encodings["input_ids"][i, last_token_idx] = self.tokenizer.eos_token_id
+
+        # Mask the prompt tokens (set to -100 so they're ignored in loss)
+        for i, prompt_ids in enumerate(prompt_encodings["input_ids"]):
+            prompt_len = len(prompt_ids)
+            labels[i, :prompt_len] = -100
+
+        # Also mask padding tokens
+        labels[labels == self.tokenizer.pad_token_id] = -100
 
         # Process images if present
         pixel_values_list = []
+        has_image = []
         for sample in batch:
-            if "pixel_values" in sample:
-                pixel_values_list.append(torch.tensor(sample["pixel_values"]))
+            if "pixel_values" in sample and self.image_processor is not None:
+                # Preprocess PIL Image (returns dict with 'pixel_values' tensor)
+                processed = self.image_processor(sample["pixel_values"], return_tensors="pt")
+                pixel_values_list.append(processed["pixel_values"].squeeze(0))  # Remove batch dim
+                has_image.append(True)
             else:
                 pixel_values_list.append(None)
-
-        # Add to output if any images present
-        if any(pv is not None for pv in pixel_values_list):
-            # Fill missing with zeros
-            for i, pv in enumerate(pixel_values_list):
-                if pv is None:
-                    pixel_values_list[i] = torch.zeros(3, 224, 224)
-            output["pixel_values"] = torch.stack(pixel_values_list)
+                has_image.append(False)
 
         # Process point clouds if present
         point_cloud_list = []
+        has_pc = []
         for sample in batch:
             if "point_cloud" in sample:
                 pc = sample["point_cloud"]
@@ -633,11 +687,55 @@ class MultimodalCADCollator:
                     pad_idx = np.random.choice(len(pc), 2048 - len(pc), replace=True)
                     pc = np.concatenate([pc, pc[pad_idx]], axis=0)
                 point_cloud_list.append(torch.tensor(pc))
+                has_pc.append(True)
             else:
                 point_cloud_list.append(None)
+                has_pc.append(False)
 
-        # Add to output if any point clouds present
-        if any(pc is not None for pc in point_cloud_list):
+        # Calculate total sequence length per sample and pad labels accordingly
+        # Order must match forward pass: [image] [point_cloud] [text]
+        batch_size = len(batch)
+        text_seq_len = labels.shape[1]
+
+        # Calculate offsets for each modality
+        img_tokens = self.num_image_tokens if any(has_image) else 0
+        pc_tokens = self.num_pc_tokens if any(has_pc) else 0
+        max_total_len = img_tokens + pc_tokens + text_seq_len
+
+        # Pad labels with -100 for multimodal features
+        if max_total_len > text_seq_len:
+            # Create padded labels tensor, all initialized to -100
+            padded_labels = torch.full(
+                (batch_size, max_total_len),
+                fill_value=-100,
+                dtype=labels.dtype
+            )
+            # Copy text labels to the END (after image and PC tokens)
+            text_start_idx = img_tokens + pc_tokens
+            padded_labels[:, text_start_idx:text_start_idx + text_seq_len] = labels
+            labels = padded_labels
+
+        output = {
+            "input_ids": encodings["input_ids"],
+            "attention_mask": encodings["attention_mask"],
+            "labels": labels,
+        }
+
+        # Add images to output if any present
+        if any(has_image):
+            # Fill missing with zeros (match shape of processed images)
+            for i, pv in enumerate(pixel_values_list):
+                if pv is None:
+                    # Find a valid image to get the shape
+                    valid_img = next((img for img in pixel_values_list if img is not None), None)
+                    if valid_img is not None:
+                        pixel_values_list[i] = torch.zeros_like(valid_img)
+                    else:
+                        pixel_values_list[i] = torch.zeros(3, 224, 224)
+            output["pixel_values"] = torch.stack(pixel_values_list)
+
+        # Add point clouds to output if any present
+        if any(has_pc):
             # Fill missing with zeros
             for i, pc in enumerate(point_cloud_list):
                 if pc is None:

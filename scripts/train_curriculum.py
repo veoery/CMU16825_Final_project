@@ -113,6 +113,8 @@ def train_epoch(
 
     global_step = start_global_step
 
+    saved = False
+
     for step, batch in enumerate(progress_bar):
         # Move batch to device
         batch = {k: v.to(config.device) if isinstance(v, torch.Tensor) else v for k, v in batch.items()}
@@ -168,12 +170,16 @@ def train_epoch(
 
         # Save checkpoint
         if global_step % config.save_steps == 0 and global_step > start_global_step:
-            checkpoint_path = os.path.join(
-                config.output_dir,
-                stage_name,
-                f"checkpoint-epoch{epoch}-step{global_step}"
-            )
-            save_checkpoint(model, optimizer, scheduler, epoch, global_step, checkpoint_path)
+            if saved == False:
+                checkpoint_path = os.path.join(
+                    config.output_dir,
+                    stage_name,
+                    f"checkpoint-epoch{epoch}-step{global_step}"
+                )
+                save_checkpoint(model, optimizer, scheduler, epoch, global_step, checkpoint_path)
+                saved = True
+        else:
+            saved = False
 
     return loss_meter.avg, global_step
 
@@ -220,6 +226,8 @@ def load_stage_checkpoint(model, checkpoint_path: str):
             model.point_projector.load_state_dict(loaded_model.point_projector.state_dict())
             print("  ✓ Loaded point cloud module")
 
+        del loaded_model
+        torch.cuda.empty_cache()
         print(f"Checkpoint loaded successfully!\n")
         return True
 
@@ -318,6 +326,7 @@ def train_curriculum_stage(
     print(f"Trainable projector params: {len(param_groups['projectors'])}")
     print(f"Trainable encoder params: {len(param_groups['encoders'])}")
     print(f"Total training steps: {num_training_steps}\n")
+    print_model_info(model)
 
     # Training loop for this stage
     global_step = start_global_step
@@ -455,9 +464,6 @@ def main():
     # Load checkpoint if provided
     if args.resume_from_ckpt:
         checkpoint_path = Path(args.resume_from_ckpt)
-        # If relative path, assume it's in output_dir
-        if not checkpoint_path.is_absolute():
-            checkpoint_path = Path(args.output_dir) / args.resume_from_ckpt
 
         print(f"\n{'='*80}")
         print(f"RESUMING FROM CHECKPOINT")
@@ -470,6 +476,7 @@ def main():
             print(f"Will start training from Stage {args.start_from_stage}")
         print(f"{'='*80}\n")
         
+    print("Base model:")
     print_model_info(model)
     verify_lora_training(model)
 
@@ -495,7 +502,13 @@ def main():
             available_modalities=["text"],  # Start with text only
             modality_sample_probs={"text": 1.0},
         )
-        collator = MultimodalCADCollator(model.tokenizer)
+        from transformers import AutoImageProcessor
+        img_processor = AutoImageProcessor.from_pretrained(model_config.image_encoder_name)
+        collator = MultimodalCADCollator(
+            model.tokenizer,
+            max_seq_length=model_config.max_seq_length,
+            image_processor=img_processor
+        )
 
     print(f"Training samples: {len(train_dataset)}")
 
@@ -506,11 +519,9 @@ def main():
             train_config.use_wandb = False
         else:
             # Auto-generate run name if not provided
-            if args.wandb_run_name is None:
-                model_name = args.llm_model_name.split("/")[-1] if "/" in args.llm_model_name else args.llm_model_name
-                run_name = f"{model_name}-curriculum-{args.stage1_epochs}+{args.stage2_epochs}+{args.stage3_epochs}ep"
-            else:
-                run_name = args.wandb_run_name
+            model_name = args.llm_model_name.split("/")[-1] if "/" in args.llm_model_name else args.llm_model_name
+            run_name = f"{model_name}-curriculum-{args.stage1_epochs}+{args.stage2_epochs}+{args.stage3_epochs}ep"
+            run_name = args.wandb_run_name + run_name
 
             wandb.init(
                 project=args.wandb_project,
