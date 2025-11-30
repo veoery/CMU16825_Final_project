@@ -316,7 +316,8 @@ def load_stage_checkpoint(model, checkpoint_path: str, optimizer=None, scheduler
             result['step'] = trainer_state.get('step', 0)
             result['loss'] = trainer_state.get('loss', None)
             
-            print(f"  ✓ Resuming from epoch {result['epoch']}, step {result['step']}, loss {result['loss']:.4f if result['loss'] else 'N/A'}")
+            loss_str = f"{result['loss']:.4f}" if result['loss'] is not None else "N/A"
+            print(f"  ✓ Resuming from epoch {result['epoch']}, step {result['step']}, loss {loss_str}")
         else:
             print("  ⚠️  No trainer_state.pt found - optimizer/scheduler not restored")
 

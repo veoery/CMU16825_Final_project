@@ -163,33 +163,29 @@ class MultimodalAutocompleteDataset(Dataset):
             raise ValueError(f"No truncated JSON files found in {self.truncated_json_root}")
         
         # Filter out samples with extremely large partial JSON (>8K tokens)
-        # These samples have huge entity geometry that leaves <1% training signal
-        print(f"Filtering samples by partial JSON size...")
+        # Use file size as quick proxy to avoid loading every file
+        print(f"Filtering samples by file size (quick check)...")
         filtered_samples = []
         outlier_count = 0
         
         for sample in samples:
             try:
-                with open(sample["truncated_path"], 'r') as f:
-                    trunc_data = json.load(f)
+                # Quick check: file size in bytes
+                # Approximate: 1 token ≈ 4 bytes, so 8K tokens ≈ 32KB
+                file_size = sample["truncated_path"].stat().st_size
                 
-                # Estimate tokens: ~4 chars per token
-                json_str = json.dumps(trunc_data, separators=(',', ':'))
-                estimated_tokens = len(json_str) // 4
-                
-                # Keep samples with <8K tokens in partial JSON
-                if estimated_tokens < 8000:
+                # Keep files < 32KB (approximately <8K tokens)
+                if file_size < 32000:  # 32KB threshold
                     filtered_samples.append(sample)
                 else:
                     outlier_count += 1
                     
             except Exception as e:
-                # Skip if can't read
-                outlier_count += 1
-                continue
+                # If can't check size, keep it
+                filtered_samples.append(sample)
         
         if outlier_count > 0:
-            print(f"⚠️  Filtered {outlier_count} samples with partial JSON >8K tokens ({outlier_count/len(samples)*100:.1f}%)")
+            print(f"⚠️  Filtered {outlier_count} samples with large files (>{outlier_count/len(samples)*100:.1f}%)")
             print(f"   Kept {len(filtered_samples)}/{len(samples)} samples for training")
         
         samples = filtered_samples
