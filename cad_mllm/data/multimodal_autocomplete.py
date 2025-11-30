@@ -114,29 +114,50 @@ class MultimodalAutocompleteDataset(Dataset):
         # Iterate through all truncated JSONs
         truncated_files = sorted(self.truncated_json_root.rglob("*_tr_*.json"))
 
+        skipped_files = 0
         for truncated_path in truncated_files:
-            # Extract original cad_id from truncated filename
-            # Example: "0000/00000071_00005_tr_01.json" → "0000/00000071_00005"
-            rel_path = truncated_path.relative_to(self.truncated_json_root)
-            stem = rel_path.stem  # "00000071_00005_tr_01"
+            # Validate truncated file exists and is readable
+            if not truncated_path.exists():
+                skipped_files += 1
+                continue
+            
+            try:
+                # Extract original cad_id from truncated filename
+                # Example: "0000/00000071_00005_tr_01.json" → "0000/00000071_00005"
+                rel_path = truncated_path.relative_to(self.truncated_json_root)
+                stem = rel_path.stem  # "00000071_00005_tr_01"
 
-            # Remove _tr_XX suffix
-            base_name = "_".join(stem.split("_")[:-2])  # "00000071_00005"
-            parent = rel_path.parent  # "0000"
-            cad_id = str(parent / base_name)  # "0000/00000071_00005"
+                # Remove _tr_XX suffix
+                base_name = "_".join(stem.split("_")[:-2])  # "00000071_00005"
+                parent = rel_path.parent  # "0000"
+                cad_id = str(parent / base_name)  # "0000/00000071_00005"
 
-            # Get text caption
-            caption = text_captions.get(cad_id, "")
+                # Verify full JSON exists before adding to dataset
+                full_json_path = self.full_json_root / f"{cad_id}.json"
+                if not full_json_path.exists():
+                    skipped_files += 1
+                    continue
 
-            samples.append({
-                "id": cad_id,
-                "truncated_path": truncated_path,
-                "text_caption": caption,
-            })
+                # Get text caption
+                caption = text_captions.get(cad_id, "")
 
-            # Stop if max_samples reached
-            if max_samples and len(samples) >= max_samples:
-                break
+                samples.append({
+                    "id": cad_id,
+                    "truncated_path": truncated_path,
+                    "text_caption": caption,
+                })
+
+                # Stop if max_samples reached
+                if max_samples and len(samples) >= max_samples:
+                    break
+                    
+            except Exception as e:
+                # Skip corrupted files
+                skipped_files += 1
+                continue
+        
+        if skipped_files > 0:
+            print(f"⚠️  Skipped {skipped_files} files with missing/corrupted data")
 
         if not samples:
             raise ValueError(f"No truncated JSON files found in {self.truncated_json_root}")

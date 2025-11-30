@@ -217,16 +217,19 @@ def train_epoch(
                 "checkpoint-best"
             )
             print(f"\n🏆 New best loss: {best_loss:.4f} - Saving best checkpoint to {best_checkpoint_path}")
-            save_checkpoint(model, optimizer, scheduler, epoch, global_step, best_checkpoint_path, is_best=True)
+            save_checkpoint(model, optimizer, scheduler, epoch, global_step, best_checkpoint_path, is_best=True, loss=best_loss, config=vars(config))
 
         # Save interval checkpoint
         if global_step % config.save_steps == 0 and global_step > start_global_step:
+            from datetime import datetime
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            checkpoint_name = f"checkpoint-step{global_step}-loss{loss_meter.avg:.4f}-{timestamp}"
             checkpoint_path = os.path.join(
                 config.output_dir,
                 stage_name,
-                f"checkpoint-epoch{epoch}-step{global_step}"
+                checkpoint_name
             )
-            save_checkpoint(model, optimizer, scheduler, epoch, global_step, checkpoint_path)
+            save_checkpoint(model, optimizer, scheduler, epoch, global_step, checkpoint_path, loss=loss_meter.avg, config=vars(config))
 
             # Track this checkpoint for cleanup
             interval_checkpoints.append(checkpoint_path)
@@ -237,26 +240,33 @@ def train_epoch(
                 if os.path.exists(old_checkpoint):
                     import shutil
                     shutil.rmtree(old_checkpoint)
-                    print(f"🗑️  Removed old checkpoint: {old_checkpoint}")
+                    print(f"🗑️  Removed old checkpoint: {os.path.basename(old_checkpoint)}")
 
     return loss_meter.avg, global_step, best_loss, interval_checkpoints
 
 
-def load_stage_checkpoint(model, checkpoint_path: str):
-    """Load a stage checkpoint into the model.
+def load_stage_checkpoint(model, checkpoint_path: str, optimizer=None, scheduler=None):
+    """Load a stage checkpoint into the model, optimizer, and scheduler.
 
     Args:
         model: CADMLLMModel instance
         checkpoint_path: Path to stage checkpoint directory
+        optimizer: Optimizer instance to load state into (optional)
+        scheduler: Scheduler instance to load state into (optional)
 
     Returns:
-        True if checkpoint was loaded successfully, False otherwise
+        Dictionary with loaded state info: {
+            'success': bool,
+            'epoch': int,
+            'step': int,
+            'loss': float,
+        }
     """
     checkpoint_path = Path(checkpoint_path)
 
     if not checkpoint_path.exists():
         print(f"Warning: Checkpoint path does not exist: {checkpoint_path}")
-        return False
+        return {'success': False}
 
     print(f"\nLoading checkpoint from: {checkpoint_path}")
 
@@ -284,12 +294,40 @@ def load_stage_checkpoint(model, checkpoint_path: str):
             model.point_projector.load_state_dict(loaded_model.point_projector.state_dict())
             print("  ✓ Loaded point cloud module")
 
+        # Load trainer state (optimizer, scheduler, metadata)
+        trainer_state_path = checkpoint_path / "trainer_state.pt"
+        result = {'success': True, 'epoch': 0, 'step': 0, 'loss': None}
+        
+        if trainer_state_path.exists():
+            trainer_state = torch.load(trainer_state_path, map_location='cpu')
+            
+            # Load optimizer state
+            if optimizer is not None and 'optimizer' in trainer_state:
+                optimizer.load_state_dict(trainer_state['optimizer'])
+                print("  ✓ Loaded optimizer state")
+            
+            # Load scheduler state
+            if scheduler is not None and 'scheduler' in trainer_state and trainer_state['scheduler'] is not None:
+                scheduler.load_state_dict(trainer_state['scheduler'])
+                print("  ✓ Loaded scheduler state")
+            
+            # Extract metadata
+            result['epoch'] = trainer_state.get('epoch', 0)
+            result['step'] = trainer_state.get('step', 0)
+            result['loss'] = trainer_state.get('loss', None)
+            
+            print(f"  ✓ Resuming from epoch {result['epoch']}, step {result['step']}, loss {result['loss']:.4f if result['loss'] else 'N/A'}")
+        else:
+            print("  ⚠️  No trainer_state.pt found - optimizer/scheduler not restored")
+
         print(f"Checkpoint loaded successfully!\n")
-        return True
+        return result
 
     except Exception as e:
         print(f"Error loading checkpoint: {e}")
-        return False
+        import traceback
+        traceback.print_exc()
+        return {'success': False}
 
 
 def train_curriculum_stage(
@@ -377,6 +415,52 @@ def train_curriculum_stage(
         num_warmup_steps=config.warmup_steps,
         num_training_steps=num_training_steps,
     )
+    
+    # Restore optimizer/scheduler state if resuming from checkpoint
+    # Pass checkpoint info via config if available
+    if hasattr(config, '_checkpoint_info') and config._checkpoint_info:
+        checkpoint_path = Path(config._checkpoint_path)
+        trainer_state_path = checkpoint_path / "trainer_state.pt"
+        if trainer_state_path.exists():
+            print(f"\n{'='*40}")
+            print("Restoring optimizer/scheduler state...")
+            print(f"{'='*40}")
+            try:
+                trainer_state = torch.load(trainer_state_path, map_location='cpu')
+                
+                # Only restore if state exists (backward compatibility)
+                if 'optimizer' in trainer_state:
+                    try:
+                        optimizer.load_state_dict(trainer_state['optimizer'])
+                        print("  ✓ Restored optimizer state")
+                    except Exception as e:
+                        print(f"  ⚠️  Could not restore optimizer state: {e}")
+                        print("  → Continuing with fresh optimizer")
+                
+                if 'scheduler' in trainer_state and trainer_state['scheduler'] is not None:
+                    try:
+                        scheduler.load_state_dict(trainer_state['scheduler'])
+                        print("  ✓ Restored scheduler state")
+                    except Exception as e:
+                        print(f"  ⚠️  Could not restore scheduler state: {e}")
+                        print("  → Continuing with fresh scheduler")
+                
+                print(f"  ✓ Resuming from step {config._checkpoint_info.get('step', 0)}")
+                print(f"{'='*40}\n")
+            except Exception as e:
+                print(f"  ⚠️  Error loading trainer state: {e}")
+                print("  → Continuing with fresh optimizer/scheduler")
+                print(f"{'='*40}\n")
+        else:
+            print(f"\n{'='*40}")
+            print("No trainer_state.pt found in checkpoint")
+            print("Using fresh optimizer/scheduler")
+            print("(This is normal for older checkpoints)")
+            print(f"{'='*40}\n")
+        
+        # Clear the checkpoint info after using it (only restore once per stage)
+        delattr(config, '_checkpoint_info')
+        delattr(config, '_checkpoint_path')
 
     print(f"Trainable LLM params: {len(param_groups['llm'])}")
     print(f"Trainable projector params: {len(param_groups['projectors'])}")
@@ -542,7 +626,11 @@ def main():
     print("\nInitializing CAD-MLLM model...")
     model = CADMLLMModel(model_config)
     
-    # Load checkpoint if provided
+    # Variables to track loaded checkpoint state
+    loaded_checkpoint_info = None
+    checkpoint_path_for_resume = None
+    
+    # Load checkpoint if provided (model weights only initially)
     if args.resume_from_ckpt:
         checkpoint_path = Path(args.resume_from_ckpt)
         # If relative path, assume it's in output_dir
@@ -552,12 +640,16 @@ def main():
         print(f"\n{'='*80}")
         print(f"RESUMING FROM CHECKPOINT")
         print(f"{'='*80}")
-        success = load_stage_checkpoint(model, str(checkpoint_path))
-        if not success:
+        # Load model only first, optimizer/scheduler will be loaded after they're created
+        loaded_checkpoint_info = load_stage_checkpoint(model, str(checkpoint_path))
+        if not loaded_checkpoint_info['success']:
             print("Warning: Failed to load checkpoint. Starting from scratch.")
+            loaded_checkpoint_info = None
         else:
-            print(f"Successfully loaded checkpoint from {checkpoint_path}")
+            print(f"Successfully loaded model weights from {checkpoint_path}")
+            print(f"Will restore optimizer/scheduler after initialization")
             print(f"Will start training from Stage {args.start_from_stage}")
+            checkpoint_path_for_resume = checkpoint_path
         print(f"{'='*80}\n")
         
     print_model_info(model)
@@ -672,6 +764,11 @@ def main():
     if args.start_from_stage > 1:
         print(f"Resuming from Stage {args.start_from_stage} (skipping Stages 1-{args.start_from_stage-1})")
     print("="*80)
+
+    # Pass checkpoint info to config for optimizer/scheduler restoration
+    if loaded_checkpoint_info and checkpoint_path_for_resume:
+        train_config._checkpoint_info = loaded_checkpoint_info
+        train_config._checkpoint_path = checkpoint_path_for_resume
 
     global_step = 0
     for stage_idx, stage in enumerate(train_config.curriculum_stages):

@@ -182,24 +182,27 @@ class CADAutocomplete:
         embeddings_list = []
         attention_masks = []
         
-        # Add text embeddings
+        # Add text embeddings (with projector!)
         text_embeds = self.model.text_encoder(input_ids)
+        text_embeds = self.model.text_projector(text_embeds)  # CRITICAL: Was missing!
         embeddings_list.append(text_embeds)
         attention_masks.append(torch.ones(text_embeds.shape[:2], device=self.device))
         
         # Add image embeddings if available
         if pixel_values is not None and self.model.image_encoder is not None:
+            pixel_values = pixel_values.to(self.dtype)
             image_features = self.model.image_encoder(pixel_values)
             image_embeds = self.model.image_projector(image_features)
-            embeddings_list.insert(0, image_embeds)  # Prepend image
-            attention_masks.insert(0, torch.ones(image_embeds.shape[:2], device=self.device))
+            embeddings_list.append(image_embeds)  # Append after text (not prepend!)
+            attention_masks.append(torch.ones(image_embeds.shape[:2], device=self.device))
         
         # Add point cloud embeddings if available
         if point_cloud_tensor is not None and self.model.point_encoder is not None:
+            point_cloud_tensor = point_cloud_tensor.to(self.dtype)
             point_features = self.model.point_encoder(point_cloud_tensor)
             point_embeds = self.model.point_projector(point_features)
-            embeddings_list.insert(0, point_embeds)  # Prepend point cloud
-            attention_masks.insert(0, torch.ones(point_embeds.shape[:2], device=self.device))
+            embeddings_list.append(point_embeds)  # Append after text (not prepend!)
+            attention_masks.append(torch.ones(point_embeds.shape[:2], device=self.device))
         
         # Concatenate all embeddings
         inputs_embeds = torch.cat(embeddings_list, dim=1)
@@ -218,14 +221,23 @@ class CADAutocomplete:
                 eos_token_id=self.tokenizer.eos_token_id,
             )
 
-        # 7. Decode generated tokens (skip the input portion)
-        # Note: inputs_embeds doesn't have token IDs, so decode from start
-        generated_tokens = generated_ids[0]
-        generated_text = self.tokenizer.decode(generated_tokens, skip_special_tokens=True)
+        # 7. Decode generated tokens
+        # When using inputs_embeds + max_new_tokens, generated_ids includes:
+        # - Prompt tokens (reconstructed from embeddings by the model)
+        # - New generated tokens
+        # We need to skip the prompt portion
+        prompt_length = input_ids.shape[1]
         
-        # Remove the prompt from the generated text
-        if prompt in generated_text:
-            generated_text = generated_text.replace(prompt, "").strip()
+        # Skip the prompt tokens
+        if generated_ids.shape[1] > prompt_length:
+            new_tokens = generated_ids[0, prompt_length:]
+            generated_text = self.tokenizer.decode(new_tokens, skip_special_tokens=True)
+        else:
+            # Model didn't generate anything beyond the prompt
+            generated_text = ""
+        
+        print(f"Debug - Prompt length: {prompt_length}, Generated length: {generated_ids.shape[1]}")
+        print(f"Debug - Generated text preview: {generated_text[:300]}")  # Debug output
 
         # 7. Parse generated operations
         generated_ops = self._parse_operations(generated_text)

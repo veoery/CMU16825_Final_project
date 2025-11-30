@@ -285,8 +285,10 @@ def save_checkpoint(
     step: int,
     save_path: str,
     is_best: bool = False,
+    loss: float = None,
+    config: dict = None,
 ):
-    """Save training checkpoint.
+    """Save training checkpoint with comprehensive state.
 
     Args:
         model: Model to save
@@ -296,8 +298,11 @@ def save_checkpoint(
         step: Current step
         save_path: Path to save checkpoint directory
         is_best: Whether this is the best model
+        loss: Current loss value (for metadata)
+        config: Training configuration dict (for reproducibility)
     """
     import os
+    from datetime import datetime
 
     # Ensure the checkpoint directory exists
     os.makedirs(save_path, exist_ok=True)
@@ -305,16 +310,36 @@ def save_checkpoint(
     checkpoint = {
         "epoch": epoch,
         "step": step,
+        "loss": loss,
         "optimizer": optimizer.state_dict(),
         "scheduler": scheduler.state_dict() if scheduler is not None else None,
+        "timestamp": datetime.now().isoformat(),
+        "config": config,  # Save config for reproducibility
     }
 
-    # Save checkpoint info (optimizer, scheduler state)
+    # Save checkpoint info (optimizer, scheduler state, metadata)
     checkpoint_info_path = os.path.join(save_path, "trainer_state.pt")
     torch.save(checkpoint, checkpoint_info_path)
 
     # Save model (save_pretrained will handle directory creation internally)
     model.save_pretrained(save_path)
+    
+    # Save a human-readable metadata file
+    metadata_path = os.path.join(save_path, "checkpoint_metadata.json")
+    import json
+    with open(metadata_path, 'w') as f:
+        json.dump({
+            "epoch": epoch,
+            "step": step,
+            "loss": loss,
+            "timestamp": datetime.now().isoformat(),
+            "is_best": is_best,
+            "config_summary": {
+                "batch_size": config.get("batch_size") if config else None,
+                "learning_rate": config.get("learning_rate") if config else None,
+                "max_seq_length": config.get("max_seq_length") if config else None,
+            } if config else None
+        }, f, indent=2)
 
     if is_best:
         best_path = save_path.replace("checkpoint", "best_model")
@@ -323,6 +348,21 @@ def save_checkpoint(
         # Also save optimizer/scheduler state for best model
         best_checkpoint_info_path = os.path.join(best_path, "trainer_state.pt")
         torch.save(checkpoint, best_checkpoint_info_path)
+        # Save metadata for best model too
+        best_metadata_path = os.path.join(best_path, "checkpoint_metadata.json")
+        with open(best_metadata_path, 'w') as f:
+            json.dump({
+                "epoch": epoch,
+                "step": step,
+                "loss": loss,
+                "timestamp": datetime.now().isoformat(),
+                "is_best": True,
+                "config_summary": {
+                    "batch_size": config.get("batch_size") if config else None,
+                    "learning_rate": config.get("learning_rate") if config else None,
+                    "max_seq_length": config.get("max_seq_length") if config else None,
+                } if config else None
+            }, f, indent=2)
         print(f"Saved best model to {best_path}")
 
     print(f"Saved checkpoint to {save_path}")
