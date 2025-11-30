@@ -266,7 +266,14 @@ class CADAutocomplete:
     def _process_point_cloud(self, pc: Union[str, Path, np.ndarray]) -> torch.Tensor:
         """Process point cloud input."""
         if isinstance(pc, (str, Path)):
-            pc = np.load(pc)
+            loaded = np.load(pc)
+            # Handle .npz format (compressed numpy archive)
+            if isinstance(loaded, np.lib.npyio.NpzFile):
+                # Extract the first array (usually 'arr_0' or 'points')
+                key = list(loaded.keys())[0]
+                pc = loaded[key]
+            else:
+                pc = loaded
 
         # Normalize (same as training)
         pc_normalized = (pc - pc.mean(axis=0)) / (pc.std(axis=0) + 1e-8)
