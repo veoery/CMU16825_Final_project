@@ -4,8 +4,9 @@ import os
 import argparse
 from pathlib import Path
 import torch
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, DistributedSampler
 from tqdm import tqdm
+import json
 
 try:
     import wandb
@@ -13,6 +14,14 @@ try:
 except ImportError:
     WANDB_AVAILABLE = False
     print("Warning: wandb not installed. Install with: uv add wandb")
+
+try:
+    import deepspeed
+    from deepspeed import DeepSpeedConfig
+    DEEPSPEED_AVAILABLE = True
+except ImportError:
+    DEEPSPEED_AVAILABLE = False
+    print("Warning: deepspeed not installed. Install with: uv pip install deepspeed")
 
 from cad_mllm import (
     CADMLLMConfig,
@@ -32,6 +41,51 @@ from cad_mllm import (
     CADCollator,
     create_dummy_dataset,
 )
+
+
+def setup_distributed():
+    """Setup distributed training environment."""
+    if 'RANK' in os.environ and 'WORLD_SIZE' in os.environ:
+        rank = int(os.environ["RANK"])
+        world_size = int(os.environ['WORLD_SIZE'])
+        local_rank = int(os.environ['LOCAL_RANK'])
+    elif 'LOCAL_RANK' in os.environ:
+        # DeepSpeed launcher
+        local_rank = int(os.environ['LOCAL_RANK'])
+        rank = local_rank
+        world_size = torch.cuda.device_count()
+    else:
+        # Single GPU
+        rank = 0
+        world_size = 1
+        local_rank = 0
+
+    # Set device before initializing process group
+    if torch.cuda.is_available():
+        torch.cuda.set_device(local_rank)
+
+    if world_size > 1:
+        # Initialize process group if not already initialized
+        if not torch.distributed.is_initialized():
+            torch.distributed.init_process_group(
+                backend='nccl',
+                init_method='env://',
+                world_size=world_size,
+                rank=rank
+            )
+
+        # Synchronize all processes
+        if torch.distributed.is_initialized():
+            torch.distributed.barrier()
+
+    return rank, world_size, local_rank
+
+
+def is_main_process(rank=None):
+    """Check if this is the main process."""
+    if rank is None:
+        rank = int(os.environ.get('RANK', 0))
+    return rank == 0
 
 
 def parse_args():
@@ -79,6 +133,12 @@ def parse_args():
     parser.add_argument("--device", type=str, default="cuda", help="Device (cuda/cpu/mps)")
     parser.add_argument("--dtype", type=str, default="bfloat16", help="Data type")
 
+    # Distributed training arguments
+    parser.add_argument("--deepspeed", action="store_true", help="Enable DeepSpeed training")
+    parser.add_argument("--deepspeed_config", type=str, default="configs/deepspeed/ds_zero3_config.json",
+                       help="Path to DeepSpeed config file")
+    parser.add_argument("--local_rank", type=int, default=-1, help="Local rank for distributed training (set by launcher)")
+
     # Data arguments
     parser.add_argument("--create_dummy_data", action="store_true", help="Create dummy dataset")
     parser.add_argument("--num_dummy_samples", type=int, default=100, help="Number of dummy samples")
@@ -107,42 +167,64 @@ def train_epoch(
     stage_name,
     config,
     start_global_step=0,
+    use_deepspeed=False,
+    rank=0,
 ):
     """Train for one epoch."""
-    model.train()
+    if hasattr(model, 'train'):
+        model.train()
+    elif use_deepspeed:
+        # DeepSpeed engine
+        model.train()
 
     loss_meter = AverageMeter()
-    progress_bar = tqdm(dataloader, desc=f"{stage_name} - Epoch {epoch}")
+
+    # Only show progress bar on main process
+    if is_main_process(rank):
+        progress_bar = tqdm(dataloader, desc=f"{stage_name} - Epoch {epoch}")
+    else:
+        progress_bar = dataloader
 
     global_step = start_global_step
-
     saved = False
 
     for step, batch in enumerate(progress_bar):
-        # Move batch to device
-        batch = {k: v.to(config.device) if isinstance(v, torch.Tensor) else v for k, v in batch.items()}
+        # Move batch to device (DeepSpeed handles this internally, but doesn't hurt)
+        if not use_deepspeed:
+            batch = {k: v.to(config.device) if isinstance(v, torch.Tensor) else v for k, v in batch.items()}
 
-        # Forward pass
-        outputs = model(**batch)
-        loss = outputs.loss
+        if use_deepspeed:
+            # DeepSpeed training step
+            loss = model(**batch).loss
+            model.backward(loss)
+            model.step()
 
-        # Scale loss for gradient accumulation
-        loss = loss / config.gradient_accumulation_steps
+            if model.is_gradient_accumulation_boundary():
+                global_step += 1
+                grad_norm = 0.0  # DeepSpeed handles gradient clipping internally
+        else:
+            # Regular training step
+            # Forward pass
+            outputs = model(**batch)
+            loss = outputs.loss
 
-        # Backward pass
-        loss.backward()
+            # Scale loss for gradient accumulation
+            loss = loss / config.gradient_accumulation_steps
 
-        # Update weights
-        if (step + 1) % config.gradient_accumulation_steps == 0:
-            # Clip gradients
-            grad_norm = torch.nn.utils.clip_grad_norm_(model.parameters(), config.max_grad_norm)
+            # Backward pass
+            loss.backward()
 
-            # Optimizer step
-            optimizer.step()
-            scheduler.step()
-            optimizer.zero_grad()
+            # Update weights
+            if (step + 1) % config.gradient_accumulation_steps == 0:
+                # Clip gradients
+                grad_norm = torch.nn.utils.clip_grad_norm_(model.parameters(), config.max_grad_norm)
 
-            global_step += 1
+                # Optimizer step
+                optimizer.step()
+                scheduler.step()
+                optimizer.zero_grad()
+
+                global_step += 1
 
             # Log to wandb after optimizer step
             if config.use_wandb and WANDB_AVAILABLE:
@@ -246,26 +328,32 @@ def train_curriculum_stage(
     collator,
     config: CurriculumTrainingConfig,
     start_global_step: int = 0,
+    args=None,
+    rank=0,
+    world_size=1,
 ):
     """Train a single curriculum stage."""
-    print(f"\n{'='*80}")
-    print(f"Starting {stage.name}")
-    print(f"Modalities: {stage.modalities}")
-    print(f"Epochs: {stage.num_epochs}")
-    print(f"Learning Rate: {stage.learning_rate}")
-    print(f"Train Projectors: {stage.train_projectors}")
-    print(f"{'='*80}\n")
+    if is_main_process(rank):
+        print(f"\n{'='*80}")
+        print(f"Starting {stage.name}")
+        print(f"Modalities: {stage.modalities}")
+        print(f"Epochs: {stage.num_epochs}")
+        print(f"Learning Rate: {stage.learning_rate}")
+        print(f"Train Projectors: {stage.train_projectors}")
+        print(f"{'='*80}\n")
 
     # Enable required modalities
     if "point_cloud" in stage.modalities:
         if not model.has_point_encoder:
-            print("Enabling point cloud encoder and projector...")
+            if is_main_process(rank):
+                print("Enabling point cloud encoder and projector...")
             model.enable_point_encoder()
             model.enable_point_projector()
 
     if "image" in stage.modalities:
         if not model.has_image_encoder:
-            print("Enabling image encoder and projector...")
+            if is_main_process(rank):
+                print("Enabling image encoder and projector...")
             model.enable_image_encoder()
             model.enable_image_projector()
 
@@ -280,13 +368,29 @@ def train_curriculum_stage(
     if hasattr(train_dataset, 'modality_sample_probs'):
         train_dataset.modality_sample_probs = stage.modality_sample_probs
         train_dataset.available_modalities = stage.modalities
-        print(f"Updated dataset sampling: {stage.modality_sample_probs}")
+        if is_main_process(rank):
+            print(f"Updated dataset sampling: {stage.modality_sample_probs}")
+
+    # Create distributed sampler if using multiple GPUs
+    if world_size > 1:
+        sampler = DistributedSampler(
+            train_dataset,
+            num_replicas=world_size,
+            rank=rank,
+            shuffle=True,
+            seed=config.seed
+        )
+        shuffle = False
+    else:
+        sampler = None
+        shuffle = True
 
     # Create dataloader for this stage
     train_dataloader = DataLoader(
         train_dataset,
         batch_size=config.batch_size,
-        shuffle=True,
+        shuffle=shuffle,
+        sampler=sampler,
         collate_fn=collator,
         num_workers=0,
     )
@@ -311,31 +415,52 @@ def train_curriculum_stage(
             'lr': stage.learning_rate,
         })
 
-    # Setup optimizer
-    optimizer = torch.optim.AdamW(
-        optimizer_params,
-        weight_decay=config.weight_decay,
-    )
+    # Setup optimizer and DeepSpeed
+    if args and args.deepspeed and DEEPSPEED_AVAILABLE:
+        # Load DeepSpeed config
+        with open(args.deepspeed_config, 'r') as f:
+            ds_config = json.load(f)
 
-    # Setup scheduler
-    num_training_steps = len(train_dataloader) * stage.num_epochs // config.gradient_accumulation_steps
-    scheduler = get_cosine_schedule_with_warmup(
-        optimizer,
-        num_warmup_steps=config.warmup_steps,
-        num_training_steps=num_training_steps,
-    )
+        # DeepSpeed initialization
+        model_engine, optimizer, _, scheduler = deepspeed.initialize(
+            model=model,
+            config=ds_config,
+            model_parameters=optimizer_params,
+        )
+        use_deepspeed = True
 
-    print(f"Trainable LLM params: {len(param_groups['llm'])}")
-    print(f"Trainable projector params: {len(param_groups['projectors'])}")
-    print(f"Trainable encoder params: {len(param_groups['encoders'])}")
-    print(f"Total training steps: {num_training_steps}\n")
-    print_model_info(model)
+        if is_main_process(rank):
+            print(f"DeepSpeed initialized with ZeRO stage {ds_config.get('zero_optimization', {}).get('stage', 'N/A')}")
+    else:
+        # Regular optimizer setup
+        optimizer = torch.optim.AdamW(
+            optimizer_params,
+            weight_decay=config.weight_decay,
+        )
+
+        # Setup scheduler
+        num_training_steps = len(train_dataloader) * stage.num_epochs // config.gradient_accumulation_steps
+        scheduler = get_cosine_schedule_with_warmup(
+            optimizer,
+            num_warmup_steps=config.warmup_steps,
+            num_training_steps=num_training_steps,
+        )
+        model_engine = model
+        use_deepspeed = False
+
+    if is_main_process(rank):
+        print(f"Trainable LLM params: {len(param_groups['llm'])}")
+        print(f"Trainable projector params: {len(param_groups['projectors'])}")
+        print(f"Trainable encoder params: {len(param_groups['encoders'])}")
+        if not use_deepspeed:
+            print(f"Total training steps: {num_training_steps}\n")
+        print_model_info(model)
 
     # Training loop for this stage
     global_step = start_global_step
     for epoch in range(stage.num_epochs):
         avg_loss, global_step = train_epoch(
-            model,
+            model_engine,  # Changed from model
             train_dataloader,
             optimizer,
             scheduler,
@@ -343,12 +468,15 @@ def train_curriculum_stage(
             stage.name,
             config,
             start_global_step=global_step,
+            use_deepspeed=use_deepspeed,  # Added
+            rank=rank,  # Added
         )
 
-        print(f"\n{stage.name} - Epoch {epoch} completed | Average Loss: {avg_loss:.4f}")
+        if is_main_process(rank):
+            print(f"\n{stage.name} - Epoch {epoch} completed | Average Loss: {avg_loss:.4f}")
 
         # Log epoch metrics to wandb
-        if config.use_wandb and WANDB_AVAILABLE:
+        if config.use_wandb and WANDB_AVAILABLE and is_main_process(rank):
             wandb.log(
                 {
                     f"epoch/{stage.name}_loss": avg_loss,
@@ -359,13 +487,21 @@ def train_curriculum_stage(
             )
 
         # Save checkpoint at end of epoch
-        checkpoint_path = os.path.join(config.output_dir, stage.name, f"checkpoint-epoch{epoch}")
-        save_checkpoint(model, optimizer, scheduler, epoch, global_step, checkpoint_path)
+        if is_main_process(rank):
+            checkpoint_path = os.path.join(config.output_dir, stage.name, f"checkpoint-epoch{epoch}")
+            if use_deepspeed:
+                model_engine.save_checkpoint(checkpoint_path)
+            else:
+                save_checkpoint(model, optimizer, scheduler, epoch, global_step, checkpoint_path)
 
     # Save stage model
-    stage_model_path = os.path.join(config.output_dir, f"{stage.name}_model")
-    model.save_pretrained(stage_model_path)
-    print(f"\n{stage.name} completed! Model saved to {stage_model_path}")
+    if is_main_process(rank):
+        stage_model_path = os.path.join(config.output_dir, f"{stage.name}_model")
+        if use_deepspeed:
+            model_engine.save_checkpoint(stage_model_path)
+        else:
+            model.save_pretrained(stage_model_path)
+        print(f"\n{stage.name} completed! Model saved to {stage_model_path}")
 
     return global_step
 
@@ -374,22 +510,36 @@ def main():
     """Main training function."""
     args = parse_args()
 
-    # Set seed
-    set_seed(args.seed)
+    # Setup distributed training
+    rank, world_size, local_rank = setup_distributed()
+    args.local_rank = local_rank
+
+    # Update device for this process
+    if args.deepspeed or world_size > 1:
+        args.device = f"cuda:{local_rank}"
+
+    # Set seed (different per rank for data shuffling)
+    set_seed(args.seed + rank)
 
     # Setup data
     use_dummy = args.create_dummy_data
 
     if use_dummy:
-        print("Creating dummy dataset...")
+        if is_main_process(rank):
+            print("Creating dummy dataset...")
         data_dir = Path("./data")
         data_dir.mkdir(exist_ok=True)
 
         train_path = data_dir / "train_dummy.json"
         val_path = data_dir / "val_dummy.json"
 
-        create_dummy_dataset(str(train_path), num_samples=args.num_dummy_samples)
-        create_dummy_dataset(str(val_path), num_samples=20)
+        if is_main_process(rank):
+            create_dummy_dataset(str(train_path), num_samples=args.num_dummy_samples)
+            create_dummy_dataset(str(val_path), num_samples=20)
+
+        # Wait for main process to create files
+        if world_size > 1:
+            torch.distributed.barrier()
 
         args.train_data_path = str(train_path)
         args.val_data_path = str(val_path)
@@ -462,57 +612,76 @@ def main():
     )
 
     # Initialize model
-    print("\nInitializing CAD-MLLM model...")
+    if is_main_process(rank):
+        print("\nInitializing CAD-MLLM model...")
+
+    # For DeepSpeed, don't move model to device yet
+    if not args.deepspeed:
+        model_config.device = args.device
+    else:
+        model_config.device = "cpu"  # DeepSpeed handles device placement
+
     model = CADMLLMModel(model_config)
 
     # Load checkpoint if provided
     if args.resume_from_ckpt:
         checkpoint_path = Path(args.resume_from_ckpt)
 
-        print(f"\n{'='*80}")
-        print(f"RESUMING FROM CHECKPOINT")
-        print(f"{'='*80}")
+        if is_main_process(rank):
+            print(f"\n{'='*80}")
+            print(f"RESUMING FROM CHECKPOINT")
+            print(f"{'='*80}")
+
         success = load_stage_checkpoint(model, str(checkpoint_path))
-        if not success:
-            print("Warning: Failed to load checkpoint. Starting from scratch.")
-        else:
-            print(f"Successfully loaded checkpoint from {checkpoint_path}")
-            print(f"Will start training from Stage {args.start_from_stage}")
-        print(f"{'='*80}\n")
+
+        if is_main_process(rank):
+            if not success:
+                print("Warning: Failed to load checkpoint. Starting from scratch.")
+            else:
+                print(f"Successfully loaded checkpoint from {checkpoint_path}")
+                print(f"Will start training from Stage {args.start_from_stage}")
+            print(f"{'='*80}\n")
 
     # Apply training configurations (after checkpoint load to ensure they override checkpoint settings)
 
     # Verify attention implementation
-    if hasattr(model.llm.config, '_attn_implementation'):
-        actual_attn = model.llm.config._attn_implementation
-        print(f"Current attention implementation: {actual_attn}")
-        if args.attn_implementation and actual_attn != args.attn_implementation:
-            print(f"  ⚠ Warning: Requested {args.attn_implementation} but model is using {actual_attn}")
-    elif hasattr(model.llm.config, 'attn_implementation'):
-        actual_attn = model.llm.config.attn_implementation
-        print(f"Current attention implementation: {actual_attn}")
+    if is_main_process(rank):
+        if hasattr(model.llm.config, '_attn_implementation'):
+            actual_attn = model.llm.config._attn_implementation
+            print(f"Current attention implementation: {actual_attn}")
+            if args.attn_implementation and actual_attn != args.attn_implementation:
+                print(f"  ⚠ Warning: Requested {args.attn_implementation} but model is using {actual_attn}")
+        elif hasattr(model.llm.config, 'attn_implementation'):
+            actual_attn = model.llm.config.attn_implementation
+            print(f"Current attention implementation: {actual_attn}")
 
     # Enable gradient checkpointing if requested
     if args.use_gradient_checkpointing:
-        print("Enabling gradient checkpointing for memory efficiency...")
+        if is_main_process(rank):
+            print("Enabling gradient checkpointing for memory efficiency...")
         try:
             # For PEFT/LoRA models, enable on the base model
             if hasattr(model.llm, 'enable_input_require_grads'):
                 model.llm.enable_input_require_grads()
             if hasattr(model.llm, 'gradient_checkpointing_enable'):
                 model.llm.gradient_checkpointing_enable()
-                print("  ✓ Gradient checkpointing enabled on LLM")
+                if is_main_process(rank):
+                    print("  ✓ Gradient checkpointing enabled on LLM")
             else:
-                print("  ⚠ Warning: Model does not support gradient_checkpointing_enable")
+                if is_main_process(rank):
+                    print("  ⚠ Warning: Model does not support gradient_checkpointing_enable")
         except Exception as e:
-            print(f"  ⚠ Warning: Could not enable gradient checkpointing: {e}")
+            if is_main_process(rank):
+                print(f"  ⚠ Warning: Could not enable gradient checkpointing: {e}")
 
-    print("\nBase model:")
-    print_model_info(model)
-    verify_lora_training(model)
+    if is_main_process(rank):
+        print("\nBase model:")
+        print_model_info(model)
+        verify_lora_training(model)
 
     # Create dataset and collator
-    print("\nLoading datasets...")
+    if is_main_process(rank):
+        print("\nLoading datasets...")
     if use_dummy:
         # Use simple dummy dataset for text-only initially
         train_dataset = DummyCADDataset(
@@ -541,10 +710,11 @@ def main():
             image_processor=img_processor
         )
 
-    print(f"Training samples: {len(train_dataset)}")
+    if is_main_process(rank):
+        print(f"Training samples: {len(train_dataset)}")
 
     # Initialize wandb
-    if args.use_wandb:
+    if args.use_wandb and is_main_process(rank):
         if not WANDB_AVAILABLE:
             print("Warning: wandb requested but not available. Skipping wandb logging.")
             train_config.use_wandb = False
@@ -593,11 +763,12 @@ def main():
             print(f"Wandb run URL: {wandb.run.url}")
 
     # Curriculum training
-    print("\n" + "="*80)
-    print("STARTING CURRICULUM TRAINING")
-    if args.start_from_stage > 1:
-        print(f"Resuming from Stage {args.start_from_stage} (skipping Stages 1-{args.start_from_stage-1})")
-    print("="*80)
+    if is_main_process(rank):
+        print("\n" + "="*80)
+        print("STARTING CURRICULUM TRAINING")
+        if args.start_from_stage > 1:
+            print(f"Resuming from Stage {args.start_from_stage} (skipping Stages 1-{args.start_from_stage-1})")
+        print("="*80)
 
     global_step = 0
     for stage_idx, stage in enumerate(train_config.curriculum_stages):
@@ -605,15 +776,17 @@ def main():
 
         # Skip stages if resuming from a checkpoint (convert user input to 0-indexed)
         if stage_number < args.start_from_stage:
-            print(f"\n{'#'*80}")
-            print(f"# SKIPPING STAGE {stage_number}/{len(train_config.curriculum_stages)}: {stage.name}")
-            print(f"# (Already completed in previous run)")
-            print(f"{'#'*80}\n")
+            if is_main_process(rank):
+                print(f"\n{'#'*80}")
+                print(f"# SKIPPING STAGE {stage_number}/{len(train_config.curriculum_stages)}: {stage.name}")
+                print(f"# (Already completed in previous run)")
+                print(f"{'#'*80}\n")
             continue
 
-        print(f"\n\n{'#'*80}")
-        print(f"# CURRICULUM STAGE {stage_number}/{len(train_config.curriculum_stages)}")
-        print(f"{'#'*80}\n")
+        if is_main_process(rank):
+            print(f"\n\n{'#'*80}")
+            print(f"# CURRICULUM STAGE {stage_number}/{len(train_config.curriculum_stages)}")
+            print(f"{'#'*80}\n")
 
         global_step = train_curriculum_stage(
             model=model,
@@ -622,18 +795,22 @@ def main():
             collator=collator,
             config=train_config,
             start_global_step=global_step,
+            args=args,
+            rank=rank,
+            world_size=world_size,
         )
 
     # Save final model
-    final_path = os.path.join(train_config.output_dir, "final_model")
-    model.save_pretrained(final_path)
-    print(f"\n\n{'='*80}")
-    print(f"CURRICULUM TRAINING COMPLETED!")
-    print(f"Final model saved to {final_path}")
-    print(f"{'='*80}\n")
+    if is_main_process(rank):
+        final_path = os.path.join(train_config.output_dir, "final_model")
+        model.save_pretrained(final_path)
+        print(f"\n\n{'='*80}")
+        print(f"CURRICULUM TRAINING COMPLETED!")
+        print(f"Final model saved to {final_path}")
+        print(f"{'='*80}\n")
 
     # Finish wandb run
-    if train_config.use_wandb and WANDB_AVAILABLE:
+    if train_config.use_wandb and WANDB_AVAILABLE and is_main_process(rank):
         wandb.finish()
 
 
