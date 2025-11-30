@@ -131,6 +131,7 @@ class CADAutocomplete:
         caption: str,
         image: Optional[Union[str, Path, Image.Image]] = None,
         point_cloud: Optional[Union[str, Path, np.ndarray]] = None,
+        output_path: Optional[str] = None,
         max_new_tokens: int = 3000,
         temperature: float = 0.7,
         top_p: float = 0.9,
@@ -209,11 +210,14 @@ class CADAutocomplete:
         attention_mask = torch.cat(attention_masks, dim=1)
         
         # 6. Generate using LLM directly
+        # CRITICAL: Use max_length = input_length + max_new_tokens to avoid truncation
+        max_total_length = inputs_embeds.shape[1] + max_new_tokens
+        
         with torch.no_grad():
             generated_ids = self.model.llm.generate(
                 inputs_embeds=inputs_embeds,
                 attention_mask=attention_mask,
-                max_new_tokens=max_new_tokens,
+                max_length=max_total_length,  # Use max_length, not max_new_tokens
                 temperature=temperature,
                 top_p=top_p,
                 do_sample=do_sample,
