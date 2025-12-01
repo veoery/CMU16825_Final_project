@@ -1,5 +1,5 @@
 # Stage 3
-CUDA_VISIBLE_DEVICES=4 python scripts/train_curriculum.py \
+CUDA_VISIBLE_DEVICES=3 python scripts/train_curriculum.py \
     --attn_implementation flash_attention_2 \
     --use_gradient_checkpointing \
     --use_wandb \
@@ -9,23 +9,23 @@ CUDA_VISIBLE_DEVICES=4 python scripts/train_curriculum.py \
     --omnicad_img_root ./data/Omni-CAD-subset-complete/img \
     --omnicad_pc_root ./data/Omni-CAD-subset-complete/pointcloud \
     --llm_model_name "Qwen/Qwen3-8B" \
-    --resume_from_ckpt "./CAD-MLLM-checkpoints/stage3_all/checkpoint-epoch0-step100-20251129_213538" \
+    --resume_from_ckpt "./CAD-MLLM-checkpoints/stage3_all/checkpoint-epoch0-step100-20251130_032154" \
     --start_from_stage 3 \
     --stage1_epochs 0 \
     --stage2_epochs 0 \
     --stage3_epochs 10 \
     --stage3_lr 2e-4 \
-    --max_seq_length 8192 \
+    --max_seq_length 4096 \
     --batch_size 1 \
     --gradient_accumulation_steps 16 \
     --lora_r 32 \
     --lora_alpha 64 \
     --warmup_steps 50 \
     --logging_steps 1000 \
-    --save_steps 100 \
+    --save_steps 130 \
     --device cuda \
     --dtype bfloat16 \
     --wandb_project "CAD-MLLM-stage_3" \
     --wandb_run_name "latent_pc" \
     --wandb_entity "yizhuod-cmu" \
-    --seed 30
+    --seed 0
