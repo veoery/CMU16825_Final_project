@@ -5,6 +5,7 @@ import json
 import h5py
 import numpy as np
 from OCC.Core.BRepCheck import BRepCheck_Analyzer
+np = np  # Ensure numpy is available for auto_generate_properties
 from OCC.Extend.DataExchange import read_step_file, write_step_file, write_ply_file
 import argparse
 import sys
@@ -24,6 +25,127 @@ else:
 from cadlib.extrude import CADSequence
 from cadlib.visualize import vec2CADsolid, create_CAD
 from file_utils import ensure_dir
+
+def auto_generate_sequence(entities):
+    """Auto-generate sequence from entities when it's missing.
+
+    Sequence is the execution order of CAD operations.
+    Algorithm:
+    1. Find all sketches referenced by extrudes
+    2. Add sketches in order of extrude references
+    3. Add all extrudes in order they appear
+    """
+    sequence = []
+    sketch_added = set()
+
+    # Find all extrudes and process them in order
+    for ent_id in sorted(entities.keys()):
+        ent = entities[ent_id]
+        ent_type = ent.get('type', '')
+
+        # Check if this is an extrude (Extrude, ExtrudeFeature, PadFeature, etc.)
+        if 'Extrude' in ent_type or 'Pad' in ent_type:
+            # Find sketch referenced by this extrude
+            profiles = ent.get('profiles', [])
+            if isinstance(profiles, list) and profiles:
+                # Get the first profile's sketch reference
+                first_profile = profiles[0] if profiles else {}
+                sketch_ref = None
+
+                if isinstance(first_profile, dict):
+                    sketch_ref = first_profile.get('sketch')
+
+                # Add sketch to sequence if it exists and not already added
+                if sketch_ref and sketch_ref in entities and sketch_ref not in sketch_added:
+                    sequence.append({
+                        'type': 'Sketch',
+                        'entity': sketch_ref
+                    })
+                    sketch_added.add(sketch_ref)
+
+            # Add the extrude itself
+            sequence.append({
+                'type': ent_type,
+                'entity': ent_id
+            })
+
+    return sequence if sequence else []
+
+
+def auto_generate_properties(entities):
+    """Auto-generate properties (bounding box) from entities.
+
+    Extracts all 3D points from entities and computes bounding box.
+    """
+    all_points = []
+
+    # Collect all points from sketches
+    for ent_id, ent in entities.items():
+        if ent.get('type') == 'Sketch':
+            profiles = ent.get('profiles', {})
+            if isinstance(profiles, dict):
+                for profile_id, profile in profiles.items():
+                    loops = profile.get('loops', [])
+                    if isinstance(loops, list):
+                        for loop in loops:
+                            curves = loop.get('profile_curves', [])
+                            if isinstance(curves, list):
+                                for curve in curves:
+                                    # Extract points from curve
+                                    if 'center_point' in curve:
+                                        pt = curve['center_point']
+                                        all_points.append([pt.get('x', 0), pt.get('y', 0), pt.get('z', 0)])
+                                    if 'start_point' in curve:
+                                        pt = curve['start_point']
+                                        all_points.append([pt.get('x', 0), pt.get('y', 0), pt.get('z', 0)])
+                                    if 'end_point' in curve:
+                                        pt = curve['end_point']
+                                        all_points.append([pt.get('x', 0), pt.get('y', 0), pt.get('z', 0)])
+
+    # Also add extrude extent values as z bounds
+    for ent_id, ent in entities.items():
+        ent_type = ent.get('type', '')
+        if 'Extrude' in ent_type or 'Pad' in ent_type:
+            # Get extent values to determine z height
+            extent_one = ent.get('extent_one', {})
+            if isinstance(extent_one, dict):
+                distance_obj = extent_one.get('distance', {})
+                if isinstance(distance_obj, dict):
+                    z_val = distance_obj.get('value', 0.0)
+                    # Add this as a z max point
+                    if all_points:
+                        all_points.append([all_points[0][0], all_points[0][1], z_val])
+
+    if not all_points:
+        # Default bounding box if no points found
+        return {
+            "bounding_box": {
+                "max_point": {"x": 0.1, "y": 0.1, "z": 0.1},
+                "min_point": {"x": -0.1, "y": -0.1, "z": 0.0},
+                "type": "BoundingBox3D"
+            }
+        }
+
+    # Compute bounding box
+    all_points = np.array(all_points)
+    min_point = all_points.min(axis=0)
+    max_point = all_points.max(axis=0)
+
+    return {
+        "bounding_box": {
+            "min_point": {
+                "x": float(min_point[0]),
+                "y": float(min_point[1]),
+                "z": float(min_point[2])
+            },
+            "max_point": {
+                "x": float(max_point[0]),
+                "y": float(max_point[1]),
+                "z": float(max_point[2])
+            },
+            "type": "BoundingBox3D"
+        }
+    }
 
 # Suppress OpenCASCADE verbose output
 class DevNull:
@@ -131,6 +253,24 @@ print(f"Source directory: {src_dir}")
 out_paths = sorted(glob.glob(os.path.join(src_dir, "**", f"*.{args.form}"), recursive=True))
 print(f"Found {len(out_paths)} files")
 
+# Filter out non-CAD JSON files (validation results, summaries, etc.)
+if args.form == "json":
+    filtered_paths = []
+    for path in out_paths:
+        try:
+            with open(path, 'r') as f:
+                data = json.load(f)
+                # Keep only files with CAD structure (entities and either sequence or properties)
+                if isinstance(data, dict) and 'entities' in data and \
+                   (('sequence' in data or 'properties' in data) or len(data.get('entities', {})) > 0):
+                    filtered_paths.append(path)
+        except (json.JSONDecodeError, IOError):
+            # Skip files that can't be parsed
+            pass
+
+    out_paths = filtered_paths
+    print(f"After filtering non-CAD files: {len(out_paths)} CAD JSON files")
+
 if args.num != -1:
     out_paths = out_paths[args.idx:args.idx+args.num]
     print(f"Processing {len(out_paths)} files (from index {args.idx})")
@@ -172,6 +312,19 @@ with tqdm(total=len(out_paths), desc=f"Exporting to {suffix.upper()}", unit="fil
             else:
                 with open(path, 'r') as fp:
                     data = json.load(fp)
+
+                # Auto-repair: generate missing fields from entities
+                if 'entities' in data:
+                    entities = data['entities']
+
+                    # 1. Auto-generate sequence if missing
+                    if 'sequence' not in data:
+                        data['sequence'] = auto_generate_sequence(entities)
+
+                    # 2. Auto-generate properties (bounding box) if missing
+                    if 'properties' not in data:
+                        data['properties'] = auto_generate_properties(entities)
+
                 cad_seq = CADSequence.from_dict(data)
                 cad_seq.normalize()
                 out_shape = create_CAD(cad_seq)

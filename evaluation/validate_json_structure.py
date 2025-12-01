@@ -137,7 +137,17 @@ class JSONValidator:
 
             # Find ground truth file
             folder = sample_id[:4]  # e.g., "0090"
-            gt_pattern = os.path.join(self.gt_root, folder, f"{sample_id}*.json")
+
+            # Check if gt_root already contains the folder (e.g., ends with /0090)
+            # If so, don't add folder prefix again
+            gt_root_basename = os.path.basename(self.gt_root)
+            if gt_root_basename.isdigit() and gt_root_basename == folder:
+                # gt_root is already at folder level (e.g., /path/to/0090)
+                gt_pattern = os.path.join(self.gt_root, f"{sample_id}*.json")
+            else:
+                # gt_root is at parent level, need to add folder
+                gt_pattern = os.path.join(self.gt_root, folder, f"{sample_id}*.json")
+
             gt_files = glob.glob(gt_pattern)
 
             if not gt_files:

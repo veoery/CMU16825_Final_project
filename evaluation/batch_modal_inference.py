@@ -12,6 +12,7 @@ import modal
 import os
 import glob
 import json
+import shutil
 from pathlib import Path
 import argparse
 
@@ -39,25 +40,16 @@ app = modal.App(name="cad-mllm-batch-inference", image=image)
 volume = modal.Volume.from_name("l43d", create_if_missing=False)
 
 
-@app.function(gpu="A100", cpu=4, memory=32768, timeout=1800, volumes={"/mnt/data": volume})
+@app.function(gpu="A100", cpu=4, memory=32768, timeout=3600, volumes={"/mnt/data": volume})
 def run_single_inference(
     repo: str,
     prompt: str,
-    image_paths: list,
+    image_paths: list,  # List of image paths for multi-view support
     pc_path: str,
     max_tokens: int = 10240,
-    temperature: float = 0.7,
+    temperature: float = 0.5,
 ):
-    """Run inference for a single sample.
-
-    Args:
-        repo: HuggingFace model repo
-        prompt: Text prompt
-        image_paths: List of image paths (supports multi-view)
-        pc_path: Point cloud path
-        max_tokens: Max tokens to generate
-        temperature: Generation temperature
-    """
+    """Run inference for a single sample."""
     import torch
     import numpy as np
     import json
@@ -146,11 +138,8 @@ def run_single_inference(
         return {"status": "error", "message": str(e)}
 
     print("\n" + "="*70)
-    print(f"[DEBUG] run_single_inference called with:")
-    print(f"[DEBUG]   image_paths type: {type(image_paths)}")
-    print(f"[DEBUG]   image_paths length: {len(image_paths)}")
-    print(f"[DEBUG]   image_paths content: {image_paths}")
-    print(f"Inference for {len(image_paths)} image(s) + point cloud + text")
+    print(f"[DEBUG] run_single_inference called with {len(image_paths)} image(s)")
+    print(f"[DEBUG] image_paths: {image_paths}")
     print("="*70)
 
     # Load models
@@ -188,17 +177,12 @@ def run_single_inference(
         weights_only=False,
     )
 
-    print(f"   Image projector state keys: {list(img_proj_state.keys())}")
-    print(f"   Point projector state keys: {list(pc_proj_state.keys())}")
-
     weight_keys = [k for k in img_proj_state.keys() if 'weight' in k]
     img_in_dim = img_proj_state[weight_keys[0]].shape[1]
     out_dim = img_proj_state[weight_keys[-1]].shape[0]
-    print(f"   Image projector: input_dim={img_in_dim}, output_dim={out_dim}")
 
     weight_keys_pc = [k for k in pc_proj_state.keys() if 'weight' in k]
     pc_in_dim = pc_proj_state[weight_keys_pc[0]].shape[1]
-    print(f"   Point projector: input_dim={pc_in_dim}, output_dim={out_dim}")
 
     class ProjectorWrapper(torch.nn.Module):
         def __init__(self, in_dim, hidden_dim, out_dim):
@@ -223,228 +207,204 @@ def run_single_inference(
 
     # Load encoders
     print("📦 Loading encoders...")
-    from cad_mllm.encoders import ImageEncoder
-    image_encoder = ImageEncoder(model_name="facebook/dinov2-large", torch_dtype=dtype, freeze=True)
+    image_processor = AutoImageProcessor.from_pretrained("facebook/dinov2-large")
+    image_encoder = Dinov2Model.from_pretrained("facebook/dinov2-large", torch_dtype=dtype)
     image_encoder = image_encoder.to(device).eval()
-    image_processor = image_encoder.processor
-
+    
     point_encoder = None
+    print(f"   [DEBUG] CWD: {os.getcwd()}")
+    # try:
+    #     print("[DEBUG] try import pc encoder")
+    #     from cad_mllm.encoders import MichelangeloPointEncoder, PointCloudEncoder
+    #     cfg_path = os.path.join(project_root, "configs", "michelangelo_point_encoder_cfg.yaml")
+    #     sd_path = None
+
+    #     possible_sd_paths = [
+    #         os.path.join(project_root, "checkpoints", "michelangelo_point_encoder_state_dict.pt"),
+    #         os.path.join(project_root, "Michelangelo", "checkpoints", "michelangelo_point_encoder_state_dict.pt"),
+    #     ]
+
+    #     for path in possible_sd_paths:
+    #         if os.path.exists(path):
+    #             sd_path = path
+    #             break
+
+    #     if sd_path:
+    #         print(f"[DEBUG] sd_path: {sd_path}")
+    #         point_encoder = MichelangeloPointEncoder(
+    #             encoder_cfg_path=cfg_path,
+    #             encoder_sd_path=sd_path,
+    #             num_points=2048,
+    #             dtype=dtype,
+    #             freeze=True,
+    #             device=device,
+    #         )
+    #         print("   ✓ Point encoder loaded")
+    # except Exception as e:
+    #     print(f"   ⚠️ Point encoder not available: {e}")
+    # ... inside run_single_inference ...
+
     try:
-        print(f"   [DEBUG] Attempting to import MichelangeloPointEncoder...")
-        print(f"   [DEBUG] project_root: {project_root}")
-        print(f"   [DEBUG] sys.path includes:")
-        for p in sys.path[:5]:
-            print(f"           {p}")
-
-        from cad_mllm.encoders import MichelangeloPointEncoder
-        print(f"   [DEBUG] ✓ Import successful")
-
-        # Try multiple config paths (project_root is /mnt/data/CMU16825_Final_project)
-        possible_cfg_paths = [
-            os.path.join(project_root, "configs", "michelangelo_point_encoder_cfg.yaml"),
-            "/mnt/data/CMU16825_Final_project/configs/michelangelo_point_encoder_cfg.yaml",
-        ]
-
-        cfg_path = None
-        print(f"   [DEBUG] Checking config paths:")
-        for path in possible_cfg_paths:
-            exists = os.path.exists(path)
-            print(f"           {path}: {exists}")
-            if exists:
-                cfg_path = path
-                print(f"   [DEBUG] ✓ Using config: {cfg_path}")
-                break
-
-        if not cfg_path:
-            print(f"   ⚠️ No config file found at any path")
-            raise FileNotFoundError("michelangelo_point_encoder_cfg.yaml not found")
-
+        print("[DEBUG] try import pc encoder")
+        from cad_mllm.encoders import MichelangeloPointEncoder, PointCloudEncoder
+        
+        # 1. Fix Config Path (Ensure this exists too!)
+        cfg_path = os.path.join(project_root, "configs", "michelangelo_point_encoder_cfg.yaml")
+        
         sd_path = None
-        # Check multiple locations for state dict
-        # Based on Modal notebook: state dict is in /mnt/data/michelangelo_pt/ NOT in project root
+
+        # 2. UPDATE THESE PATHS to match your Volume layout
         possible_sd_paths = [
-            # In Modal Volume root (where it actually is in production)
-            os.path.join("/mnt/data", "michelangelo_pt", "michelangelo_point_encoder_state_dict.pt"),
-            # Parent of project_root in case it's organized differently
-            os.path.join(os.path.dirname(project_root), "michelangelo_pt", "michelangelo_point_encoder_state_dict.pt"),
-            # Original location in project (fallback)
+            # Original repo paths
             os.path.join(project_root, "checkpoints", "michelangelo_point_encoder_state_dict.pt"),
-            # In Michelangelo subdirectory (fallback)
             os.path.join(project_root, "Michelangelo", "checkpoints", "michelangelo_point_encoder_state_dict.pt"),
+            
+            # ✅ ADD THIS: The likely location on your volume based on previous chats
+            "/mnt/data/michelangelo_pt/michelangelo_point_encoder_state_dict.pt",
+            "/mnt/data/checkpoints/michelangelo_point_encoder_state_dict.pt",
+            
+            # ✅ ADD THIS: Check the repo folder itself just in case
+            "/mnt/data/CMU16825_Final_project/michelangelo_point_encoder_state_dict.pt"
         ]
 
-        print(f"   [DEBUG] Checking state dict paths:")
+        print(f"   [DEBUG] Searching for PC weights in: {possible_sd_paths}")
+
         for path in possible_sd_paths:
-            exists = os.path.exists(path)
-            print(f"           {path}: {exists}")
-            if exists:
+            if os.path.exists(path):
                 sd_path = path
-                print(f"   [DEBUG] ✓ Found state dict!")
+                print(f"   [DEBUG] Found PC weights at: {sd_path}")
                 break
 
-        if not sd_path:
-            print(f"   ⚠️ No state dict found at any path")
-        else:
-            print(f"   [DEBUG] Using state dict: {sd_path}")
+        if sd_path:
+            # ... existing initialization code ...
+            # FIX: Pass the found path explicitly
             point_encoder = MichelangeloPointEncoder(
                 encoder_cfg_path=cfg_path,
-                encoder_sd_path=sd_path,
+                encoder_sd_path=sd_path, # <--- Pass the found path here
                 num_points=2048,
                 dtype=dtype,
                 freeze=True,
-                device=device,
+                device=device
             )
-            print(f"   ✓ Point encoder loaded - output_dim={point_encoder.output_dim}")
-    except ImportError as e:
-        print(f"   ❌ Import error: {e}")
-        import traceback
-        traceback.print_exc()
+            print("   ✓ Point encoder loaded")
+        else:
+            # 3. Add an explicit error print if not found
+            print(f"   ❌ CRITICAL: Point encoder weights NOT found. listing /mnt/data to debug:")
+            try:
+                print(os.listdir("/mnt/data"))
+            except:
+                pass
+
     except Exception as e:
-        print(f"   ⚠️ Point encoder not available: {e}")
+        print(f"   ⚠️ Point encoder init failed with error: {e}")
         import traceback
-        traceback.print_exc()
+        traceback.print_exc() # Print full error stack trace
 
     # Process inputs
     print(f"\n🖼️  Processing {len(image_paths)} image(s) (multi-view)...")
     embeddings = []
     masks = []
-
+    
     try:
         # Process each image individually and collect embeddings
         total_image_tokens = 0
+        image_paths = image_paths[:3]
+        print(f"⚠️ ⚠️ ⚠️ TAKE ONLY {len(image_paths)}")
         for img_idx, img_path in enumerate(image_paths):
             print(f"   [{img_idx + 1}/{len(image_paths)}] Reading: {os.path.basename(img_path)}")
             try:
                 image = Image.open(img_path).convert("RGB")
-                print(f"       - Size: {image.size}")
+                # print(f"       - Size: {image.size}") # Optional debug
 
                 # Process single image
                 inputs = image_processor(images=image, return_tensors="pt")
                 pixel_values = inputs["pixel_values"].to(device)
-                print(f"       - Processor output shape: {pixel_values.shape}")
 
                 with torch.no_grad():
-                    img_feats = image_encoder(pixel_values=pixel_values)
-                    print(f"       - ImageEncoder output shape: {img_feats.shape}")
-                    img_feats_dtype = img_feats.to(dtype)
-                    img_embeds = image_projector(img_feats_dtype)
-                    print(f"       - Projected embedding shape: {img_embeds.shape}")
+                    # Encode
+                    img_feats = image_encoder(pixel_values=pixel_values).last_hidden_state[:, 1:, :]
+                    # Project
+                    img_embeds = image_projector(img_feats.to(dtype))
 
                 embeddings.append(img_embeds)
                 masks.append(torch.ones(img_embeds.shape[:2], device=device))
-                total_image_tokens += img_embeds.shape[1]
+                
+                current_tokens = img_embeds.shape[1]
+                total_image_tokens += current_tokens
+                # print(f"       - Embedding shape: {img_embeds.shape}") # Optional debug
 
             except Exception as e:
                 print(f"       ❌ Failed to process {img_path}: {e}")
+                # Depending on strictness, you might want to return error or continue
                 return {"status": "error", "message": f"Image error: {e}"}
 
         # Check if we actually got embeddings
         if not embeddings:
             return {"status": "error", "message": "No valid images processed"}
 
+        # --- FIX IS HERE ---
+        # Do NOT convert to tensor yet if you plan to append PC/Text tokens to this list later.
+        # Just calculate the shape for printing.
+        token_sum = sum(e.shape[1] for e in embeddings)
+        embedding_dim = embeddings[0].shape[2]
+        
         print(f"   ✓ Total Image Features: {total_image_tokens} tokens from {len(image_paths)} views")
+        print(f"   ✓ Combined Image shape will be: [1, {token_sum}, {embedding_dim}]") 
 
     except Exception as e:
         print(f"   ❌ Image processing failed: {e}")
         return {"status": "error", "message": f"Image processing failed: {e}"}
+    # print("⚠️ ⚠️ ⚠️ Test 5: Skip IMG")
+    print("⚠️ ⚠️ ⚠️ Test 7: DISABLE PC FOR TEST")
+    # # Point cloud
+    # print(f"☁️  Processing point cloud...")
+    # print(f"[DEBUG] point_encoder exists: {point_encoder is not None}")
+    # if point_encoder:
+    #     try:
+    #         data = np.load(pc_path)
+    #         for key in ['points', 'xyz', 'point_cloud', 'data']:
+    #             if key in data.files:
+    #                 points = data[key].astype(np.float32)
+    #                 break
+    #         else:
+    #             raise KeyError(f"No points found in {pc_path}")
 
-    # Point cloud
-    print(f"☁️  Processing point cloud...")
-    print(f"   Point cloud path: {pc_path}")
-    print(f"   Point encoder available: {point_encoder is not None}")
-
-    if point_encoder:
-        try:
-            print(f"   Attempting to load point cloud...")
-            if not os.path.exists(pc_path):
-                raise FileNotFoundError(f"Point cloud file not found: {pc_path}")
-
-            data = np.load(pc_path)
-            print(f"   Loaded NPZ with keys: {list(data.files)}")
-
-            points = None
-            for key in ['points', 'xyz', 'point_cloud', 'data']:
-                if key in data.files:
-                    points = data[key].astype(np.float32)
-                    print(f"   ✓ Found key '{key}': shape {points.shape}, dtype {points.dtype}")
-                    break
-
-            if points is None:
-                raise KeyError(f"No points found in {pc_path}. Available keys: {list(data.files)}")
-
-            print(f"   [DEBUG] Converting to tensor...")
-            points_tensor = torch.from_numpy(points)
-            print(f"   [DEBUG] After from_numpy: {points_tensor.shape}, dtype: {points_tensor.dtype}")
-            points_unsqueezed = points_tensor.unsqueeze(0)
-            print(f"   [DEBUG] After unsqueeze(0): {points_unsqueezed.shape}")
-            points = points_unsqueezed.to(device)
-            print(f"   [DEBUG] After to(device): {points.shape}, device: {points.device}")
-            points = points.to(dtype)
-            print(f"   [DEBUG] After to(dtype): {points.shape}, dtype: {points.dtype}")
-
-            print(f"   [DEBUG] Passing to MichelangeloPointEncoder...")
-            with torch.no_grad():
-                pc_feats = point_encoder(points)
-                print(f"   [DEBUG] Encoder output shape: {pc_feats.shape}")
-                print(f"   [DEBUG] Encoder output dtype: {pc_feats.dtype}")
-                print(f"   [DEBUG] Projecting features (shape before: {pc_feats.shape})...")
-                pc_feats_dtype = pc_feats.to(dtype)
-                print(f"   [DEBUG] After to(dtype): {pc_feats_dtype.shape}, dtype: {pc_feats_dtype.dtype}")
-                pc_embeds = point_projector(pc_feats_dtype)
-                print(f"   [DEBUG] After point_projector: {pc_embeds.shape}, dtype: {pc_embeds.dtype}")
-
-            print(f"   [DEBUG] Appending to embeddings list...")
-            embeddings.append(pc_embeds)
-            print(f"   [DEBUG] Creating attention mask (shape: {pc_embeds.shape[:2]})...")
-            masks.append(torch.ones(pc_embeds.shape[:2], device=device))
-            print(f"   ✓ Point cloud embedding shape: {pc_embeds.shape}")
-        except Exception as e:
-            print(f"   ❌ Point cloud processing failed: {e}")
-            import traceback
-            print("   Full traceback:")
-            traceback.print_exc()
-            print(f"   Continuing without point cloud...")
-    else:
-        print(f"   ⚠️ Point encoder not available (will skip point cloud)")
+    #         points = torch.from_numpy(points).unsqueeze(0).to(device).to(dtype)
+    #         with torch.no_grad():
+    #             pc_feats = point_encoder(points)
+    #             pc_embeds = point_projector(pc_feats.to(dtype))
+    #         embeddings.append(pc_embeds)
+            
+    #         masks.append(torch.ones(pc_embeds.shape[:2], device=device))
+    #         print(f"   ✓ Point cloud shape: {pc_embeds.shape}")
+    #     except Exception as e:
+    #         print(f"   ⚠️ Point cloud processing failed: {e}")
+    # else:
+    #     print(f"[DEBUG] exist: {point_encoder}")
+    #     print()
 
     # Text
     print(f"📝 Processing text...")
-    print(f"   [DEBUG] Tokenizing prompt...")
     text_inputs = tokenizer(prompt, return_tensors="pt", padding=False, truncation=True, max_length=512)
-    print(f"   [DEBUG] Text input_ids shape: {text_inputs['input_ids'].shape}")
-    print(f"   [DEBUG] Moving to device...")
     text_inputs = {k: v.to(device) for k, v in text_inputs.items()}
-    print(f"   [DEBUG] Getting embeddings...")
     with torch.no_grad():
         text_embeds = llm.model.embed_tokens(text_inputs["input_ids"])
-    print(f"   [DEBUG] Text embeddings shape: {text_embeds.shape}, dtype: {text_embeds.dtype}")
     embeddings.append(text_embeds)
-    print(f"   [DEBUG] Appending text attention mask...")
     masks.append(text_inputs["attention_mask"])
     print(f"   ✓ Text shape: {text_embeds.shape}")
 
     # Generate
-    print(f"\n   [DEBUG] Concatenating embeddings...")
-    print(f"   [DEBUG] Number of embedding tensors: {len(embeddings)}")
-    for i, emb in enumerate(embeddings):
-        print(f"      [{i}] Shape: {emb.shape}, dtype: {emb.dtype}")
     inputs_embeds = torch.cat(embeddings, dim=1)
-    print(f"   [DEBUG] After concatenation: {inputs_embeds.shape}, dtype: {inputs_embeds.dtype}")
-
-    print(f"   [DEBUG] Concatenating attention masks...")
-    print(f"   [DEBUG] Number of mask tensors: {len(masks)}")
-    for i, mask in enumerate(masks):
-        print(f"      [{i}] Shape: {mask.shape}, dtype: {mask.dtype}")
     attention_mask = torch.cat(masks, dim=1)
-    print(f"   [DEBUG] After concatenation: {attention_mask.shape}, dtype: {attention_mask.dtype}")
-
-    print(f"\n🚀 Generating {max_tokens} tokens...")
+    # max_tokens = 4096 #TODO: TEST CHANGE BACK LTR
+    print(f"\n🚀 Generating {max_tokens} tokens, with temperature = {temperature}...")
 
     with torch.no_grad():
         outputs = model.generate(
             inputs_embeds=inputs_embeds,
             attention_mask=attention_mask,
             max_new_tokens=max_tokens,
+            # max_new_tokens=4096, #TODO: TEST CHANGE BACK LTR
             temperature=temperature,
             top_p=0.9,
             do_sample=True,
@@ -453,9 +413,8 @@ def run_single_inference(
         )
 
     result = tokenizer.decode(outputs[0], skip_special_tokens=True)
-
     print("\n" + "="*70)
-    print("RAW OUTPUT (first 1000 chars)")
+    print("RAW OUTPUT (first 1000 chars) ")
     print("="*70)
     print(result[:1000])
     if len(result) > 1000:
@@ -467,17 +426,19 @@ def run_single_inference(
 
     # Save raw output and JSON to Modal Volume
     from datetime import datetime
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    sample_name = os.path.basename(image_paths[0]).split('_')[0:2]
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M")
+    sample_id = os.path.basename(image_paths[0]).split('_')[0:2]
+    sample_id_str = "_".join(sample_id)
 
-    raw_output_dir = "/mnt/data/output_ckpt_4/raw"
-    json_output_dir = "/mnt/data/output_ckpt_4/json"
+    OUTPUT_VER = "B4_txt_3img_fix_case"
+    raw_output_dir = f"/mnt/data/output_ckpt_4_{OUTPUT_VER}/raw"
+    json_output_dir = f"/mnt/data/output_ckpt_4_{OUTPUT_VER}/json"
 
     os.makedirs(raw_output_dir, exist_ok=True)
     os.makedirs(json_output_dir, exist_ok=True)
 
-    raw_filename = f"output_{timestamp}.txt"
-    json_filename = f"output_{timestamp}.json"
+    raw_filename = f"{sample_id_str}_repaired_{timestamp}.txt"
+    json_filename = f"{sample_id_str}_repaired_{timestamp}.json"
 
     raw_path = os.path.join(raw_output_dir, raw_filename)
     json_path = os.path.join(json_output_dir, json_filename)
@@ -501,7 +462,7 @@ def run_single_inference(
 
         return {
             "status": "success",
-            "sample_id": sample_name,
+            "sample_id": sample_id_str,
             "json_length": len(clean_json_str),
             "has_valid_json": True,
             "raw_file": raw_path,
@@ -511,7 +472,7 @@ def run_single_inference(
         print("⚠️ Could not extract valid JSON")
         return {
             "status": "warning",
-            "sample_id": sample_name,
+            "sample_id": sample_id_str,
             "message": "JSON extraction failed but generation succeeded",
             "raw_file": raw_path,
         }
@@ -530,7 +491,7 @@ def prepare_samples(folder: str = "0090", num_samples: int = 2, max_new_tokens: 
     from transformers import AutoTokenizer
 
     if already_generated is None:
-        already_generated = []
+        already_generated = ["00900284_00001", "00900312_00003", "00900387_00001", "00900654_00001", "00900730_00001"]
 
     # Use /mnt/data path (Modal Volume mount)
     vol_root = "/mnt/data"
@@ -565,7 +526,19 @@ def prepare_samples(folder: str = "0090", num_samples: int = 2, max_new_tokens: 
     print(f"{'SAMPLE_ID':<25} | {'GT_TOKENS':<12} | {'STATUS':<15}")
     print("-" * 60)
 
+    """
+    FIXED SPECIAL COMAPRE SET:
+    "00907893_00007": a key like thing (bigger)
+    "00902663_00003": should be just a box
+    "00901845_00003": a key like thing
+    "00900387_00001": B1_COMPARE (likely nice in B1), cylinder with hollow
+    "00901551_00005": B2_COMPARE, 2 cylinder-fail in B2 too, L shape things.
+    """
+
+    SPECIAL_SET = ["00907893_00007", "00902663_00003", "00901845_00003", "00900387_00001", "00901551_00005"]
     valid_sample_ids = []
+    valid_sample_ids.extend(SPECIAL_SET)
+    print("ADDED SPECIAL TEST SET")
 
     for gt_json_file in gt_json_files:
         sample_id = os.path.splitext(os.path.basename(gt_json_file))[0]
@@ -586,10 +559,10 @@ def prepare_samples(folder: str = "0090", num_samples: int = 2, max_new_tokens: 
             if min_tokens < token_count < max_new_tokens:
                 valid_sample_ids.append(sample_id)
                 status = "✓ VALID"
-                print(f"{sample_id:<25} | {token_count:<12} | {status:<15}")
-            else:
-                status = f"✗ OUT_OF_RANGE"
-                print(f"{sample_id:<25} | {token_count:<12} | {status:<15}")
+                # print(f"{sample_id:<25} | {token_count:<12} | {status:<15}")
+            # else:
+            #     status = f"✗ OUT_OF_RANGE"
+            #     print(f"{sample_id:<25} | {token_count:<12} | {status:<15}")
 
             # Continue scanning ALL files - don't stop early!
             # We'll filter by file availability in the next step
@@ -665,6 +638,53 @@ def prepare_samples(folder: str = "0090", num_samples: int = 2, max_new_tokens: 
         print(f"   Point clouds: {pc_folder}")
 
     return samples
+
+def zip_output_versions(output_versions: list):
+    """Zip output directories for easy download."""
+    print("\n" + "="*70)
+    print("ZIPPING OUTPUT DIRECTORIES")
+    print("="*70)
+
+    VOL_ROOT = "/mnt/data"
+    zip_info = []
+
+    for output_version in output_versions:
+        output_dir = os.path.join("/mnt/data", f"output_ckpt_4_{output_version}")
+
+        if not os.path.exists(output_dir):
+            print(f"⚠️  Directory not found: {output_dir}")
+            continue
+
+        # Create zip file
+        zip_name = f"output_ckpt_4_{output_version}"
+        zip_path = os.path.join(VOL_ROOT, zip_name)
+
+        try:
+            print(f"\n📦 Zipping {output_version}...")
+            shutil.make_archive(zip_path, 'zip', output_dir)
+
+            zip_size_mb = os.path.getsize(f"{zip_path}.zip") / (1024 * 1024)
+            file_count = sum([len(files) for _, _, files in os.walk(output_dir)])
+
+            print(f"   ✅ Created: {zip_name}.zip")
+            print(f"   Size: {zip_size_mb:.1f} MB")
+            print(f"   Files: {file_count}")
+
+            zip_info.append({
+                'name': zip_name,
+                'size_mb': zip_size_mb,
+                'files': file_count
+            })
+        except Exception as e:
+            print(f"   ❌ Error: {e}")
+
+    if zip_info:
+        print(f"\n{'='*70}")
+        print("📥 READY FOR DOWNLOAD:")
+        print(f"{'='*70}")
+        for info in zip_info:
+            print(f"  • {info['name']}.zip ({info['size_mb']:.1f} MB, {info['files']} files)")
+        print(f"{'='*70}\n")
 
 
 @app.local_entrypoint()
@@ -756,8 +776,15 @@ def main(
         print()
 
     print("-" * 70)
+    OUTPUT_VER = "B4_txt_3img_fix_case"
     print(f"\n💾 FILES SAVED TO MODAL VOLUME:")
-    print(f"   Raw outputs:  /mnt/data/output_ckpt_4/raw/")
-    print(f"   JSON outputs: /mnt/data/output_ckpt_4/json/")
+    print(f"   Raw outputs:  /mnt/data/output_ckpt_4_{OUTPUT_VER}/raw/")
+    print(f"   JSON outputs: /mnt/data/output_ckpt_4_{OUTPUT_VER}/json/")
     print(f"\n📥 Download with: ./retrieve_results.sh")
     print("="*70)
+
+    # Zip output directories for download (optional)
+    # Uncomment the line below to automatically zip after inference
+    zip_output_versions([OUTPUT_VER])
+
+
