@@ -355,33 +355,33 @@ def run_single_inference(
         print(f"   ❌ Image processing failed: {e}")
         return {"status": "error", "message": f"Image processing failed: {e}"}
     # print("⚠️ ⚠️ ⚠️ Test 5: Skip IMG")
-    print("⚠️ ⚠️ ⚠️ Test 7: DISABLE PC FOR TEST")
-    # # Point cloud
-    # print(f"☁️  Processing point cloud...")
-    # print(f"[DEBUG] point_encoder exists: {point_encoder is not None}")
-    # if point_encoder:
-    #     try:
-    #         data = np.load(pc_path)
-    #         for key in ['points', 'xyz', 'point_cloud', 'data']:
-    #             if key in data.files:
-    #                 points = data[key].astype(np.float32)
-    #                 break
-    #         else:
-    #             raise KeyError(f"No points found in {pc_path}")
+    # print("⚠️ ⚠️ ⚠️ Test 7: DISABLE PC FOR TEST")
+    # Point cloud
+    print(f"☁️  Processing point cloud...")
+    print(f"[DEBUG] point_encoder exists: {point_encoder is not None}")
+    if point_encoder:
+        try:
+            data = np.load(pc_path)
+            for key in ['points', 'xyz', 'point_cloud', 'data']:
+                if key in data.files:
+                    points = data[key].astype(np.float32)
+                    break
+            else:
+                raise KeyError(f"No points found in {pc_path}")
 
-    #         points = torch.from_numpy(points).unsqueeze(0).to(device).to(dtype)
-    #         with torch.no_grad():
-    #             pc_feats = point_encoder(points)
-    #             pc_embeds = point_projector(pc_feats.to(dtype))
-    #         embeddings.append(pc_embeds)
+            points = torch.from_numpy(points).unsqueeze(0).to(device).to(dtype)
+            with torch.no_grad():
+                pc_feats = point_encoder(points)
+                pc_embeds = point_projector(pc_feats.to(dtype))
+            embeddings.append(pc_embeds)
             
-    #         masks.append(torch.ones(pc_embeds.shape[:2], device=device))
-    #         print(f"   ✓ Point cloud shape: {pc_embeds.shape}")
-    #     except Exception as e:
-    #         print(f"   ⚠️ Point cloud processing failed: {e}")
-    # else:
-    #     print(f"[DEBUG] exist: {point_encoder}")
-    #     print()
+            masks.append(torch.ones(pc_embeds.shape[:2], device=device))
+            print(f"   ✓ Point cloud shape: {pc_embeds.shape}")
+        except Exception as e:
+            print(f"   ⚠️ Point cloud processing failed: {e}")
+    else:
+        print(f"[DEBUG] exist: {point_encoder}")
+        print()
 
     # Text
     print(f"📝 Processing text...")
