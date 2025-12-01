@@ -51,7 +51,7 @@ echo "Clearing CUDA cache..."
 python -c "import torch; torch.cuda.empty_cache() if torch.cuda.is_available() else None"
 
 # Run training
-python scripts/train_curriculum.py \
+CUDA_VISIBLE_DEVICES=4 python scripts/train_curriculum.py \
     --use_autocomplete_dataset \
     --truncated_json_root "$TRUNCATED_JSON" \
     --omnicad_txt_path "$TXT_PATH" \
@@ -67,7 +67,6 @@ python scripts/train_curriculum.py \
     --max_seq_length $MAX_SEQ_LEN \
     --batch_size $BATCH_SIZE \
     --gradient_accumulation_steps $GRAD_ACCUM \
-    --max_train_samples $MAX_SAMPLES \
     --lora_r $LORA_R \
     --lora_alpha 16 \
     --warmup_steps 10 \
@@ -79,7 +78,7 @@ python scripts/train_curriculum.py \
     --use_wandb \
     --wandb_entity "yizhuod-cmu" \
     --wandb_project "CAD-MLLM-Autocomplete-Test" \
-    --output_dir "./outputs_test_4096"
+    --output_dir "./autocomplete_ckpts"
 
 echo ""
 echo "============================="

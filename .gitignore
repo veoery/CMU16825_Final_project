@@ -9,3 +9,4 @@ outputs_curriculum/
 .DS_Store
 CAD-MLLM-checkpoints/
 outputs_test_4096/
+autocomplete_ckpts/

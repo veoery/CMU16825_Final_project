@@ -254,6 +254,8 @@ class MultimodalAutocompleteDataset(Dataset):
             # Use truncated as fallback (shouldn't happen in valid data)
             full_seq = json.dumps(truncated_json, separators=(',', ':'))
             kept_operations = len(truncated_json.get("sequence", []))
+            truncated_json = {"entities": truncated_json["entities"]}
+            truncated_seq = json.dumps(truncated_json, separators=(',', ':'))
             # print(truncated_json.get("sequence", []))
             # print(f"kept_operations = {kept_operations}")
         else:
