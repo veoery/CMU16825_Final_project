@@ -7,3 +7,4 @@ outputs_curriculum/
 3rd_party/
 .venv/
 .DS_Store
+CAD-MLLM-checkpoints/
