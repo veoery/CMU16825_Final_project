@@ -281,37 +281,53 @@ data/Omni-CAD-subset/
 
 ### Dynamic Masking Implementation
 
-The autocomplete collator implements structure-aware masking:
-
-**Input Format:**
-```
-Complete this CAD sequence: <caption>
-<full_json_sequence>
-```
-
-**Masking Strategy:**
-1. Load `truncated_json` to extract `kept_operations` from metadata
-2. Reconstruct partial JSON: `partial["sequence"] = full["sequence"][:kept_operations]`
-3. Tokenize partial JSON to find exact token boundary
-4. Mask all tokens up to that boundary (prompt + seen operations)
-5. Compute loss only on tokens after the boundary (operations to be generated)
-
-**Example:**
 ```python
-# Full sequence has 100 operations, truncated keeps 40
-kept_operations = 40
+# 1. Extract truncated_seq.
+truncated_json = {"entities": truncated_json["entities"]}
+truncated_seq = json.dumps(truncated_json, separators=(',', ':'))
 
-# Partial: operations[0:40] → tokenize → 3500 tokens
-# Full: operations[0:100] → tokenize → 6500 tokens
+result = {
+    "input_text": text_caption,
+    "full_seq": full_seq,
+    "truncated_seq": truncated_seq,
+    "kept_operations": kept_operations,
+    "cad_id": cad_id,
+    "modality": modality,
+}
 
-# Masking: labels[:, :3500] = -100 (no loss on "already seen" part)
-#          labels[:, 3500:] = actual_tokens (compute loss here)
+# 2. Construct prompt_texts (input_text + seen commands) and formatted_texts (input_text + full commands)
+formatted_texts = []
+prompt_texts = []
+kept_ops_list = []
+for sample in batch:
+    prompt = f"Complete this CAD sequence: {sample['input_text']}\n{sample['truncated_seq']}"
+    full_text = f"Complete this CAD sequence: {sample['input_text']}\n{sample['full_seq']}"
+    prompt_texts.append(prompt)
+    formatted_texts.append(full_text)
+    kept_ops_list.append(sample['kept_operations'])
+
+# Tokenize
+encodings = self.tokenizer(
+    formatted_texts,
+    max_length=self.max_seq_length,
+    padding="max_length",
+    truncation=True,
+    return_tensors="pt",
+)
+
+# Tokenize prompts to find their lengths (for masking)
+prompt_encodings = self.tokenizer(
+    prompt_texts,
+    max_length=self.max_seq_length,
+    padding=False,
+    truncation=True,
+)
+
+# Mask prompt_texts from formatted_texts
+for i, prompt_ids in enumerate(prompt_encodings["input_ids"]):
+    prompt_len = len(prompt_ids)
+    labels[i, :prompt_len] = -100
 ```
-
-This approach:
-- ✅ Preserves structural JSON boundaries (doesn't cut mid-operation)
-- ✅ Provides correct autoregressive training signal
-- ✅ Reduces memory by only including full sequence once (not truncated + full)
 
 ### Training Command
 

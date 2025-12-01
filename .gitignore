@@ -8,3 +8,4 @@ outputs_curriculum/
 .venv/
 .DS_Store
 CAD-MLLM-checkpoints/
+outputs_test_4096/
