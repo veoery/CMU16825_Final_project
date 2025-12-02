@@ -181,6 +181,7 @@ def train_epoch(
                 wandb.log(
                     {
                         "train/loss": loss.item() * config.gradient_accumulation_steps,
+                        "train/loss_avg": loss_meter.avg,  # ✅ Add running average
                         "train/learning_rate": scheduler.get_last_lr()[0],
                         "train/grad_norm": grad_norm.item(),
                         "train/epoch": epoch,
