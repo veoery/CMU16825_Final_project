@@ -161,3 +161,21 @@ export PYTHONPATH=$PYTHONPATH:$(pwd)/Text2CAD
 - [DeepCAD Evaluation](https://github.com/DavidXu-JJ/DeepCAD/tree/tags/CAD-MLLM/evaluation)
 - [Text2CAD Evaluation](https://github.com/SadilKhan/Text2CAD/tree/main/Evaluation)
 - [CAD-MLLM Paper](https://arxiv.org/abs/2411.04954)
+
+
+
+checkpoint using: https://drive.google.com/drive/folders/14p83klEi3z331pWLv-VFmuVqYpsvDCty (stage 2, pc + txt)
+output_ckpt_2/output_eval_B1_2048: max_new_tokens = 2048
+output_ckpt_2/output_eval_B2_10k: max_new_tokens = 10240
+
+checkpoint using: https://huggingface.co/omnicad-lab-L3d/stage-3-4096-20251129_213538 (stage 3, pc + img + txt), all max_new_tokens = 4096
+output_ckpt_4/output_ckpt_4_B1: 
+output_ckpt_4/output_ckpt_4_B2_test/output_ckpt_4_B2_no_pc: input 1img + txt only, no point cloud, 
+output_ckpt_4/output_ckpt_4_B2_test/output_ckpt_4_T5_txt_only: input txt only
+output_ckpt_4/output_ckpt_4_B3_txt_img: input txt and 1img only
+output_ckpt_4/output_ckpt_4_B4_pc_txt_3img: input txt + first 3 img
+output_ckpt_4/output_ckpt_4_B4_txt_img_fix: input txt + all 8 img
+output_ckpt_4/output_ckpt_4_B4_pc_txt_3img_fix: input txt + first 3 img (with specific set of file id, special shapes, success case at ckpt 2-not generating)
+output_ckpt_4/output_ckpt_4_B4_txt_img_fix: input txt + all 8 img (with specific set of file id, special shapes, success case at ckpt 2-generated but low accuracy)
+
+notes, B*/T* as Batch/Test

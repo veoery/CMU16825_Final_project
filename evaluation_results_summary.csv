@@ -1,9 +1,0 @@
-output_version,raw_files,step_files,png_visualizations,topology_success,danglel,sir,fluxee,json_validation,seq_files_evaluated,entity_count_acc,type_seq_acc,type_dist_sim,cad_seq_available
-output_ckpt_2/output_eval_B2_10k,15,8,8,8/8,0.0,1.0,1.013368057780383e-17,N/A,14,0.2985,0.5469,0.4803,No
-output_ckpt_2/output_eval_B1_2048,50,45,45,45/45,0.0,1.0,4.1134530644213046e-17,N/A,48,0.4823,0.9146,0.6757,No
-output_ckpt_4/output_ckpt_4_B1,1,1,1,1/1,0.0,1.0,1.449460832598763e-16,N/A,2,0.3333,0.3333,0.3333,No
-output_ckpt_4/output_ckpt_4_B2_test/output_ckpt_4_B2_no_pc,7,1,1,1/1,0.0,1.0,1.0587911693962583e-16,N/A,2,0.5000,0.5000,0.5417,No
-output_ckpt_4/output_ckpt_4_B4_pc_txt_3img,15,2,2,2/2,0.0,1.0,2.8279679390040745e-17,N/A,10,-0.2583,0.5667,0.3894,No
-output_ckpt_4/output_ckpt_4_B4_txt_img_fix,5,2,2,2/2,0.0,1.0,4.535463513640356e-17,N/A,3,-0.1944,0.5556,0.2841,No
-output_ckpt_4/output_ckpt_4_B4_pc_txt_3img_fix,6,0,0,N/A,N/A,N/A,N/A,N/A,0,0.0000,0.0000,0.0000,No
-output_ckpt_4/output_ckpt_4_B4_txt_img_fix,5,2,2,2/2,0.0,1.0,4.535463513640356e-17,N/A,3,-0.1944,0.5556,0.2841,No

@@ -308,7 +308,7 @@ def run_single_inference(
     try:
         # Process each image individually and collect embeddings
         total_image_tokens = 0
-        image_paths = image_paths[:3]
+        image_paths = image_paths[:1]
         print(f"⚠️ ⚠️ ⚠️ TAKE ONLY {len(image_paths)}")
         for img_idx, img_path in enumerate(image_paths):
             print(f"   [{img_idx + 1}/{len(image_paths)}] Reading: {os.path.basename(img_path)}")
@@ -430,9 +430,9 @@ def run_single_inference(
     sample_id = os.path.basename(image_paths[0]).split('_')[0:2]
     sample_id_str = "_".join(sample_id)
 
-    OUTPUT_VER = "B4_txt_3img_fix_case"
-    raw_output_dir = f"/mnt/data/output_ckpt_4_{OUTPUT_VER}/raw"
-    json_output_dir = f"/mnt/data/output_ckpt_4_{OUTPUT_VER}/json"
+    OUTPUT_VER = "B4_1img_pc_fix_case_2"
+    raw_output_dir = f"/mnt/data/output_ckpt_5_{OUTPUT_VER}/raw"
+    json_output_dir = f"/mnt/data/output_ckpt_5_{OUTPUT_VER}/json"
 
     os.makedirs(raw_output_dir, exist_ok=True)
     os.makedirs(json_output_dir, exist_ok=True)
@@ -535,7 +535,9 @@ def prepare_samples(folder: str = "0090", num_samples: int = 2, max_new_tokens: 
     "00901551_00005": B2_COMPARE, 2 cylinder-fail in B2 too, L shape things.
     """
 
-    SPECIAL_SET = ["00907893_00007", "00902663_00003", "00901845_00003", "00900387_00001", "00901551_00005"]
+    # SPECIAL_SET = ["00907893_00007", "00902663_00003", "00901845_00003", "00900387_00001", "00901551_00005"]
+    SPECIAL_SET = ["00902693_00001", "00900730_00001", "00900903_00001","00901173_00001", "00901552_00001","00902084_00001","00902323_00001","00902594_00001","00903270_00001","00903601_00001","00903796_00001","00904065_00001","00904100_00001","00900654_00001","00900867_00001","00901147_00001","00903644_00001","00903823_00001"]
+
     valid_sample_ids = []
     valid_sample_ids.extend(SPECIAL_SET)
     print("ADDED SPECIAL TEST SET")
@@ -556,7 +558,8 @@ def prepare_samples(folder: str = "0090", num_samples: int = 2, max_new_tokens: 
             token_count = len(tokenizer.encode(gt_content))
 
             # Check if within token range
-            if min_tokens < token_count < max_new_tokens:
+            CAP_TOKEN = 2048
+            if min_tokens < token_count < CAP_TOKEN:
                 valid_sample_ids.append(sample_id)
                 status = "✓ VALID"
                 # print(f"{sample_id:<25} | {token_count:<12} | {status:<15}")
@@ -649,14 +652,14 @@ def zip_output_versions(output_versions: list):
     zip_info = []
 
     for output_version in output_versions:
-        output_dir = os.path.join("/mnt/data", f"output_ckpt_4_{output_version}")
+        output_dir = os.path.join("/mnt/data", f"output_ckpt_5_{output_version}")
 
         if not os.path.exists(output_dir):
             print(f"⚠️  Directory not found: {output_dir}")
             continue
 
         # Create zip file
-        zip_name = f"output_ckpt_4_{output_version}"
+        zip_name = f"output_ckpt_5_{output_version}"
         zip_path = os.path.join(VOL_ROOT, zip_name)
 
         try:
@@ -691,7 +694,8 @@ def zip_output_versions(output_versions: list):
 def main(
     folder: str = "0090",
     num_samples: int = 2,
-    repo: str = "omnicad-lab-L3d/stage3-epoch0-step100-20251128_220651",
+    # repo: str = "omnicad-lab-L3d/stage3-epoch0-step100-20251128_220651",
+    repo: str = "omnicad-lab-L3d/stage-3-4096-20251129_213538",
     max_new_tokens: int = 10240,
     min_tokens: int = 2048,
     already_generated: str = "",
@@ -776,10 +780,10 @@ def main(
         print()
 
     print("-" * 70)
-    OUTPUT_VER = "B4_txt_3img_fix_case"
+    OUTPUT_VER = "B1_1img_pc_fix_case_set2"
     print(f"\n💾 FILES SAVED TO MODAL VOLUME:")
-    print(f"   Raw outputs:  /mnt/data/output_ckpt_4_{OUTPUT_VER}/raw/")
-    print(f"   JSON outputs: /mnt/data/output_ckpt_4_{OUTPUT_VER}/json/")
+    print(f"   Raw outputs:  /mnt/data/output_ckpt_5_{OUTPUT_VER}/raw/")
+    print(f"   JSON outputs: /mnt/data/output_ckpt_5_{OUTPUT_VER}/json/")
     print(f"\n📥 Download with: ./retrieve_results.sh")
     print("="*70)
 
