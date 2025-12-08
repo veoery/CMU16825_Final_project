@@ -325,6 +325,16 @@ with tqdm(total=len(out_paths), desc=f"Exporting to {suffix.upper()}", unit="fil
                     if 'properties' not in data:
                         data['properties'] = auto_generate_properties(entities)
 
+                    # 3. Fix misplaced transform in sketch entities
+                    for ent_id, entity in entities.items():
+                        if entity.get('type') == 'Sketch' and 'profiles' in entity:
+                            # Check if transform is inside profiles dict instead of at entity level
+                            if 'transform' not in entity and isinstance(entity['profiles'], dict):
+                                if 'transform' in entity['profiles']:
+                                    # Move transform to correct location
+                                    entity['transform'] = entity['profiles']['transform']
+                                    del entity['profiles']['transform']
+
                 cad_seq = CADSequence.from_dict(data)
                 cad_seq.normalize()
                 out_shape = create_CAD(cad_seq)
