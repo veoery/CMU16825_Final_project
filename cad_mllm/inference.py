@@ -232,7 +232,7 @@ class CADAutocomplete:
         # generated_ops = self._parse_operations(generated_text)
         print("[DEBUG] Skipped parsing operations")
         print(f"[DEBUG] Generated text length: {len(generated_text)}")
-        print(f"[DEBUG] Generated text (first 500 chars): {generated_text[:500]}")
+        print(f"[DEBUG] Generated text (full): {generated_text}")
         generated_ops = generated_text
 
         # 8. Merge with partial sequence to create complete CAD sequence
