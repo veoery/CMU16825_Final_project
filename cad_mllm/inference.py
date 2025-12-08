@@ -231,27 +231,36 @@ class CADAutocomplete:
         # 7. Parse generated operations
         # generated_ops = self._parse_operations(generated_text)
         print("[DEBUG] Skipped parsing operations")
+        print(f"[DEBUG] Generated text length: {len(generated_text)}")
+        print(f"[DEBUG] Generated text (first 500 chars): {generated_text[:500]}")
         generated_ops = generated_text
 
         # 8. Merge with partial sequence to create complete CAD sequence
         # Handle string or list concatenation
+        parse_error = None
         if isinstance(generated_ops, str):
             # Parse string as JSON and merge
             try:
                 gen_json = json.loads(generated_ops)
                 full_sequence = gen_json.get("sequence", partial_ops)
-            except:
+                print(f"[DEBUG] Successfully parsed JSON, got {len(full_sequence)} operations")
+            except Exception as e:
+                parse_error = str(e)
+                print(f"[DEBUG] JSON parse failed: {e}")
+                print(f"[DEBUG] Falling back to partial_ops only")
                 full_sequence = partial_ops
         else:
             full_sequence = partial_ops + generated_ops
 
         return {
             "sequence": full_sequence,  # Complete, executable CAD sequence!
+            "raw_generated_text": generated_text,  # Always include raw output for debugging
             "metadata": {
                 "caption": caption,
                 "partial_operations": len(partial_ops),
                 "generated_operations": len(generated_ops) if isinstance(generated_ops, list) else 0,
                 "total_operations": len(full_sequence) if isinstance(full_sequence, list) else 0,
+                "parse_error": parse_error,
             }
         }
 
