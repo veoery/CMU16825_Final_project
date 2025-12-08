@@ -224,9 +224,9 @@ class CADAutocomplete:
         generated_tokens = generated_ids[0]
         generated_text = self.tokenizer.decode(generated_tokens, skip_special_tokens=True)
         
-        # Remove the prompt from the generated text
-        if prompt in generated_text:
-            generated_text = generated_text.replace(prompt, "").strip()
+        # # Remove the prompt from the generated text
+        # if prompt in generated_text:
+        #     generated_text = generated_text.replace(prompt, "").strip()
 
         # 7. Parse generated operations
         # generated_ops = self._parse_operations(generated_text)
