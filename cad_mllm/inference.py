@@ -6,6 +6,7 @@ Designed for easy integration with evaluation pipelines.
 """
 
 import json
+from inference_minimal import generate
 import torch
 import re
 from pathlib import Path
@@ -228,7 +229,9 @@ class CADAutocomplete:
             generated_text = generated_text.replace(prompt, "").strip()
 
         # 7. Parse generated operations
-        generated_ops = self._parse_operations(generated_text)
+        # generated_ops = self._parse_operations(generated_text)
+        print("[DEBUG] Skipped parsing operations")
+        generated_ops = generated_text
 
         # 8. Merge with partial sequence to create complete CAD sequence
         full_sequence = partial_ops + generated_ops
