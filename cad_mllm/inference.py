@@ -239,20 +239,41 @@ class CADAutocomplete:
         # Handle string or list concatenation
         parse_error = None
         if isinstance(generated_ops, str):
-            # Parse string as JSON and merge
+            # Parse string as JSON and merge with truncated input
             try:
+                # Try direct parse first
                 gen_json = json.loads(generated_ops)
+                print(f"[DEBUG] Generated text is valid JSON")
+                # Merge entities
+                merged_entities = {**partial_data.get("entities", {}), **gen_json.get("entities", {})}
                 full_sequence = gen_json.get("sequence", partial_ops)
-                print(f"[DEBUG] Successfully parsed JSON, got {len(full_sequence)} operations")
-            except Exception as e:
-                parse_error = str(e)
-                print(f"[DEBUG] JSON parse failed: {e}")
-                print(f"[DEBUG] Falling back to partial_ops only")
-                full_sequence = partial_ops
+                properties = gen_json.get("properties", partial_data.get("properties", {}))
+                print(f"[DEBUG] Successfully parsed JSON: {len(merged_entities)} entities, {len(full_sequence)} operations")
+            except json.JSONDecodeError as e:
+                # Try repairing fragment (leading comma, missing braces)
+                print(f"[DEBUG] Direct parse failed: {e}")
+                print(f"[DEBUG] Attempting to repair fragment...")
+                repaired_json = self._repair_json_fragment(generated_ops, partial_data)
+                if repaired_json:
+                    merged_entities = repaired_json["entities"]
+                    full_sequence = repaired_json["sequence"]
+                    properties = repaired_json["properties"]
+                    print(f"[DEBUG] Successfully repaired: {len(merged_entities)} entities, {len(full_sequence)} operations")
+                else:
+                    parse_error = str(e)
+                    print(f"[DEBUG] Repair failed, falling back to partial_ops only")
+                    merged_entities = partial_data.get("entities", {})
+                    full_sequence = partial_ops
+                    properties = partial_data.get("properties", {})
         else:
+            # List concatenation
+            merged_entities = partial_data.get("entities", {})
             full_sequence = partial_ops + generated_ops
+            properties = partial_data.get("properties", {})
 
         return {
+            "entities": merged_entities,  # Complete merged entities
+            "properties": properties,  # Complete properties
             "sequence": full_sequence,  # Complete, executable CAD sequence!
             "raw_generated_text": generated_text,  # Always include raw output for debugging
             "metadata": {
@@ -282,6 +303,67 @@ class CADAutocomplete:
         pc_tensor = torch.from_numpy(pc_normalized).unsqueeze(0).to(self.device).to(self.dtype)
 
         return pc_tensor
+
+    def _repair_json_fragment(self, fragment_text: str, partial_data: Dict) -> Optional[Dict]:
+        """
+        Attempt to repair malformed JSON fragments (e.g., leading comma, unclosed braces).
+
+        Args:
+            fragment_text: Potentially malformed JSON text from model
+            partial_data: Original truncated input data
+
+        Returns:
+            Merged JSON dict or None if repair failed
+        """
+        # Remove leading comma if present
+        cleaned = fragment_text.strip()
+        if cleaned.startswith(','):
+            cleaned = cleaned[1:]
+
+        # Count braces to determine missing closures
+        open_braces = cleaned.count('{')
+        close_braces = cleaned.count('}')
+        open_brackets = cleaned.count('[')
+        close_brackets = cleaned.count(']')
+
+        missing_braces = open_braces - close_braces
+        missing_brackets = open_brackets - close_brackets
+
+        print(f"[DEBUG] Brace count: {{{open_braces}/{close_braces}, [{open_brackets}/{close_brackets}]")
+        print(f"[DEBUG] Missing: {missing_braces} braces, {missing_brackets} brackets")
+
+        # Try different repair strategies
+        strategies = [
+            # Strategy 1: Add missing closures
+            cleaned + ']' * max(0, missing_brackets) + '}' * max(0, missing_braces),
+            # Strategy 2: Wrap as entities object
+            '{"entities":{' + cleaned + '}' * (max(0, missing_braces) + 1) + '}',
+            # Strategy 3: Add one extra brace (common case)
+            cleaned + '}' * (max(0, missing_braces) + 1),
+            # Strategy 4: Minimal wrap
+            '{' + cleaned + '}',
+        ]
+
+        for i, candidate in enumerate(strategies):
+            try:
+                parsed = json.loads(candidate)
+                print(f"[DEBUG] Repair strategy {i+1} succeeded")
+
+                # Merge with partial data
+                merged_entities = {**partial_data.get("entities", {}), **parsed.get("entities", {})}
+                sequence = parsed.get("sequence", partial_data.get("sequence", []))
+                properties = parsed.get("properties", partial_data.get("properties", {}))
+
+                return {
+                    "entities": merged_entities,
+                    "sequence": sequence,
+                    "properties": properties
+                }
+            except json.JSONDecodeError:
+                continue
+
+        print(f"[DEBUG] All {len(strategies)} repair strategies failed")
+        return None
 
     def _parse_operations(self, generated_text: str) -> List[Dict]:
         """Parse generated text into list of CAD operations."""
