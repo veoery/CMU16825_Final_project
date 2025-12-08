@@ -234,15 +234,24 @@ class CADAutocomplete:
         generated_ops = generated_text
 
         # 8. Merge with partial sequence to create complete CAD sequence
-        full_sequence = partial_ops + generated_ops
+        # Handle string or list concatenation
+        if isinstance(generated_ops, str):
+            # Parse string as JSON and merge
+            try:
+                gen_json = json.loads(generated_ops)
+                full_sequence = gen_json.get("sequence", partial_ops)
+            except:
+                full_sequence = partial_ops
+        else:
+            full_sequence = partial_ops + generated_ops
 
         return {
             "sequence": full_sequence,  # Complete, executable CAD sequence!
             "metadata": {
                 "caption": caption,
                 "partial_operations": len(partial_ops),
-                "generated_operations": len(generated_ops),
-                "total_operations": len(full_sequence),
+                "generated_operations": len(generated_ops) if isinstance(generated_ops, list) else 0,
+                "total_operations": len(full_sequence) if isinstance(full_sequence, list) else 0,
             }
         }
 
