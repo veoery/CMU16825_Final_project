@@ -6,7 +6,7 @@ Designed for easy integration with evaluation pipelines.
 """
 
 import json
-from inference_minimal import generate
+# from inference_minimal import generate
 import torch
 import re
 from pathlib import Path
