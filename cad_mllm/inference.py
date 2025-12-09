@@ -244,6 +244,12 @@ class CADAutocomplete:
                 # Try direct parse first
                 gen_json = json.loads(generated_ops)
                 print(f"[DEBUG] Generated text is valid JSON")
+
+                # Remove truncation_metadata if present (shouldn't be generated)
+                if "truncation_metadata" in gen_json:
+                    print(f"[DEBUG] Removing unwanted truncation_metadata from generated output")
+                    del gen_json["truncation_metadata"]
+
                 # Merge entities
                 merged_entities = {**partial_data.get("entities", {}), **gen_json.get("entities", {})}
                 full_sequence = gen_json.get("sequence", partial_ops)
@@ -348,6 +354,11 @@ class CADAutocomplete:
             try:
                 parsed = json.loads(candidate)
                 print(f"[DEBUG] Repair strategy {i+1} succeeded")
+
+                # Remove truncation_metadata if present (shouldn't be generated)
+                if "truncation_metadata" in parsed:
+                    print(f"[DEBUG] Removing unwanted truncation_metadata from generated output")
+                    del parsed["truncation_metadata"]
 
                 # Merge with partial data
                 merged_entities = {**partial_data.get("entities", {}), **parsed.get("entities", {})}
