@@ -339,7 +339,22 @@ class CADAutocomplete:
         print(f"[DEBUG] Missing: {missing_braces} braces, {missing_brackets} brackets")
 
         # Try different repair strategies
-        strategies = [
+        strategies = []
+
+        # If we have EXTRA closing braces (negative missing_braces), try removing them
+        if missing_braces < 0:
+            # Remove extra closing braces from the end
+            temp = cleaned
+            for _ in range(abs(missing_braces)):
+                # Find and remove last '}'
+                last_brace = temp.rfind('}')
+                if last_brace != -1:
+                    temp = temp[:last_brace] + temp[last_brace+1:]
+            strategies.append(temp)
+            strategies.append('{"entities":{' + temp + '}}')
+
+        # Original strategies (for missing braces case)
+        strategies.extend([
             # Strategy 1: Add missing closures
             cleaned + ']' * max(0, missing_brackets) + '}' * max(0, missing_braces),
             # Strategy 2: Wrap as entities object
@@ -348,7 +363,7 @@ class CADAutocomplete:
             cleaned + '}' * (max(0, missing_braces) + 1),
             # Strategy 4: Minimal wrap
             '{' + cleaned + '}',
-        ]
+        ])
 
         for i, candidate in enumerate(strategies):
             try:
