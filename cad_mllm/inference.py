@@ -321,6 +321,80 @@ class CADAutocomplete:
         Returns:
             Merged JSON dict or None if repair failed
         """
+        # Strategy 0: Handle "Extra data" error - parse valid prefix + merge garbage suffix
+        try:
+            json.loads(fragment_text)
+        except json.JSONDecodeError as e:
+            if "Extra data" in str(e) and hasattr(e, 'pos'):
+                print(f"[DEBUG] Detected 'Extra data' at position {e.pos}")
+                # Parse the valid prefix
+                valid_part = fragment_text[:e.pos]
+                garbage_part = fragment_text[e.pos:]
+                print(f"[DEBUG] Valid part: {len(valid_part)} chars, Garbage: {len(garbage_part)} chars")
+
+                try:
+                    valid_json = json.loads(valid_part)
+                    print(f"[DEBUG] Successfully parsed valid prefix")
+
+                    # Try to parse the garbage as a continuation (leading comma)
+                    if garbage_part.strip().startswith(','):
+                        # Remove leading comma and try to wrap in braces
+                        garbage_cleaned = garbage_part.strip()[1:]
+                        try:
+                            garbage_json = json.loads('{' + garbage_cleaned + '}')
+                            print(f"[DEBUG] Successfully parsed garbage as continuation")
+                        except json.JSONDecodeError as e2:
+                            # Might have Extra data from truncation_metadata - try parsing prefix
+                            if "Extra data" in str(e2) and hasattr(e2, 'pos'):
+                                print(f"[DEBUG] Garbage also has Extra data at position {e2.pos}")
+                                garbage_candidate = '{' + garbage_cleaned + '}'
+                                garbage_json = json.loads(garbage_candidate[:e2.pos])
+                                print(f"[DEBUG] Parsed garbage prefix successfully")
+                            else:
+                                print(f"[DEBUG] Could not parse garbage part: {e2}")
+                                raise
+
+                        # Remove truncation_metadata if present
+                        if "truncation_metadata" in garbage_json:
+                            print(f"[DEBUG] Removing truncation_metadata from garbage")
+                            del garbage_json["truncation_metadata"]
+
+                        # Merge valid_json + garbage_json
+                        # The valid part might have partial entities, garbage has rest
+                        merged_entities = {**valid_json.get("entities", {})}
+
+                        # Check if valid_json has entities at root level (malformed)
+                        for key, value in valid_json.items():
+                            if key != "entities" and isinstance(value, dict) and "type" in value:
+                                # This is an entity at root level - move it to entities
+                                merged_entities[key] = value
+                                print(f"[DEBUG] Found misplaced entity '{key}' at root level")
+
+                        # Add entities from garbage
+                        merged_entities.update(garbage_json.get("entities", {}))
+
+                        # Also check garbage for root-level entities
+                        for key, value in garbage_json.items():
+                            if key not in ["entities", "properties", "sequence", "truncation_metadata"]:
+                                if isinstance(value, dict) and "type" in value:
+                                    merged_entities[key] = value
+                                    print(f"[DEBUG] Found misplaced entity '{key}' in garbage")
+
+                        sequence = garbage_json.get("sequence", valid_json.get("sequence", []))
+                        properties = garbage_json.get("properties", valid_json.get("properties", {}))
+
+                        # Merge with partial data
+                        final_entities = {**partial_data.get("entities", {}), **merged_entities}
+
+                        print(f"[DEBUG] Extra data repair succeeded: {len(final_entities)} entities, {len(sequence)} ops")
+                        return {
+                            "entities": final_entities,
+                            "sequence": sequence,
+                            "properties": properties
+                        }
+                except json.JSONDecodeError:
+                    print(f"[DEBUG] Could not parse valid prefix")
+
         # Remove leading comma if present
         cleaned = fragment_text.strip()
         if cleaned.startswith(','):
